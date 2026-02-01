@@ -1,8 +1,6 @@
 import 'package:yekermo/domain/cart.dart';
 import 'package:yekermo/domain/models.dart';
 
-enum FulfillmentMode { delivery, pickup }
-
 class FeeBreakdown {
   const FeeBreakdown({
     required this.subtotal,

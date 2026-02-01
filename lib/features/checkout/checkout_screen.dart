@@ -46,6 +46,14 @@ class CheckoutScreen extends ConsumerWidget {
           onNotesChanged: (value) => ref
               .read(checkoutControllerProvider.notifier)
               .setNotes(value),
+          onPlaceOrder: () async {
+            final order = await ref
+                .read(checkoutControllerProvider.notifier)
+                .placeOrder();
+            if (order == null) return;
+            if (!context.mounted) return;
+            context.go(Routes.orderConfirmation(order.id));
+          },
         ),
       ),
     );
@@ -104,15 +112,22 @@ class _CheckoutBody extends StatelessWidget {
     required this.onFulfillmentChange,
     required this.onAddAddress,
     required this.onNotesChanged,
+    required this.onPlaceOrder,
   });
 
   final OrderDraft draft;
   final ValueChanged<FulfillmentMode> onFulfillmentChange;
   final VoidCallback onAddAddress;
   final ValueChanged<String> onNotesChanged;
+  final Future<void> Function() onPlaceOrder;
 
   @override
   Widget build(BuildContext context) {
+    final bool canPlace = draft.items.isNotEmpty &&
+        (draft.fulfillmentMode == FulfillmentMode.pickup ||
+            draft.address != null);
+    final String? placeHint =
+        canPlace ? null : 'Add a delivery address to place this order.';
     return ListView(
       padding: AppSpacing.pagePadding,
       children: [
@@ -188,16 +203,18 @@ class _CheckoutBody extends StatelessWidget {
           onSubmitted: onNotesChanged,
         ),
         AppSpacing.vMd,
-        Text(
-          'Ordering will be available soon.',
-          style: context.text.bodySmall?.copyWith(
-            color: context.colors.onSurface.withValues(alpha: 0.7),
+        if (placeHint != null) ...[
+          Text(
+            placeHint,
+            style: context.text.bodySmall?.copyWith(
+              color: context.colors.onSurface.withValues(alpha: 0.7),
+            ),
           ),
-        ),
-        AppSpacing.vSm,
-        const AppButton(
-          label: 'Ready to place order',
-          onPressed: null,
+          AppSpacing.vSm,
+        ],
+        AppButton(
+          label: 'Place order',
+          onPressed: canPlace ? onPlaceOrder : null,
         ),
       ],
     );

@@ -15,6 +15,8 @@ class Routes {
   static const String orderTracking = '/order-tracking/:id';
   static const String orderDetailsPath = '/orders/:id';
   static const String orderDetailsSegment = ':id';
+  static const String orderConfirmationPath = '/orders/confirmation/:id';
+  static const String orderConfirmationSegment = 'confirmation/:id';
   static const String addressManager = '/address-manager';
   static const String notFound = '/not-found';
 
@@ -34,6 +36,7 @@ class Routes {
   static String mealDetails(String id) => '/meal/$id';
   static String orderTrackingDetails(String id) => '/order-tracking/$id';
   static String orderDetails(String id) => '/orders/$id';
+  static String orderConfirmation(String id) => '/orders/confirmation/$id';
 
   static String discoveryWithFilters({
     String? intent,

@@ -114,7 +114,7 @@ class YourUsualSection extends StatelessWidget {
   }
 }
 
-class ReorderCard extends StatelessWidget {
+class ReorderCard extends ConsumerWidget {
   const ReorderCard({
     super.key,
     required this.order,
@@ -125,7 +125,7 @@ class ReorderCard extends StatelessWidget {
   final Restaurant restaurant;
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
     final ColorScheme scheme = context.colors;
 
     return AppCard(
@@ -139,19 +139,19 @@ class ReorderCard extends StatelessWidget {
               children: [
                 Text(
                   restaurant.name,
-                    style: context.text.titleMedium,
+                  style: context.text.titleMedium,
                 ),
                 AppSpacing.vXs,
                 Text(
                   restaurant.tagline,
-                    style: context.text.bodyMedium?.copyWith(
-                        color: scheme.onSurface.withValues(alpha: 0.7),
-                      ),
+                  style: context.text.bodyMedium?.copyWith(
+                    color: scheme.onSurface.withValues(alpha: 0.7),
+                  ),
                 ),
                 AppSpacing.vSm,
                 Text(
                   'Total • \$${order.total.toStringAsFixed(2)}',
-                    style: context.text.labelLarge,
+                  style: context.text.labelLarge,
                 ),
               ],
             ),
@@ -159,7 +159,22 @@ class ReorderCard extends StatelessWidget {
           AppSpacing.hSm,
           AppButton(
             label: 'Reorder',
-            onPressed: () => context.push(Routes.cart),
+            onPressed: () async {
+              final result =
+                  await ref.read(ordersControllerProvider.notifier).reorder(order);
+              ref.read(cartControllerProvider.notifier).refresh();
+              if (result.hasItems && context.mounted) {
+                context.go(Routes.checkout);
+              }
+              if (!context.mounted) return;
+              if (result.hasMissing) {
+                ScaffoldMessenger.of(context).showSnackBar(
+                  const SnackBar(
+                    content: Text('Some items have changed.'),
+                  ),
+                );
+              }
+            },
           ),
         ],
       ),

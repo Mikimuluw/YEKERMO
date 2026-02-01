@@ -6,6 +6,7 @@ import 'package:yekermo/features/address/address_controller.dart';
 import 'package:yekermo/features/cart/cart_controller.dart';
 import 'package:yekermo/features/checkout/checkout_controller.dart';
 import 'package:yekermo/features/home/home_controller.dart';
+import 'package:yekermo/features/orders/orders_controller.dart';
 import 'package:yekermo/features/restaurant/restaurant_controller.dart';
 import 'package:yekermo/features/search/search_controller.dart';
 import 'package:yekermo/shared/state/screen_state.dart';
@@ -40,6 +41,11 @@ final checkoutControllerProvider =
 final addressControllerProvider =
     NotifierProvider<AddressController, ScreenState<Address?>>(
   AddressController.new,
+);
+
+final ordersControllerProvider =
+    NotifierProvider<OrdersController, ScreenState<OrdersVm>>(
+  OrdersController.new,
 );
 
 final cartCountProvider = Provider<int>((ref) {

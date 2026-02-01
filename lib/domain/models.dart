@@ -17,6 +17,25 @@ extension PrepTimeBandLabel on PrepTimeBand {
 
 enum ServiceMode { delivery, pickup }
 
+enum FulfillmentMode { delivery, pickup }
+
+enum OrderStatus { received, preparing, ready, completed }
+
+extension OrderStatusLabel on OrderStatus {
+  String get label {
+    switch (this) {
+      case OrderStatus.received:
+        return 'Received';
+      case OrderStatus.preparing:
+        return 'Preparing';
+      case OrderStatus.ready:
+        return 'Ready';
+      case OrderStatus.completed:
+        return 'Completed';
+    }
+  }
+}
+
 enum RestaurantTag {
   quickFilling,
   familySize,
@@ -140,6 +159,10 @@ class Order {
     required this.restaurantId,
     required this.items,
     required this.total,
+    required this.status,
+    required this.fulfillmentMode,
+    this.address,
+    this.placedAt,
     this.scheduledTime,
   });
 
@@ -147,5 +170,9 @@ class Order {
   final String restaurantId;
   final List<OrderItem> items;
   final double total;
+  final OrderStatus status;
+  final FulfillmentMode fulfillmentMode;
+  final Address? address;
+  final DateTime? placedAt;
   final DateTime? scheduledTime;
 }

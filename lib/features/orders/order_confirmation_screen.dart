@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
+import 'package:yekermo/app/routes.dart';
 import 'package:yekermo/features/orders/order_detail_controller.dart';
 import 'package:yekermo/features/orders/order_detail_view.dart';
 import 'package:yekermo/shared/extensions/context_extensions.dart';
@@ -8,26 +10,32 @@ import 'package:yekermo/shared/tokens/app_spacing.dart';
 import 'package:yekermo/shared/widgets/app_scaffold.dart';
 import 'package:yekermo/shared/widgets/async_state_view.dart';
 
-class OrderDetailScreen extends ConsumerWidget {
-  const OrderDetailScreen({super.key});
+class OrderConfirmationScreen extends ConsumerWidget {
+  const OrderConfirmationScreen({super.key});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final ScreenState<OrderDetailVm> state =
         ref.watch(orderDetailControllerProvider);
     return AppScaffold(
-      title: 'Order details',
+      title: 'Order confirmation',
       body: AsyncStateView<OrderDetailVm>(
         state: state,
-        emptyBuilder: (context) => const _OrderEmptyState(),
-        dataBuilder: (context, data) => OrderDetailContent(viewModel: data),
+        emptyBuilder: (context) => const _OrderConfirmationEmpty(),
+        dataBuilder: (context, data) => OrderDetailContent(
+          viewModel: data,
+          showConfirmationHeader: true,
+          showActions: true,
+          onBackHome: () => context.go(Routes.home),
+          onViewOrder: () => context.go(Routes.orderDetails(data.order.id)),
+        ),
       ),
     );
   }
 }
 
-class _OrderEmptyState extends StatelessWidget {
-  const _OrderEmptyState();
+class _OrderConfirmationEmpty extends StatelessWidget {
+  const _OrderConfirmationEmpty();
 
   @override
   Widget build(BuildContext context) {

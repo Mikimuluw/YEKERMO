@@ -7,9 +7,11 @@ import 'package:yekermo/data/repositories/cart_repository.dart';
 import 'package:yekermo/data/repositories/dummy_address_repository.dart';
 import 'package:yekermo/data/repositories/dummy_cart_repository.dart';
 import 'package:yekermo/data/repositories/dummy_meals_repository.dart';
+import 'package:yekermo/data/repositories/dummy_orders_repository.dart';
 import 'package:yekermo/data/repositories/dummy_restaurant_repository.dart';
 import 'package:yekermo/data/repositories/dummy_search_repository.dart';
 import 'package:yekermo/data/repositories/meals_repository.dart';
+import 'package:yekermo/data/repositories/orders_repository.dart';
 import 'package:yekermo/data/repositories/restaurant_repository.dart';
 import 'package:yekermo/data/repositories/search_repository.dart';
 import 'package:yekermo/observability/analytics.dart';
@@ -46,6 +48,10 @@ final cartRepositoryProvider = Provider<CartRepository>(
 
 final addressRepositoryProvider = Provider<AddressRepository>(
   (ref) => DummyAddressRepository(),
+);
+
+final ordersRepositoryProvider = Provider<OrdersRepository>(
+  (ref) => DummyOrdersRepository(),
 );
 
 final analyticsProvider = Provider<Analytics>(

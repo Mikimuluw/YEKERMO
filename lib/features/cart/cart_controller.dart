@@ -28,6 +28,15 @@ class CartController extends Notifier<ScreenState<CartVm>> {
     state = _loadState();
   }
 
+  void clear() {
+    ref.read(cartRepositoryProvider).clear();
+    state = _loadState();
+  }
+
+  void refresh() {
+    state = _loadState();
+  }
+
   ScreenState<CartVm> _loadState() {
     final items = ref.read(cartRepositoryProvider).getItems();
     if (items.isEmpty) {
