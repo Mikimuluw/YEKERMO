@@ -22,6 +22,8 @@ final GlobalKey<NavigatorState> _homeNavigatorKey =
     GlobalKey<NavigatorState>();
 final GlobalKey<NavigatorState> _searchNavigatorKey =
     GlobalKey<NavigatorState>();
+final GlobalKey<NavigatorState> _cartNavigatorKey =
+    GlobalKey<NavigatorState>();
 final GlobalKey<NavigatorState> _ordersNavigatorKey =
     GlobalKey<NavigatorState>();
 final GlobalKey<NavigatorState> _favoritesNavigatorKey =
@@ -56,6 +58,12 @@ final GoRouter appRouter = GoRouter(
           ],
         ),
         StatefulShellBranch(
+          navigatorKey: _cartNavigatorKey,
+          routes: [
+            cartRoute(),
+          ],
+        ),
+        StatefulShellBranch(
           navigatorKey: _ordersNavigatorKey,
           routes: [
             ordersRoute(),
@@ -76,7 +84,6 @@ final GoRouter appRouter = GoRouter(
       ],
     ),
     mealRoute(parentNavigatorKey: _rootNavigatorKey),
-    cartRoute(parentNavigatorKey: _rootNavigatorKey),
     checkoutRoute(parentNavigatorKey: _rootNavigatorKey),
     orderTrackingRoute(parentNavigatorKey: _rootNavigatorKey),
     addressManagerRoute(parentNavigatorKey: _rootNavigatorKey),

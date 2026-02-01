@@ -19,6 +19,18 @@ class Routes {
   static const String notFound = '/not-found';
 
   static String restaurantDetails(String id) => '/restaurant/$id';
+  static String restaurantDetailsWithIntent(
+    String id, {
+    String? intent,
+  }) {
+    final Map<String, String> params = {};
+    if (intent != null && intent.isNotEmpty) params['intent'] = intent;
+    final uri = Uri(
+      path: restaurantDetails(id),
+      queryParameters: params.isEmpty ? null : params,
+    );
+    return uri.toString();
+  }
   static String mealDetails(String id) => '/meal/$id';
   static String orderTrackingDetails(String id) => '/order-tracking/$id';
   static String orderDetails(String id) => '/orders/$id';

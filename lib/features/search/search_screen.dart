@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
 import 'package:yekermo/app/di.dart';
+import 'package:yekermo/app/routes.dart';
 import 'package:yekermo/domain/discovery_filters.dart';
 import 'package:yekermo/domain/models.dart';
 import 'package:yekermo/features/search/search_controller.dart';
@@ -211,11 +213,25 @@ class _SearchResults extends StatelessWidget {
           (restaurant) => AppListTile(
             title: restaurant.name,
             subtitle: '${restaurant.prepTimeBand.label} • ${restaurant.trustCopy}',
-            onTap: () {},
+            onTap: () => context.push(
+              Routes.restaurantDetailsWithIntent(
+                restaurant.id,
+                intent: _intentFromFilters(vm.filters),
+              ),
+            ),
           ),
         ),
       ],
     );
   }
+}
+
+String? _intentFromFilters(DiscoveryFilters filters) {
+  if (filters.intent != null && filters.intent!.isNotEmpty) {
+    return filters.intent;
+  }
+  if (filters.familySize) return 'family_size';
+  if (filters.fastingFriendly) return 'fasting_friendly';
+  return null;
 }
 

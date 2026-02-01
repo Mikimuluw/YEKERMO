@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
+import 'package:yekermo/app/routes.dart';
 import 'package:yekermo/domain/discovery_filters.dart';
 import 'package:yekermo/domain/models.dart';
 import 'package:yekermo/features/discovery/discovery_controller.dart';
@@ -111,7 +113,12 @@ class _DiscoveryResults extends StatelessWidget {
             padding: const EdgeInsets.only(bottom: AppSpacing.sm),
             child: AppCard(
               padding: AppSpacing.cardPadding,
-              onTap: () {},
+              onTap: () => context.push(
+                Routes.restaurantDetailsWithIntent(
+                  restaurant.id,
+                  intent: _intentFromFilters(vm.filters),
+                ),
+              ),
               child: _DiscoveryCard(restaurant: restaurant),
             ),
           ),
@@ -182,10 +189,23 @@ List<Widget> _filterChips(DiscoveryFilters filters) {
   return chips;
 }
 
+String? _intentFromFilters(DiscoveryFilters filters) {
+  if (filters.intent != null && filters.intent!.isNotEmpty) {
+    return filters.intent;
+  }
+  if (filters.familySize) return 'family_size';
+  if (filters.fastingFriendly) return 'fasting_friendly';
+  return null;
+}
+
 String _intentLabel(String intent) {
   switch (intent) {
     case 'quick_filling':
       return 'Quick & filling';
+    case 'family_size':
+      return 'Family size';
+    case 'fasting_friendly':
+      return 'Fasting friendly';
     default:
       return intent;
   }
