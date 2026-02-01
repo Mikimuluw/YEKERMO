@@ -38,3 +38,20 @@
 - Home kept light
 - Copy remains calm / non-hype
 - Tests green (flutter analyze, flutter test)
+
+## Phase 4 — Trust & Clarity: Cart → Review Order
+
+**Status:** Completed ✅
+
+**Shipped:**
+- OrderDraft state (fulfillment + fees + notes stub) with transparent breakdown
+- Review Order screen (checkout route) with Delivery/Pickup toggle
+- Address section + minimal address manager (single default, gentle validation; no maps/GPS)
+- In-memory address storage + checkout/address controllers and repos
+- Cart → Review Order navigation wired
+- Tests: checkout fee/address behavior + end-to-end cart->review flow
+
+**Constraints upheld:**
+- No payments, promos, tips, scheduling, or order placement
+- Calm copy, no pressure language
+- Tests green (flutter analyze, flutter test)
