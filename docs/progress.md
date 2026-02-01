@@ -2,7 +2,7 @@
 
 ## Phase 2 — Discovery → Decision Engine
 
-**Status:** In progress
+**Status:** Completed ✅
 
 **Scope (all together):**
 - Intent-driven Restaurant Discovery (`/discover`)
@@ -16,3 +16,4 @@
 - No ratings or hype signals; trust conveyed via copy only
 - Dummy data only; backend-compatible fields added intentionally
 - Discovery controller hardened against stale responses; tests green.
+- Discovery UI polished; intent routing, filters, and copy finalized.
