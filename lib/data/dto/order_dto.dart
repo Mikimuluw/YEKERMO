@@ -26,14 +26,14 @@ class OrderDto {
   final DateTime? scheduledTime;
 
   Order toModel() => Order(
-        id: id,
-        restaurantId: restaurantId,
-        items: items.map((item) => item.toModel()).toList(),
-        total: total,
-        status: status ?? OrderStatus.completed,
-        fulfillmentMode: fulfillmentMode ?? FulfillmentMode.delivery,
-        address: address?.toModel(),
-        placedAt: placedAt,
-        scheduledTime: scheduledTime,
-      );
+    id: id,
+    restaurantId: restaurantId,
+    items: items.map((item) => item.toModel()).toList(),
+    total: total,
+    status: status ?? OrderStatus.completed,
+    fulfillmentMode: fulfillmentMode ?? FulfillmentMode.delivery,
+    address: address?.toModel(),
+    placedAt: placedAt,
+    scheduledTime: scheduledTime,
+  );
 }

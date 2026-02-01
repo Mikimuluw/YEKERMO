@@ -11,10 +11,14 @@ class DummyRestaurantRepository implements RestaurantRepository {
   final DummyRestaurantDataSource dataSource;
 
   @override
-  Future<Result<RestaurantMenu>> fetchRestaurantMenu(String restaurantId) async {
+  Future<Result<RestaurantMenu>> fetchRestaurantMenu(
+    String restaurantId,
+  ) async {
     await Future<void>.delayed(const Duration(milliseconds: 280));
     try {
-      final RestaurantMenuDto dto = dataSource.fetchRestaurantMenu(restaurantId);
+      final RestaurantMenuDto dto = dataSource.fetchRestaurantMenu(
+        restaurantId,
+      );
       return Result.success(dto.toModel());
     } catch (error) {
       return Result.failure(

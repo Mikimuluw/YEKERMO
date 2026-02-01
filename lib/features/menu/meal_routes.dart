@@ -10,8 +10,7 @@ GoRoute mealRoute({GlobalKey<NavigatorState>? parentNavigatorKey}) {
   return GoRoute(
     parentNavigatorKey: parentNavigatorKey,
     path: Routes.meal,
-    builder: (context, state) => MenuItemScreen(
-      itemId: state.pathParameters['id'] ?? '',
-    ),
+    builder: (context, state) =>
+        MenuItemScreen(itemId: state.pathParameters['id'] ?? ''),
   );
 }

@@ -10,8 +10,7 @@ GoRoute orderTrackingRoute({GlobalKey<NavigatorState>? parentNavigatorKey}) {
   return GoRoute(
     parentNavigatorKey: parentNavigatorKey,
     path: Routes.orderTracking,
-    builder: (context, state) => OrderTrackingScreen(
-      orderId: state.pathParameters['id'] ?? '',
-    ),
+    builder: (context, state) =>
+        OrderTrackingScreen(orderId: state.pathParameters['id'] ?? ''),
   );
 }

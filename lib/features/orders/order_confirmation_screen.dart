@@ -15,16 +15,19 @@ class OrderConfirmationScreen extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final ScreenState<OrderDetailVm> state =
-        ref.watch(orderDetailControllerProvider);
+    final ScreenState<OrderDetailVm> state = ref.watch(
+      orderDetailControllerProvider,
+    );
     return AppScaffold(
-      title: 'Order confirmation',
+      title: 'Order complete',
       body: AsyncStateView<OrderDetailVm>(
         state: state,
         emptyBuilder: (context) => const _OrderConfirmationEmpty(),
         dataBuilder: (context, data) => OrderDetailContent(
           viewModel: data,
           showConfirmationHeader: true,
+          headerTitle: 'Order confirmed.',
+          headerSubtitle: "We'll keep you posted.",
           showActions: true,
           onBackHome: () => context.go(Routes.home),
           onViewOrder: () => context.go(Routes.orderDetails(data.order.id)),

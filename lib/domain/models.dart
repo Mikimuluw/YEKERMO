@@ -1,3 +1,6 @@
+import 'package:yekermo/domain/fees.dart';
+import 'package:yekermo/domain/payment_method.dart';
+
 enum AddressLabel { home, work }
 
 enum PrepTimeBand { fast, standard, slow }
@@ -21,6 +24,8 @@ enum FulfillmentMode { delivery, pickup }
 
 enum OrderStatus { received, preparing, ready, completed }
 
+enum PaymentStatus { unpaid, paid }
+
 extension OrderStatusLabel on OrderStatus {
   String get label {
     switch (this) {
@@ -36,18 +41,9 @@ extension OrderStatusLabel on OrderStatus {
   }
 }
 
-enum RestaurantTag {
-  quickFilling,
-  familySize,
-  fastingFriendly,
-  pickupFriendly,
-}
+enum RestaurantTag { quickFilling, familySize, fastingFriendly, pickupFriendly }
 
-enum MenuItemTag {
-  quickFilling,
-  familySize,
-  fastingFriendly,
-}
+enum MenuItemTag { quickFilling, familySize, fastingFriendly }
 
 class Address {
   const Address({
@@ -68,10 +64,7 @@ class Address {
 }
 
 class Preference {
-  const Preference({
-    required this.favoriteCuisines,
-    required this.dietaryTags,
-  });
+  const Preference({required this.favoriteCuisines, required this.dietaryTags});
 
   final List<String> favoriteCuisines;
   final List<String> dietaryTags;
@@ -114,10 +107,7 @@ class Restaurant {
 }
 
 class MenuCategory {
-  const MenuCategory({
-    required this.id,
-    required this.title,
-  });
+  const MenuCategory({required this.id, required this.title});
 
   final String id;
   final String title;
@@ -144,10 +134,7 @@ class MenuItem {
 }
 
 class OrderItem {
-  const OrderItem({
-    required this.menuItemId,
-    required this.quantity,
-  });
+  const OrderItem({required this.menuItemId, required this.quantity});
 
   final String menuItemId;
   final int quantity;
@@ -161,6 +148,10 @@ class Order {
     required this.total,
     required this.status,
     required this.fulfillmentMode,
+    this.paymentStatus = PaymentStatus.unpaid,
+    this.paymentMethod,
+    this.feeBreakdown,
+    this.paidAt,
     this.address,
     this.placedAt,
     this.scheduledTime,
@@ -172,6 +163,10 @@ class Order {
   final double total;
   final OrderStatus status;
   final FulfillmentMode fulfillmentMode;
+  final PaymentStatus paymentStatus;
+  final PaymentMethod? paymentMethod;
+  final FeeBreakdown? feeBreakdown;
+  final DateTime? paidAt;
   final Address? address;
   final DateTime? placedAt;
   final DateTime? scheduledTime;

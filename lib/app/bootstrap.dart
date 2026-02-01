@@ -16,9 +16,5 @@ Future<void> bootstrap() async {
     return true;
   };
 
-  runApp(
-    const ProviderScope(
-      child: YekermoApp(),
-    ),
-  );
+  runApp(const ProviderScope(child: YekermoApp()));
 }

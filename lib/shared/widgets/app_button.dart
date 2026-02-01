@@ -20,9 +20,7 @@ class AppButton extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final ButtonStyle buttonStyle = ButtonStyle(
-      minimumSize: WidgetStateProperty.all(
-        const Size(0, AppSpacing.tapTarget),
-      ),
+      minimumSize: WidgetStateProperty.all(const Size(0, AppSpacing.tapTarget)),
     );
 
     final Widget child = icon == null

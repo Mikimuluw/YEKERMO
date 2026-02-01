@@ -1,12 +1,7 @@
 import 'package:flutter/material.dart';
 
 class AppScaffold extends StatelessWidget {
-  const AppScaffold({
-    super.key,
-    this.title,
-    this.actions,
-    required this.body,
-  });
+  const AppScaffold({super.key, this.title, this.actions, required this.body});
 
   final String? title;
   final List<Widget>? actions;
@@ -17,14 +12,8 @@ class AppScaffold extends StatelessWidget {
     return Scaffold(
       appBar: title == null
           ? null
-          : AppBar(
-              title: Text(title!),
-              actions: actions,
-            ),
-      body: SafeArea(
-        top: false,
-        child: body,
-      ),
+          : AppBar(title: Text(title!), actions: actions),
+      body: SafeArea(top: false, child: body),
     );
   }
 }

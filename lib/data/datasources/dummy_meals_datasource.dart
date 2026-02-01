@@ -100,9 +100,7 @@ class DummyMealsDataSource {
       OrderDto(
         id: 'order-1',
         restaurantId: 'rest-1',
-        items: [
-          OrderItemDto(menuItemId: 'item-1', quantity: 1),
-        ],
+        items: [OrderItemDto(menuItemId: 'item-1', quantity: 1)],
         total: 21.75,
         scheduledTime: null,
       ),

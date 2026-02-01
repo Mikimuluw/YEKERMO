@@ -23,20 +23,13 @@ class HomeScreen extends ConsumerWidget {
     final ScreenState<HomeFeed> state = ref.watch(homeControllerProvider);
     return AsyncStateView<HomeFeed>(
       state: state,
-      loadingBuilder: (context) => const HomeScaffold(
-        body: HomeSkeleton(),
-      ),
-      errorBuilder: (context, message) => HomeScaffold(
-        body: _HomeMessage(
-          message: message,
-        ),
-      ),
-      dataBuilder: (context, data) => HomeScaffold(
-        body: HomeContent(feed: data),
-      ),
+      loadingBuilder: (context) => const HomeScaffold(body: HomeSkeleton()),
+      errorBuilder: (context, message) =>
+          HomeScaffold(body: _HomeMessage(message: message)),
+      dataBuilder: (context, data) =>
+          HomeScaffold(body: HomeContent(feed: data)),
     );
   }
-
 }
 
 String _labelText(AddressLabel label) {
@@ -59,10 +52,7 @@ class GreetingSection extends StatelessWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text(
-          'Good evening, $name',
-          style: textTheme.headlineSmall,
-        ),
+        Text('Good evening, $name', style: textTheme.headlineSmall),
         AppSpacing.vSm,
         AppChip(
           label: 'Delivering to $addressLabel',
@@ -115,11 +105,7 @@ class YourUsualSection extends StatelessWidget {
 }
 
 class ReorderCard extends ConsumerWidget {
-  const ReorderCard({
-    super.key,
-    required this.order,
-    required this.restaurant,
-  });
+  const ReorderCard({super.key, required this.order, required this.restaurant});
 
   final Order order;
   final Restaurant restaurant;
@@ -137,10 +123,7 @@ class ReorderCard extends ConsumerWidget {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text(
-                  restaurant.name,
-                  style: context.text.titleMedium,
-                ),
+                Text(restaurant.name, style: context.text.titleMedium),
                 AppSpacing.vXs,
                 Text(
                   restaurant.tagline,
@@ -160,8 +143,9 @@ class ReorderCard extends ConsumerWidget {
           AppButton(
             label: 'Reorder',
             onPressed: () async {
-              final result =
-                  await ref.read(ordersControllerProvider.notifier).reorder(order);
+              final result = await ref
+                  .read(ordersControllerProvider.notifier)
+                  .reorder(order);
               ref.read(cartControllerProvider.notifier).refresh();
               if (result.hasItems && context.mounted) {
                 context.go(Routes.checkout);
@@ -169,9 +153,7 @@ class ReorderCard extends ConsumerWidget {
               if (!context.mounted) return;
               if (result.hasMissing) {
                 ScaffoldMessenger.of(context).showSnackBar(
-                  const SnackBar(
-                    content: Text('Some items have changed.'),
-                  ),
+                  const SnackBar(content: Text('Some items have changed.')),
                 );
               }
             },
@@ -186,22 +168,10 @@ class IntentChipsSection extends StatelessWidget {
   const IntentChipsSection({super.key});
 
   static const List<IntentChip> intents = [
-    IntentChip(
-      label: 'Quick & filling',
-      intent: 'quick_filling',
-    ),
-    IntentChip(
-      label: 'Family size',
-      familySize: true,
-    ),
-    IntentChip(
-      label: 'Pickup friendly',
-      pickupFriendly: true,
-    ),
-    IntentChip(
-      label: 'Fasting friendly',
-      fastingFriendly: true,
-    ),
+    IntentChip(label: 'Quick & filling', intent: 'quick_filling'),
+    IntentChip(label: 'Family size', familySize: true),
+    IntentChip(label: 'Pickup friendly', pickupFriendly: true),
+    IntentChip(label: 'Fasting friendly', fastingFriendly: true),
   ];
 
   @override
@@ -272,9 +242,8 @@ class RestaurantSection extends StatelessWidget {
           height: 150,
           child: ListView.separated(
             scrollDirection: Axis.horizontal,
-            itemBuilder: (context, index) => RestaurantCard(
-              restaurant: restaurants[index],
-            ),
+            itemBuilder: (context, index) =>
+                RestaurantCard(restaurant: restaurants[index]),
             separatorBuilder: (_, __) => AppSpacing.hSm,
             itemCount: restaurants.length,
           ),
@@ -327,10 +296,14 @@ class RestaurantCard extends StatelessWidget {
                   ),
                 ),
                 AppSpacing.hSm,
-                Text(
-                  _serviceModesLabel(restaurant.serviceModes),
-                  style: context.text.labelLarge?.copyWith(
-                    color: scheme.onSurface.withValues(alpha: 0.7),
+                Expanded(
+                  child: Text(
+                    _serviceModesLabel(restaurant.serviceModes),
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                    style: context.text.labelLarge?.copyWith(
+                      color: scheme.onSurface.withValues(alpha: 0.7),
+                    ),
                   ),
                 ),
               ],
@@ -399,10 +372,7 @@ class HomeContent extends StatelessWidget {
         AppSpacing.vMd,
         YourUsualSection(
           orders: feed.pastOrders,
-          restaurants: [
-            ...feed.trustedRestaurants,
-            ...feed.allRestaurants,
-          ],
+          restaurants: [...feed.trustedRestaurants, ...feed.allRestaurants],
         ),
         AppSpacing.vMd,
         const IntentChipsSection(),
@@ -420,8 +390,8 @@ class HomeContent extends StatelessWidget {
         Text(
           'Warm indoor picks, ready when you are.',
           style: context.text.bodyMedium?.copyWith(
-                color: scheme.onSurface.withValues(alpha: 0.6),
-              ),
+            color: scheme.onSurface.withValues(alpha: 0.6),
+          ),
         ),
       ],
     );
@@ -461,10 +431,7 @@ class HomeSkeleton extends StatelessWidget {
         Wrap(
           spacing: AppSpacing.sm,
           runSpacing: AppSpacing.sm,
-          children: List.generate(
-            4,
-            (index) => block(height: 36, width: 120),
-          ),
+          children: List.generate(4, (index) => block(height: 36, width: 120)),
         ),
         AppSpacing.vLg,
         block(height: 22, width: 180),
@@ -497,8 +464,8 @@ class _HomeMessage extends StatelessWidget {
         child: Text(
           message,
           style: context.text.bodyMedium?.copyWith(
-                color: scheme.onSurface.withValues(alpha: 0.7),
-              ),
+            color: scheme.onSurface.withValues(alpha: 0.7),
+          ),
           textAlign: TextAlign.center,
         ),
       ),

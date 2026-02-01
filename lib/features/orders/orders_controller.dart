@@ -19,8 +19,9 @@ class OrdersController extends Notifier<ScreenState<OrdersVm>> {
 
   Future<void> _loadLatest() async {
     final int requestId = ++_requestId;
-    final List<Order> orders =
-        await ref.read(ordersRepositoryProvider).getOrders();
+    final List<Order> orders = await ref
+        .read(ordersRepositoryProvider)
+        .getOrders();
     if (requestId != _requestId) return;
 
     if (orders.isEmpty) {

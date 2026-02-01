@@ -3,9 +3,12 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:yekermo/app/di.dart';
 import 'package:yekermo/app/routes.dart';
+import 'package:yekermo/data/payments/payment_result.dart';
 import 'package:yekermo/domain/cart.dart';
 import 'package:yekermo/domain/models.dart';
 import 'package:yekermo/domain/order_draft.dart';
+import 'package:yekermo/domain/payment_method.dart';
+import 'package:yekermo/features/payments/payment_controller.dart';
 import 'package:yekermo/shared/extensions/context_extensions.dart';
 import 'package:yekermo/shared/state/screen_state.dart';
 import 'package:yekermo/shared/tokens/app_spacing.dart';
@@ -16,13 +19,48 @@ import 'package:yekermo/shared/widgets/app_section_header.dart';
 import 'package:yekermo/shared/widgets/app_text_field.dart';
 import 'package:yekermo/shared/widgets/async_state_view.dart';
 
-class CheckoutScreen extends ConsumerWidget {
+class CheckoutScreen extends ConsumerStatefulWidget {
   const CheckoutScreen({super.key});
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
-    final ScreenState<OrderDraft> state =
-        ref.watch(checkoutControllerProvider);
+  ConsumerState<CheckoutScreen> createState() => _CheckoutScreenState();
+}
+
+class _CheckoutScreenState extends ConsumerState<CheckoutScreen> {
+  final TextEditingController _cardNumber = TextEditingController();
+  final TextEditingController _expiry = TextEditingController();
+  final TextEditingController _cvc = TextEditingController();
+  bool _hasCardNumber = false;
+
+  @override
+  void initState() {
+    super.initState();
+    _cardNumber.addListener(_syncCardState);
+  }
+
+  @override
+  void dispose() {
+    _cardNumber.removeListener(_syncCardState);
+    _cardNumber.dispose();
+    _expiry.dispose();
+    _cvc.dispose();
+    super.dispose();
+  }
+
+  void _syncCardState() {
+    final String digits = _cardNumber.text.replaceAll(RegExp(r'\D'), '');
+    final bool nextHasCardNumber = digits.length >= 4;
+    if (nextHasCardNumber != _hasCardNumber) {
+      setState(() => _hasCardNumber = nextHasCardNumber);
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final ScreenState<OrderDraft> state = ref.watch(checkoutControllerProvider);
+    final ScreenState<PaymentVm> paymentState = ref.watch(
+      paymentControllerProvider,
+    );
     final bool needsAddress = switch (state) {
       EmptyState<OrderDraft>(:final message) =>
         (message ?? '').toLowerCase().contains('address'),
@@ -39,17 +77,31 @@ class CheckoutScreen extends ConsumerWidget {
         ),
         dataBuilder: (context, data) => _CheckoutBody(
           draft: data,
+          paymentState: paymentState,
+          cardNumber: _cardNumber,
+          expiry: _expiry,
+          cvc: _cvc,
+          hasCardNumber: _hasCardNumber,
           onFulfillmentChange: (mode) => ref
               .read(checkoutControllerProvider.notifier)
               .setFulfillment(mode),
           onAddAddress: () => context.push(Routes.addressManager),
-          onNotesChanged: (value) => ref
-              .read(checkoutControllerProvider.notifier)
-              .setNotes(value),
-          onPlaceOrder: () async {
+          onNotesChanged: (value) =>
+              ref.read(checkoutControllerProvider.notifier).setNotes(value),
+          onPayAndPlaceOrder: () async {
+            final PaymentMethod? method = _buildPaymentMethod(_cardNumber.text);
+            if (method == null) return;
+            ref.read(paymentControllerProvider.notifier).setMethod(method);
+            final PaymentResult result = await ref
+                .read(paymentControllerProvider.notifier)
+                .processPayment(amount: data.fees.total, method: method);
+            if (!result.isSuccess) return;
             final order = await ref
                 .read(checkoutControllerProvider.notifier)
-                .placeOrder();
+                .payAndPlaceOrder(
+                  paymentMethod: method,
+                  paymentTransactionId: result.transactionId,
+                );
             if (order == null) return;
             if (!context.mounted) return;
             context.go(Routes.orderConfirmation(order.id));
@@ -109,25 +161,38 @@ class _CheckoutEmpty extends StatelessWidget {
 class _CheckoutBody extends StatelessWidget {
   const _CheckoutBody({
     required this.draft,
+    required this.paymentState,
+    required this.cardNumber,
+    required this.expiry,
+    required this.cvc,
+    required this.hasCardNumber,
     required this.onFulfillmentChange,
     required this.onAddAddress,
     required this.onNotesChanged,
-    required this.onPlaceOrder,
+    required this.onPayAndPlaceOrder,
   });
 
   final OrderDraft draft;
+  final ScreenState<PaymentVm> paymentState;
+  final TextEditingController cardNumber;
+  final TextEditingController expiry;
+  final TextEditingController cvc;
+  final bool hasCardNumber;
   final ValueChanged<FulfillmentMode> onFulfillmentChange;
   final VoidCallback onAddAddress;
   final ValueChanged<String> onNotesChanged;
-  final Future<void> Function() onPlaceOrder;
+  final Future<void> Function() onPayAndPlaceOrder;
 
   @override
   Widget build(BuildContext context) {
-    final bool canPlace = draft.items.isNotEmpty &&
+    final bool canPlace =
+        draft.items.isNotEmpty &&
         (draft.fulfillmentMode == FulfillmentMode.pickup ||
             draft.address != null);
-    final String? placeHint =
-        canPlace ? null : 'Add a delivery address to place this order.';
+    final bool isProcessing = paymentState is LoadingState<PaymentVm>;
+    final String? placeHint = canPlace
+        ? null
+        : 'Add a delivery address to place this order.';
     return ListView(
       padding: AppSpacing.pagePadding,
       children: [
@@ -168,10 +233,7 @@ class _CheckoutBody extends StatelessWidget {
           AppSpacing.vMd,
         ],
         if (draft.fulfillmentMode == FulfillmentMode.delivery) ...[
-          _AddressSection(
-            address: draft.address,
-            onAddAddress: onAddAddress,
-          ),
+          _AddressSection(address: draft.address, onAddAddress: onAddAddress),
           AppSpacing.vMd,
         ],
         const AppSectionHeader(title: 'Items'),
@@ -203,6 +265,60 @@ class _CheckoutBody extends StatelessWidget {
           onSubmitted: onNotesChanged,
         ),
         AppSpacing.vMd,
+        const AppSectionHeader(title: 'Payment'),
+        AppSpacing.vSm,
+        AppCard(
+          padding: AppSpacing.cardPadding,
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              AppTextField(
+                controller: cardNumber,
+                hintText: 'Card number',
+                enabled: !isProcessing,
+              ),
+              AppSpacing.vSm,
+              Row(
+                children: [
+                  Expanded(
+                    child: AppTextField(
+                      controller: expiry,
+                      hintText: 'MM/YY',
+                      enabled: !isProcessing,
+                    ),
+                  ),
+                  AppSpacing.hSm,
+                  Expanded(
+                    child: AppTextField(
+                      controller: cvc,
+                      hintText: 'CVC',
+                      enabled: !isProcessing,
+                    ),
+                  ),
+                ],
+              ),
+            ],
+          ),
+        ),
+        AppSpacing.vSm,
+        if (paymentState case ErrorState<PaymentVm>(:final failure)) ...[
+          Text(
+            failure.message,
+            style: context.text.bodySmall?.copyWith(
+              color: context.colors.error,
+            ),
+          ),
+          AppSpacing.vSm,
+        ],
+        if (isProcessing) ...[
+          Text(
+            'Processing payment...',
+            style: context.text.bodySmall?.copyWith(
+              color: context.colors.onSurface.withValues(alpha: 0.7),
+            ),
+          ),
+          AppSpacing.vSm,
+        ],
         if (placeHint != null) ...[
           Text(
             placeHint,
@@ -212,20 +328,44 @@ class _CheckoutBody extends StatelessWidget {
           ),
           AppSpacing.vSm,
         ],
+        if (!hasCardNumber) ...[
+          Text(
+            'Add a payment method to continue.',
+            style: context.text.bodySmall?.copyWith(
+              color: context.colors.onSurface.withValues(alpha: 0.7),
+            ),
+          ),
+          AppSpacing.vSm,
+        ],
+        Text(
+          "You'll see a confirmation next.",
+          style: context.text.bodySmall?.copyWith(
+            color: context.colors.onSurface.withValues(alpha: 0.7),
+          ),
+        ),
+        AppSpacing.vSm,
         AppButton(
-          label: 'Place order',
-          onPressed: canPlace ? onPlaceOrder : null,
+          label: 'Pay and place order',
+          onPressed: canPlace && hasCardNumber && !isProcessing
+              ? onPayAndPlaceOrder
+              : null,
         ),
       ],
     );
   }
 }
 
+PaymentMethod? _buildPaymentMethod(String rawNumber) {
+  final String digits = rawNumber.replaceAll(RegExp(r'\D'), '');
+  if (digits.length < 4) return null;
+  return PaymentMethod(
+    brand: 'Card',
+    last4: digits.substring(digits.length - 4),
+  );
+}
+
 class _AddressSection extends StatelessWidget {
-  const _AddressSection({
-    required this.address,
-    required this.onAddAddress,
-  });
+  const _AddressSection({required this.address, required this.onAddAddress});
 
   final Address? address;
   final VoidCallback onAddAddress;
@@ -342,18 +482,16 @@ class _FeeRow extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final TextStyle? style =
-        emphasize ? context.text.titleSmall : context.text.bodyMedium;
+    final TextStyle? style = emphasize
+        ? context.text.titleSmall
+        : context.text.bodyMedium;
     return Padding(
       padding: const EdgeInsets.only(bottom: AppSpacing.xs),
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
           Text(label, style: style),
-          Text(
-            '\$${value.toStringAsFixed(2)}',
-            style: style,
-          ),
+          Text('\$${value.toStringAsFixed(2)}', style: style),
         ],
       ),
     );

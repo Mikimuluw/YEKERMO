@@ -22,13 +22,13 @@ class RestaurantDto {
   final List<String> dishNames;
 
   Restaurant toModel() => Restaurant(
-        id: id,
-        name: name,
-        tagline: tagline,
-        prepTimeBand: prepTimeBand,
-        serviceModes: serviceModes,
-        tags: tags,
-        trustCopy: trustCopy,
-        dishNames: dishNames,
-      );
+    id: id,
+    name: name,
+    tagline: tagline,
+    prepTimeBand: prepTimeBand,
+    serviceModes: serviceModes,
+    tags: tags,
+    trustCopy: trustCopy,
+    dishNames: dishNames,
+  );
 }

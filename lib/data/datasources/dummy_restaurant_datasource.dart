@@ -12,8 +12,7 @@ class DummyRestaurantDataSource {
   }
 
   RestaurantDto fetchRestaurant(String restaurantId) {
-    final RestaurantMenuDto menu =
-        _menus[restaurantId] ?? _menus.values.first;
+    final RestaurantMenuDto menu = _menus[restaurantId] ?? _menus.values.first;
     return menu.restaurant;
   }
 
@@ -119,9 +118,7 @@ class DummyRestaurantDataSource {
         trustCopy: 'Warm and filling picks',
         dishNames: ['Injera Combo', 'Lentil Stew'],
       ),
-      categories: [
-        MenuCategoryDto(id: 'cat-5', title: 'Warm classics'),
-      ],
+      categories: [MenuCategoryDto(id: 'cat-5', title: 'Warm classics')],
       items: [
         MenuItemDto(
           id: 'item-7',
@@ -154,9 +151,7 @@ class DummyRestaurantDataSource {
         trustCopy: 'Pickup stays fast here',
         dishNames: ['Family Kitfo Tray', 'Veggie Platter'],
       ),
-      categories: [
-        MenuCategoryDto(id: 'cat-6', title: 'Shared trays'),
-      ],
+      categories: [MenuCategoryDto(id: 'cat-6', title: 'Shared trays')],
       items: [
         MenuItemDto(
           id: 'item-9',
@@ -189,9 +184,7 @@ class DummyRestaurantDataSource {
         trustCopy: 'Fasting-friendly comfort',
         dishNames: ['Shiro Bowl', 'Gomen'],
       ),
-      categories: [
-        MenuCategoryDto(id: 'cat-7', title: 'Fasting-friendly'),
-      ],
+      categories: [MenuCategoryDto(id: 'cat-7', title: 'Fasting-friendly')],
       items: [
         MenuItemDto(
           id: 'item-11',

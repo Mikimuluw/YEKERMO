@@ -23,9 +23,7 @@ GoRoute discoveryRoute() {
         query: state.uri.queryParameters['q'],
       );
       return ProviderScope(
-        overrides: [
-          discoveryQueryProvider.overrideWithValue(query),
-        ],
+        overrides: [discoveryQueryProvider.overrideWithValue(query)],
         child: DiscoveryScreen(
           intent: filters.intent,
           pickupFriendly: filters.pickupFriendly,

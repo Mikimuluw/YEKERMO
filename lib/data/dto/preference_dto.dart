@@ -9,8 +9,6 @@ class PreferenceDto {
   final List<String> favoriteCuisines;
   final List<String> dietaryTags;
 
-  Preference toModel() => Preference(
-        favoriteCuisines: favoriteCuisines,
-        dietaryTags: dietaryTags,
-      );
+  Preference toModel() =>
+      Preference(favoriteCuisines: favoriteCuisines, dietaryTags: dietaryTags);
 }

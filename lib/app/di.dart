@@ -7,6 +7,7 @@ import 'package:yekermo/features/cart/cart_controller.dart';
 import 'package:yekermo/features/checkout/checkout_controller.dart';
 import 'package:yekermo/features/home/home_controller.dart';
 import 'package:yekermo/features/orders/orders_controller.dart';
+import 'package:yekermo/features/payments/payment_controller.dart';
 import 'package:yekermo/features/restaurant/restaurant_controller.dart';
 import 'package:yekermo/features/search/search_controller.dart';
 import 'package:yekermo/shared/state/screen_state.dart';
@@ -14,39 +15,40 @@ import 'package:yekermo/shared/state/screen_state.dart';
 export 'package:yekermo/app/providers.dart';
 
 final homeControllerProvider =
-    NotifierProvider<HomeController, ScreenState<HomeFeed>>(
-  HomeController.new,
-);
+    NotifierProvider<HomeController, ScreenState<HomeFeed>>(HomeController.new);
 
 final searchControllerProvider =
     NotifierProvider<SearchController, ScreenState<SearchVm>>(
-  SearchController.new,
-);
+      SearchController.new,
+    );
 
 final restaurantControllerProvider =
     NotifierProvider<RestaurantController, ScreenState<RestaurantVm>>(
-  RestaurantController.new,
-);
+      RestaurantController.new,
+    );
 
 final cartControllerProvider =
-    NotifierProvider<CartController, ScreenState<CartVm>>(
-  CartController.new,
-);
+    NotifierProvider<CartController, ScreenState<CartVm>>(CartController.new);
 
 final checkoutControllerProvider =
     NotifierProvider<CheckoutController, ScreenState<OrderDraft>>(
-  CheckoutController.new,
-);
+      CheckoutController.new,
+    );
 
 final addressControllerProvider =
     NotifierProvider<AddressController, ScreenState<Address?>>(
-  AddressController.new,
-);
+      AddressController.new,
+    );
 
 final ordersControllerProvider =
     NotifierProvider<OrdersController, ScreenState<OrdersVm>>(
-  OrdersController.new,
-);
+      OrdersController.new,
+    );
+
+final paymentControllerProvider =
+    NotifierProvider<PaymentController, ScreenState<PaymentVm>>(
+      PaymentController.new,
+    );
 
 final cartCountProvider = Provider<int>((ref) {
   final state = ref.watch(cartControllerProvider);

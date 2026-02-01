@@ -12,6 +12,8 @@ class OrderDetailContent extends StatelessWidget {
     super.key,
     required this.viewModel,
     this.showConfirmationHeader = false,
+    this.headerTitle,
+    this.headerSubtitle,
     this.showActions = false,
     this.onBackHome,
     this.onViewOrder,
@@ -19,6 +21,8 @@ class OrderDetailContent extends StatelessWidget {
 
   final OrderDetailVm viewModel;
   final bool showConfirmationHeader;
+  final String? headerTitle;
+  final String? headerSubtitle;
   final bool showActions;
   final VoidCallback? onBackHome;
   final VoidCallback? onViewOrder;
@@ -32,22 +36,19 @@ class OrderDetailContent extends StatelessWidget {
       children: [
         if (showConfirmationHeader) ...[
           Text(
-            'Order received.',
+            headerTitle ?? 'Order received.',
             style: context.text.headlineSmall,
           ),
           AppSpacing.vXs,
           Text(
-            "We'll keep you posted.",
+            headerSubtitle ?? "We'll keep you posted.",
             style: context.text.bodyMedium?.copyWith(
               color: context.colors.onSurface.withValues(alpha: 0.7),
             ),
           ),
           AppSpacing.vMd,
         ],
-        Text(
-          restaurant?.name ?? 'Your order',
-          style: context.text.titleLarge,
-        ),
+        Text(restaurant?.name ?? 'Your order', style: context.text.titleLarge),
         AppSpacing.vSm,
         Text(
           'Order #${order.id}',
@@ -63,10 +64,7 @@ class OrderDetailContent extends StatelessWidget {
             children: [
               Text('Status', style: context.text.titleSmall),
               AppSpacing.vXs,
-              Text(
-                order.status.label,
-                style: context.text.bodyMedium,
-              ),
+              Text(order.status.label, style: context.text.bodyMedium),
               AppSpacing.vXs,
               Text(
                 'Status updates will appear here.',
@@ -98,10 +96,7 @@ class OrderDetailContent extends StatelessWidget {
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
                   Expanded(
-                    child: Text(
-                      line.itemName,
-                      style: context.text.bodyMedium,
-                    ),
+                    child: Text(line.itemName, style: context.text.bodyMedium),
                   ),
                   Text('x${line.quantity}', style: context.text.bodySmall),
                 ],
@@ -131,14 +126,41 @@ class OrderDetailContent extends StatelessWidget {
         AppSpacing.vMd,
         const AppSectionHeader(title: 'Total'),
         AppSpacing.vSm,
-        Text('\$${order.total.toStringAsFixed(2)}',
-            style: context.text.titleMedium),
+        Text(
+          '\$${order.total.toStringAsFixed(2)}',
+          style: context.text.titleMedium,
+        ),
+        if (order.feeBreakdown != null && order.paymentMethod != null) ...[
+          AppSpacing.vMd,
+          const AppSectionHeader(title: 'Receipt'),
+          AppSpacing.vSm,
+          _ReceiptRow(label: 'Subtotal', value: order.feeBreakdown!.subtotal),
+          _ReceiptRow(
+            label: 'Service fee',
+            value: order.feeBreakdown!.serviceFee,
+          ),
+          _ReceiptRow(
+            label: 'Delivery fee',
+            value: order.feeBreakdown!.deliveryFee,
+          ),
+          _ReceiptRow(label: 'Tax', value: order.feeBreakdown!.tax),
+          AppSpacing.vSm,
+          _ReceiptRow(
+            label: 'Total paid',
+            value: order.feeBreakdown!.total,
+            emphasize: true,
+          ),
+          AppSpacing.vSm,
+          Text(
+            order.paymentMethod!.label,
+            style: context.text.bodySmall?.copyWith(
+              color: context.colors.onSurface.withValues(alpha: 0.7),
+            ),
+          ),
+        ],
         if (showActions) ...[
           AppSpacing.vLg,
-          AppButton(
-            label: 'Back to home',
-            onPressed: onBackHome,
-          ),
+          AppButton(label: 'Back to home', onPressed: onBackHome),
           AppSpacing.vSm,
           AppButton(
             label: 'View order',
@@ -157,5 +179,36 @@ class OrderDetailContent extends StatelessWidget {
       case AddressLabel.work:
         return 'Work';
     }
+  }
+}
+
+class _ReceiptRow extends StatelessWidget {
+  const _ReceiptRow({
+    required this.label,
+    required this.value,
+    this.emphasize = false,
+  });
+
+  final String label;
+  final double value;
+  final bool emphasize;
+
+  @override
+  Widget build(BuildContext context) {
+    final TextStyle? style = emphasize
+        ? context.text.titleSmall
+        : context.text.bodySmall?.copyWith(
+            color: context.colors.onSurface.withValues(alpha: 0.7),
+          );
+    return Padding(
+      padding: const EdgeInsets.only(bottom: AppSpacing.xs),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        children: [
+          Text(label, style: style),
+          Text('\$${value.toStringAsFixed(2)}', style: style),
+        ],
+      ),
+    );
   }
 }

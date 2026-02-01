@@ -15,13 +15,15 @@ class HomeController extends Notifier<ScreenState<HomeFeed>> {
 
   Future<void> load() async {
     state = ScreenState.loading();
-    final Result<HomeFeed> result =
-        await ref.read(mealsRepositoryProvider).fetchHomeFeed();
+    final Result<HomeFeed> result = await ref
+        .read(mealsRepositoryProvider)
+        .fetchHomeFeed();
     final AppLog log = ref.read(logProvider);
     switch (result) {
       case Success<HomeFeed>(:final data):
-        final List<Order> orders =
-            await ref.read(ordersRepositoryProvider).getOrders();
+        final List<Order> orders = await ref
+            .read(ordersRepositoryProvider)
+            .getOrders();
         final HomeFeed updatedFeed = HomeFeed(
           customer: data.customer,
           primaryAddress: data.primaryAddress,

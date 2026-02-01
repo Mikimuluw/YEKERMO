@@ -3,11 +3,7 @@ import 'package:yekermo/shared/extensions/context_extensions.dart';
 import 'package:yekermo/shared/tokens/app_spacing.dart';
 
 class AppErrorView extends StatelessWidget {
-  const AppErrorView({
-    super.key,
-    required this.message,
-    this.onRetry,
-  });
+  const AppErrorView({super.key, required this.message, this.onRetry});
 
   final String message;
   final VoidCallback? onRetry;
@@ -29,10 +25,7 @@ class AppErrorView extends StatelessWidget {
             ),
             if (onRetry != null) ...[
               AppSpacing.vMd,
-              FilledButton(
-                onPressed: onRetry,
-                child: const Text('Try again'),
-              ),
+              FilledButton(onPressed: onRetry, child: const Text('Try again')),
             ],
           ],
         ),

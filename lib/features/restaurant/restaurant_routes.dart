@@ -19,10 +19,7 @@ GoRoute restaurantRoute() {
             RestaurantQuery(restaurantId: restaurantId, intent: intent),
           ),
         ],
-        child: RestaurantScreen(
-          restaurantId: restaurantId,
-          intent: intent,
-        ),
+        child: RestaurantScreen(restaurantId: restaurantId, intent: intent),
       );
     },
   );

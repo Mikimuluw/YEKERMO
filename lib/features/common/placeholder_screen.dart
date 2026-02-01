@@ -4,11 +4,7 @@ import 'package:yekermo/shared/tokens/app_spacing.dart';
 import 'package:yekermo/shared/widgets/app_scaffold.dart';
 
 class PlaceholderScreen extends StatelessWidget {
-  const PlaceholderScreen({
-    super.key,
-    required this.title,
-    this.subtitle,
-  });
+  const PlaceholderScreen({super.key, required this.title, this.subtitle});
 
   final String title;
   final String? subtitle;

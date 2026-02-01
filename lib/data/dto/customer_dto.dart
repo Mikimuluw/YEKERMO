@@ -15,9 +15,9 @@ class CustomerDto {
   final PreferenceDto preference;
 
   Customer toModel() => Customer(
-        id: id,
-        name: name,
-        primaryAddressId: primaryAddressId,
-        preference: preference.toModel(),
-      );
+    id: id,
+    name: name,
+    primaryAddressId: primaryAddressId,
+    preference: preference.toModel(),
+  );
 }

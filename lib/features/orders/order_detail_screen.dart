@@ -13,8 +13,9 @@ class OrderDetailScreen extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final ScreenState<OrderDetailVm> state =
-        ref.watch(orderDetailControllerProvider);
+    final ScreenState<OrderDetailVm> state = ref.watch(
+      orderDetailControllerProvider,
+    );
     return AppScaffold(
       title: 'Order details',
       body: AsyncStateView<OrderDetailVm>(

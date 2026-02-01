@@ -13,8 +13,7 @@ class DummyCartRepository implements CartRepository {
       _items.values.fold(0, (count, item) => count + item.quantity);
 
   @override
-  double get subtotal =>
-      _items.values.fold(0, (sum, item) => sum + item.total);
+  double get subtotal => _items.values.fold(0, (sum, item) => sum + item.total);
 
   @override
   void addItem(MenuItem item, int quantity) {

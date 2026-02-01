@@ -11,8 +11,8 @@ final orderDetailsQueryProvider = Provider<OrderDetailsQuery>(
 
 final orderDetailControllerProvider =
     NotifierProvider<OrderDetailController, ScreenState<OrderDetailVm>>(
-  OrderDetailController.new,
-);
+      OrderDetailController.new,
+    );
 
 class OrderDetailController extends Notifier<ScreenState<OrderDetailVm>> {
   int _requestId = 0;
@@ -29,8 +29,9 @@ class OrderDetailController extends Notifier<ScreenState<OrderDetailVm>> {
   Future<void> _loadLatest() async {
     final int requestId = ++_requestId;
     final OrderDetailsQuery query = ref.read(orderDetailsQueryProvider);
-    final Order? order =
-        await ref.read(ordersRepositoryProvider).getOrder(query.orderId);
+    final Order? order = await ref
+        .read(ordersRepositoryProvider)
+        .getOrder(query.orderId);
     if (requestId != _requestId) return;
 
     if (order == null) {
@@ -47,8 +48,8 @@ class OrderDetailController extends Notifier<ScreenState<OrderDetailVm>> {
     };
     final Map<String, MenuItem> itemMap = switch (menuResult) {
       Success<RestaurantMenu>(:final data) => {
-          for (final item in data.items) item.id: item,
-        },
+        for (final item in data.items) item.id: item,
+      },
       FailureResult<RestaurantMenu>() => const {},
     };
     final List<OrderLineView> lines = order.items

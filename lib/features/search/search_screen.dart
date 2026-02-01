@@ -89,7 +89,7 @@ class _SearchScreenState extends ConsumerState<SearchScreen> {
       _ => null,
     };
   }
-  }
+}
 
 class _SearchShell extends StatelessWidget {
   const _SearchShell({
@@ -130,18 +130,9 @@ class _SearchShell extends StatelessWidget {
             spacing: AppSpacing.sm,
             runSpacing: AppSpacing.sm,
             children: [
-              AppChip(
-                label: 'Pickup friendly',
-                onPressed: onTogglePickup,
-              ),
-              AppChip(
-                label: 'Family size',
-                onPressed: onToggleFamily,
-              ),
-              AppChip(
-                label: 'Fasting friendly',
-                onPressed: onToggleFasting,
-              ),
+              AppChip(label: 'Pickup friendly', onPressed: onTogglePickup),
+              AppChip(label: 'Family size', onPressed: onToggleFamily),
+              AppChip(label: 'Fasting friendly', onPressed: onToggleFasting),
             ],
           ),
           AppSpacing.vLg,
@@ -192,18 +183,9 @@ class _SearchResults extends StatelessWidget {
           spacing: AppSpacing.sm,
           runSpacing: AppSpacing.sm,
           children: [
-            AppChip(
-              label: 'Pickup friendly',
-              onPressed: onTogglePickup,
-            ),
-            AppChip(
-              label: 'Family size',
-              onPressed: onToggleFamily,
-            ),
-            AppChip(
-              label: 'Fasting friendly',
-              onPressed: onToggleFasting,
-            ),
+            AppChip(label: 'Pickup friendly', onPressed: onTogglePickup),
+            AppChip(label: 'Family size', onPressed: onToggleFamily),
+            AppChip(label: 'Fasting friendly', onPressed: onToggleFasting),
           ],
         ),
         AppSpacing.vLg,
@@ -212,7 +194,8 @@ class _SearchResults extends StatelessWidget {
         ...vm.results.map(
           (restaurant) => AppListTile(
             title: restaurant.name,
-            subtitle: '${restaurant.prepTimeBand.label} • ${restaurant.trustCopy}',
+            subtitle:
+                '${restaurant.prepTimeBand.label} • ${restaurant.trustCopy}',
             onTap: () => context.push(
               Routes.restaurantDetailsWithIntent(
                 restaurant.id,
@@ -234,4 +217,3 @@ String? _intentFromFilters(DiscoveryFilters filters) {
   if (filters.fastingFriendly) return 'fasting_friendly';
   return null;
 }
-

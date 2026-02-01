@@ -2,12 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:yekermo/shared/tokens/app_spacing.dart';
 
 class AppChip extends StatelessWidget {
-  const AppChip({
-    super.key,
-    required this.label,
-    this.onPressed,
-    this.icon,
-  });
+  const AppChip({super.key, required this.label, this.onPressed, this.icon});
 
   final String label;
   final VoidCallback? onPressed;

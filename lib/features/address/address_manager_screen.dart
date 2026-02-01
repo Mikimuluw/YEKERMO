@@ -70,9 +70,7 @@ class _AddressManagerScreenState extends ConsumerState<AddressManagerScreen> {
   void _save() {
     if (_line1.text.trim().isEmpty || _city.text.trim().isEmpty) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('Add an address and city to continue.'),
-        ),
+        const SnackBar(content: Text('Add an address and city to continue.')),
       );
       return;
     }
@@ -85,9 +83,9 @@ class _AddressManagerScreenState extends ConsumerState<AddressManagerScreen> {
       notes: _notes.text.trim().isEmpty ? null : _notes.text.trim(),
     );
     ref.read(addressControllerProvider.notifier).save(address);
-    ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(content: Text('Address saved.')),
-    );
+    ScaffoldMessenger.of(
+      context,
+    ).showSnackBar(const SnackBar(content: Text('Address saved.')));
   }
 }
 
@@ -113,10 +111,7 @@ class _AddressForm extends StatelessWidget {
     return ListView(
       padding: AppSpacing.pagePadding,
       children: [
-        Text(
-          'Where should we deliver?',
-          style: context.text.titleMedium,
-        ),
+        Text('Where should we deliver?', style: context.text.titleMedium),
         AppSpacing.vSm,
         Wrap(
           spacing: AppSpacing.sm,
@@ -134,25 +129,13 @@ class _AddressForm extends StatelessWidget {
           ],
         ),
         AppSpacing.vMd,
-        AppTextField(
-          controller: line1,
-          hintText: 'Address',
-        ),
+        AppTextField(controller: line1, hintText: 'Address'),
         AppSpacing.vSm,
-        AppTextField(
-          controller: city,
-          hintText: 'City',
-        ),
+        AppTextField(controller: city, hintText: 'City'),
         AppSpacing.vSm,
-        AppTextField(
-          controller: notes,
-          hintText: 'Notes (optional)',
-        ),
+        AppTextField(controller: notes, hintText: 'Notes (optional)'),
         AppSpacing.vMd,
-        AppButton(
-          label: 'Save address',
-          onPressed: onSave,
-        ),
+        AppButton(label: 'Save address', onPressed: onSave),
       ],
     );
   }

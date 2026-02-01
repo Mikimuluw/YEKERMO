@@ -112,21 +112,14 @@ class AppTheme {
           color: scheme.onSurface,
           fontWeight: FontWeight.w600,
         ),
-        bodyLarge: baseText.bodyLarge?.copyWith(
-          color: scheme.onSurface,
-        ),
-        bodyMedium: baseText.bodyMedium?.copyWith(
-          color: scheme.onSurface,
-        ),
+        bodyLarge: baseText.bodyLarge?.copyWith(color: scheme.onSurface),
+        bodyMedium: baseText.bodyMedium?.copyWith(color: scheme.onSurface),
         labelLarge: baseText.labelLarge?.copyWith(
           color: scheme.onSurface,
           fontWeight: FontWeight.w600,
         ),
       ),
-      dividerTheme: DividerThemeData(
-        color: scheme.outline,
-        thickness: 1,
-      ),
+      dividerTheme: DividerThemeData(color: scheme.outline, thickness: 1),
       chipTheme: ChipThemeData(
         backgroundColor: scheme.surfaceContainerHighest,
         selectedColor: scheme.primary.withValues(alpha: 0.12),

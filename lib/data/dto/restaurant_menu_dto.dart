@@ -15,8 +15,8 @@ class RestaurantMenuDto {
   final List<MenuItemDto> items;
 
   RestaurantMenu toModel() => RestaurantMenu(
-        restaurant: restaurant.toModel(),
-        categories: categories.map((item) => item.toModel()).toList(),
-        items: items.map((item) => item.toModel()).toList(),
-      );
+    restaurant: restaurant.toModel(),
+    categories: categories.map((item) => item.toModel()).toList(),
+    items: items.map((item) => item.toModel()).toList(),
+  );
 }

@@ -20,12 +20,12 @@ class MenuItemDto {
   final List<MenuItemTag> tags;
 
   MenuItem toModel() => MenuItem(
-        id: id,
-        restaurantId: restaurantId,
-        categoryId: categoryId,
-        name: name,
-        description: description,
-        price: price,
-        tags: tags,
-      );
+    id: id,
+    restaurantId: restaurantId,
+    categoryId: categoryId,
+    name: name,
+    description: description,
+    price: price,
+    tags: tags,
+  );
 }

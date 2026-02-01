@@ -38,8 +38,9 @@ class DiscoveryScreen extends ConsumerWidget {
       familySize: familySize,
       fastingFriendly: fastingFriendly,
     );
-    final ScreenState<DiscoveryVm> state =
-        ref.watch(discoveryControllerProvider);
+    final ScreenState<DiscoveryVm> state = ref.watch(
+      discoveryControllerProvider,
+    );
 
     return AppScaffold(
       title: 'Discovery',
@@ -139,10 +140,7 @@ class _DiscoveryCard extends StatelessWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text(
-          restaurant.name,
-          style: context.text.titleMedium,
-        ),
+        Text(restaurant.name, style: context.text.titleMedium),
         AppSpacing.vXs,
         Text(
           restaurant.tagline,

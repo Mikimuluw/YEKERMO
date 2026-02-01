@@ -14,19 +14,16 @@ import 'package:yekermo/shared/widgets/app_section_header.dart';
 import 'package:yekermo/shared/widgets/async_state_view.dart';
 
 class RestaurantScreen extends ConsumerWidget {
-  const RestaurantScreen({
-    super.key,
-    required this.restaurantId,
-    this.intent,
-  });
+  const RestaurantScreen({super.key, required this.restaurantId, this.intent});
 
   final String restaurantId;
   final String? intent;
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final ScreenState<RestaurantVm> state =
-        ref.watch(restaurantControllerProvider);
+    final ScreenState<RestaurantVm> state = ref.watch(
+      restaurantControllerProvider,
+    );
 
     return AppScaffold(
       title: 'Restaurant',
@@ -35,12 +32,7 @@ class RestaurantScreen extends ConsumerWidget {
         emptyBuilder: (_) => const _RestaurantEmpty(),
         dataBuilder: (context, data) => _RestaurantBody(
           vm: data,
-          onMealTap: (item) => _showMealSheet(
-            context,
-            ref,
-            data,
-            item,
-          ),
+          onMealTap: (item) => _showMealSheet(context, ref, data, item),
         ),
       ),
     );
@@ -65,10 +57,7 @@ class _RestaurantEmpty extends StatelessWidget {
 }
 
 class _RestaurantBody extends StatelessWidget {
-  const _RestaurantBody({
-    required this.vm,
-    required this.onMealTap,
-  });
+  const _RestaurantBody({required this.vm, required this.onMealTap});
 
   final RestaurantVm vm;
   final ValueChanged<MenuItem> onMealTap;
@@ -79,15 +68,9 @@ class _RestaurantBody extends StatelessWidget {
     return ListView(
       padding: AppSpacing.pagePadding,
       children: [
-        Text(
-          vm.restaurant.name,
-          style: context.text.headlineSmall,
-        ),
+        Text(vm.restaurant.name, style: context.text.headlineSmall),
         AppSpacing.vXs,
-        Text(
-          vm.headerTitle,
-          style: context.text.titleMedium,
-        ),
+        Text(vm.headerTitle, style: context.text.titleMedium),
         AppSpacing.vXs,
         Text(
           vm.headerSubtitle,
@@ -255,10 +238,7 @@ void _showMealSheet(
                           : null,
                       icon: const Icon(Icons.remove_circle_outline),
                     ),
-                    Text(
-                      quantity.toString(),
-                      style: context.text.titleMedium,
-                    ),
+                    Text(quantity.toString(), style: context.text.titleMedium),
                     IconButton(
                       onPressed: () => setState(() => quantity += 1),
                       icon: const Icon(Icons.add_circle_outline),

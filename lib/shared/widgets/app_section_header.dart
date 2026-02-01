@@ -11,12 +11,7 @@ class AppSectionHeader extends StatelessWidget {
     final TextTheme textTheme = Theme.of(context).textTheme;
     return Row(
       children: [
-        Expanded(
-          child: Text(
-            title,
-            style: textTheme.titleLarge,
-          ),
-        ),
+        Expanded(child: Text(title, style: textTheme.titleLarge)),
         if (trailing != null) trailing!,
       ],
     );

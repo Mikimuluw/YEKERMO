@@ -11,8 +11,8 @@ final discoveryQueryProvider = Provider<DiscoveryQuery>(
 
 final discoveryControllerProvider =
     NotifierProvider<DiscoveryController, ScreenState<DiscoveryVm>>(
-  DiscoveryController.new,
-);
+      DiscoveryController.new,
+    );
 
 class DiscoveryController extends Notifier<ScreenState<DiscoveryVm>> {
   int _requestId = 0;
@@ -56,10 +56,7 @@ class DiscoveryController extends Notifier<ScreenState<DiscoveryVm>> {
 }
 
 class DiscoveryQuery {
-  const DiscoveryQuery({
-    required this.filters,
-    this.query,
-  });
+  const DiscoveryQuery({required this.filters, this.query});
 
   final DiscoveryFilters filters;
   final String? query;

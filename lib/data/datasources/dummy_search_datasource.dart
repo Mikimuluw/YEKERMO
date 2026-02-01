@@ -35,8 +35,9 @@ class DummySearchDataSource {
           (item) =>
               item.name.toLowerCase().contains(normalized) ||
               item.tagline.toLowerCase().contains(normalized) ||
-              item.dishNames
-                  .any((dish) => dish.toLowerCase().contains(normalized)),
+              item.dishNames.any(
+                (dish) => dish.toLowerCase().contains(normalized),
+              ),
         )
         .toList();
   }

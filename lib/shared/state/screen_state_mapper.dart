@@ -15,9 +15,7 @@ class ScreenStateMapper {
     }
 
     if (snapshot.hasError) {
-      return ScreenState.error(
-        Failure(snapshot.error.toString()),
-      );
+      return ScreenState.error(Failure(snapshot.error.toString()));
     }
 
     if (!snapshot.hasData) {

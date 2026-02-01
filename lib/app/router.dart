@@ -16,14 +16,11 @@ import 'package:yekermo/features/restaurant/restaurant_routes.dart';
 import 'package:yekermo/features/search/search_routes.dart';
 import 'package:yekermo/features/shell/app_shell.dart';
 
-final GlobalKey<NavigatorState> _rootNavigatorKey =
-    GlobalKey<NavigatorState>();
-final GlobalKey<NavigatorState> _homeNavigatorKey =
-    GlobalKey<NavigatorState>();
+final GlobalKey<NavigatorState> _rootNavigatorKey = GlobalKey<NavigatorState>();
+final GlobalKey<NavigatorState> _homeNavigatorKey = GlobalKey<NavigatorState>();
 final GlobalKey<NavigatorState> _searchNavigatorKey =
     GlobalKey<NavigatorState>();
-final GlobalKey<NavigatorState> _cartNavigatorKey =
-    GlobalKey<NavigatorState>();
+final GlobalKey<NavigatorState> _cartNavigatorKey = GlobalKey<NavigatorState>();
 final GlobalKey<NavigatorState> _ordersNavigatorKey =
     GlobalKey<NavigatorState>();
 final GlobalKey<NavigatorState> _favoritesNavigatorKey =
@@ -36,50 +33,34 @@ final GoRouter appRouter = GoRouter(
   initialLocation: Routes.home,
   routes: [
     StatefulShellRoute.indexedStack(
-      builder: (context, state, navigationShell) => AppShell(
-        navigationShell: navigationShell,
-      ),
+      builder: (context, state, navigationShell) =>
+          AppShell(navigationShell: navigationShell),
       branches: [
         StatefulShellBranch(
           navigatorKey: _homeNavigatorKey,
           routes: [
-            homeRoute(
-              routes: [
-                restaurantRoute(),
-                discoveryRoute(),
-              ],
-            ),
+            homeRoute(routes: [restaurantRoute(), discoveryRoute()]),
           ],
         ),
         StatefulShellBranch(
           navigatorKey: _searchNavigatorKey,
-          routes: [
-            searchRoute(),
-          ],
+          routes: [searchRoute()],
         ),
         StatefulShellBranch(
           navigatorKey: _cartNavigatorKey,
-          routes: [
-            cartRoute(),
-          ],
+          routes: [cartRoute()],
         ),
         StatefulShellBranch(
           navigatorKey: _ordersNavigatorKey,
-          routes: [
-            ordersRoute(),
-          ],
+          routes: [ordersRoute()],
         ),
         StatefulShellBranch(
           navigatorKey: _favoritesNavigatorKey,
-          routes: [
-            favoritesRoute(),
-          ],
+          routes: [favoritesRoute()],
         ),
         StatefulShellBranch(
           navigatorKey: _profileNavigatorKey,
-          routes: [
-            profileRoute(),
-          ],
+          routes: [profileRoute()],
         ),
       ],
     ),

@@ -6,7 +6,9 @@ import 'package:yekermo/shared/state/screen_state.dart';
 class AddressController extends Notifier<ScreenState<Address?>> {
   @override
   ScreenState<Address?> build() {
-    return ScreenState.success(ref.read(addressRepositoryProvider).getDefault());
+    return ScreenState.success(
+      ref.read(addressRepositoryProvider).getDefault(),
+    );
   }
 
   void save(Address address) {

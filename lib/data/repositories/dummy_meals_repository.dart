@@ -27,9 +27,14 @@ class DummyMealsRepository implements MealsRepository {
         ...dto.allRestaurants.map((item) => item.toModel()),
       ];
       final DateTime now = DateTime.now();
-      final List<Restaurant> trustedRestaurants =
-          _computeTrustedSubset(allRestaurants, now);
-      final List<Restaurant> orderedAll = _applyWeatherBias(allRestaurants, now);
+      final List<Restaurant> trustedRestaurants = _computeTrustedSubset(
+        allRestaurants,
+        now,
+      );
+      final List<Restaurant> orderedAll = _applyWeatherBias(
+        allRestaurants,
+        now,
+      );
       return Result.success(
         HomeFeed(
           customer: dto.customer.toModel(),
@@ -40,9 +45,7 @@ class DummyMealsRepository implements MealsRepository {
         ),
       );
     } catch (error) {
-      return Result.failure(
-        const Failure('Unable to load home feed.'),
-      );
+      return Result.failure(const Failure('Unable to load home feed.'));
     }
   }
 
@@ -64,13 +67,10 @@ class DummyMealsRepository implements MealsRepository {
         filters,
         query,
       );
-      final List<Restaurant> adjusted =
-          _applyBehavioralCopy(filtered, now);
+      final List<Restaurant> adjusted = _applyBehavioralCopy(filtered, now);
       return Result.success(_applyWeatherBias(adjusted, now));
     } catch (error) {
-      return Result.failure(
-        const Failure('Unable to load discovery.'),
-      );
+      return Result.failure(const Failure('Unable to load discovery.'));
     }
   }
 
@@ -86,12 +86,12 @@ class DummyMealsRepository implements MealsRepository {
     }
     return restaurants.where((restaurant) {
       if (normalized.isNotEmpty) {
-        final bool matchesQuery = restaurant.name
-                .toLowerCase()
-                .contains(normalized) ||
+        final bool matchesQuery =
+            restaurant.name.toLowerCase().contains(normalized) ||
             restaurant.tagline.toLowerCase().contains(normalized) ||
-            restaurant.dishNames
-                .any((dish) => dish.toLowerCase().contains(normalized));
+            restaurant.dishNames.any(
+              (dish) => dish.toLowerCase().contains(normalized),
+            );
         if (!matchesQuery) return false;
       }
       if (intentTag != null && !restaurant.tags.contains(intentTag)) {

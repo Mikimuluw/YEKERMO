@@ -80,8 +80,8 @@ class _CartBadge extends StatelessWidget {
               child: Text(
                 count.toString(),
                 style: Theme.of(context).textTheme.labelSmall?.copyWith(
-                      color: Theme.of(context).colorScheme.onPrimary,
-                    ),
+                  color: Theme.of(context).colorScheme.onPrimary,
+                ),
               ),
             ),
           ),

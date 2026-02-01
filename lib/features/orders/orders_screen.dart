@@ -71,10 +71,7 @@ class _OrderCard extends ConsumerWidget {
             ),
           ),
           AppSpacing.vSm,
-          Text(
-            _summary(order),
-            style: context.text.bodySmall,
-          ),
+          Text(_summary(order), style: context.text.bodySmall),
           AppSpacing.vSm,
           Row(
             children: [
@@ -91,9 +88,7 @@ class _OrderCard extends ConsumerWidget {
                   if (!context.mounted) return;
                   if (result.hasMissing) {
                     ScaffoldMessenger.of(context).showSnackBar(
-                      const SnackBar(
-                        content: Text('Some items have changed.'),
-                      ),
+                      const SnackBar(content: Text('Some items have changed.')),
                     );
                   }
                 },
@@ -112,10 +107,51 @@ class _OrderCard extends ConsumerWidget {
   }
 
   String _summary(Order order) {
-    final int itemCount =
-        order.items.fold(0, (sum, item) => sum + item.quantity);
-    final String fulfillment =
-        order.fulfillmentMode == FulfillmentMode.delivery ? 'Delivery' : 'Pickup';
-    return '$itemCount items • $fulfillment';
+    final int itemCount = order.items.fold(
+      0,
+      (sum, item) => sum + item.quantity,
+    );
+    final String fulfillment = order.fulfillmentMode == FulfillmentMode.delivery
+        ? 'Delivery'
+        : 'Pickup';
+    final String time = order.placedAt == null
+        ? 'Recent'
+        : _formatDate(order.placedAt!);
+    return '$time • $itemCount items • $fulfillment';
+  }
+
+  String _formatDate(DateTime time) {
+    final String month = _month(time.month);
+    return '$month ${time.day}';
+  }
+
+  String _month(int month) {
+    switch (month) {
+      case 1:
+        return 'Jan';
+      case 2:
+        return 'Feb';
+      case 3:
+        return 'Mar';
+      case 4:
+        return 'Apr';
+      case 5:
+        return 'May';
+      case 6:
+        return 'Jun';
+      case 7:
+        return 'Jul';
+      case 8:
+        return 'Aug';
+      case 9:
+        return 'Sep';
+      case 10:
+        return 'Oct';
+      case 11:
+        return 'Nov';
+      case 12:
+        return 'Dec';
+    }
+    return '';
   }
 }

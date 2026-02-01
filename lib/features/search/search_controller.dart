@@ -16,26 +16,32 @@ class SearchController extends Notifier<ScreenState<SearchVm>> {
     await _searchWithFilters(query, filters);
   }
 
-  void togglePickup() => _toggle((filters) => DiscoveryFilters(
-        intent: filters.intent,
-        pickupFriendly: !filters.pickupFriendly,
-        familySize: filters.familySize,
-        fastingFriendly: filters.fastingFriendly,
-      ));
+  void togglePickup() => _toggle(
+    (filters) => DiscoveryFilters(
+      intent: filters.intent,
+      pickupFriendly: !filters.pickupFriendly,
+      familySize: filters.familySize,
+      fastingFriendly: filters.fastingFriendly,
+    ),
+  );
 
-  void toggleFamily() => _toggle((filters) => DiscoveryFilters(
-        intent: filters.intent,
-        pickupFriendly: filters.pickupFriendly,
-        familySize: !filters.familySize,
-        fastingFriendly: filters.fastingFriendly,
-      ));
+  void toggleFamily() => _toggle(
+    (filters) => DiscoveryFilters(
+      intent: filters.intent,
+      pickupFriendly: filters.pickupFriendly,
+      familySize: !filters.familySize,
+      fastingFriendly: filters.fastingFriendly,
+    ),
+  );
 
-  void toggleFasting() => _toggle((filters) => DiscoveryFilters(
-        intent: filters.intent,
-        pickupFriendly: filters.pickupFriendly,
-        familySize: filters.familySize,
-        fastingFriendly: !filters.fastingFriendly,
-      ));
+  void toggleFasting() => _toggle(
+    (filters) => DiscoveryFilters(
+      intent: filters.intent,
+      pickupFriendly: filters.pickupFriendly,
+      familySize: filters.familySize,
+      fastingFriendly: !filters.fastingFriendly,
+    ),
+  );
 
   void _toggle(DiscoveryFilters Function(DiscoveryFilters current) update) {
     final DiscoveryFilters next = update(_currentFilters());
@@ -61,11 +67,7 @@ class SearchController extends Notifier<ScreenState<SearchVm>> {
           state = ScreenState.empty('No matches yet. Try a shorter search.');
         } else {
           state = ScreenState.success(
-            SearchVm(
-              query: query,
-              filters: filters,
-              results: data,
-            ),
+            SearchVm(query: query, filters: filters, results: data),
           );
         }
       case FailureResult<List<Restaurant>>(:final failure):

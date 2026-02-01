@@ -50,10 +50,9 @@ class _DefaultEmptyView extends StatelessWidget {
       child: Text(
         message ?? 'Nothing here yet.',
         style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-              color: scheme.onSurface.withValues(alpha: 0.7),
-            ),
+          color: scheme.onSurface.withValues(alpha: 0.7),
+        ),
       ),
     );
   }
 }
-

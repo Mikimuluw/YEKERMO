@@ -1,21 +1,6 @@
 import 'package:yekermo/domain/cart.dart';
+import 'package:yekermo/domain/fees.dart';
 import 'package:yekermo/domain/models.dart';
-
-class FeeBreakdown {
-  const FeeBreakdown({
-    required this.subtotal,
-    required this.serviceFee,
-    required this.deliveryFee,
-    required this.tax,
-  });
-
-  final double subtotal;
-  final double serviceFee;
-  final double deliveryFee;
-  final double tax;
-
-  double get total => subtotal + serviceFee + deliveryFee + tax;
-}
 
 class OrderDraft {
   const OrderDraft({

@@ -18,11 +18,11 @@ class AddressDto {
   final String? notes;
 
   Address toModel() => Address(
-        id: id,
-        label: label,
-        line1: line1,
-        city: city,
-        neighborhood: neighborhood,
-        notes: notes,
-      );
+    id: id,
+    label: label,
+    line1: line1,
+    city: city,
+    neighborhood: neighborhood,
+    notes: notes,
+  );
 }

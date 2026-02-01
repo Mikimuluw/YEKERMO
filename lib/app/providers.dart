@@ -8,10 +8,12 @@ import 'package:yekermo/data/repositories/dummy_address_repository.dart';
 import 'package:yekermo/data/repositories/dummy_cart_repository.dart';
 import 'package:yekermo/data/repositories/dummy_meals_repository.dart';
 import 'package:yekermo/data/repositories/dummy_orders_repository.dart';
+import 'package:yekermo/data/repositories/dummy_payments_repository.dart';
 import 'package:yekermo/data/repositories/dummy_restaurant_repository.dart';
 import 'package:yekermo/data/repositories/dummy_search_repository.dart';
 import 'package:yekermo/data/repositories/meals_repository.dart';
 import 'package:yekermo/data/repositories/orders_repository.dart';
+import 'package:yekermo/data/repositories/payments_repository.dart';
 import 'package:yekermo/data/repositories/restaurant_repository.dart';
 import 'package:yekermo/data/repositories/search_repository.dart';
 import 'package:yekermo/observability/analytics.dart';
@@ -54,10 +56,10 @@ final ordersRepositoryProvider = Provider<OrdersRepository>(
   (ref) => DummyOrdersRepository(),
 );
 
-final analyticsProvider = Provider<Analytics>(
-  (ref) => const DummyAnalytics(),
+final paymentsRepositoryProvider = Provider<PaymentsRepository>(
+  (ref) => DummyPaymentsRepository(),
 );
 
-final logProvider = Provider<AppLog>(
-  (ref) => const AppLog(),
-);
+final analyticsProvider = Provider<Analytics>((ref) => const DummyAnalytics());
+
+final logProvider = Provider<AppLog>((ref) => const AppLog());

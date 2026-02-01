@@ -35,20 +35,22 @@ class RestaurantController extends Notifier<ScreenState<RestaurantVm>> {
       return;
     }
 
-    final Result<HomeFeed> homeResult =
-        await ref.read(mealsRepositoryProvider).fetchHomeFeed();
+    final Result<HomeFeed> homeResult = await ref
+        .read(mealsRepositoryProvider)
+        .fetchHomeFeed();
     if (requestId != _requestId) return;
     if (homeResult case FailureResult<HomeFeed>(:final failure)) {
       state = ScreenState.error(failure);
       return;
     }
 
-    final RestaurantMenu menu =
-        (menuResult as Success<RestaurantMenu>).data;
+    final RestaurantMenu menu = (menuResult as Success<RestaurantMenu>).data;
     final HomeFeed home = (homeResult as Success<HomeFeed>).data;
 
-    final Map<String, int> pastQuantities =
-        _pastQuantities(home.pastOrders, query.restaurantId);
+    final Map<String, int> pastQuantities = _pastQuantities(
+      home.pastOrders,
+      query.restaurantId,
+    );
     final List<MenuItem> forYouItems = _forYouItems(
       menu.items,
       pastQuantities,
@@ -164,10 +166,7 @@ class RestaurantController extends Notifier<ScreenState<RestaurantVm>> {
 }
 
 class RestaurantQuery {
-  const RestaurantQuery({
-    required this.restaurantId,
-    this.intent,
-  });
+  const RestaurantQuery({required this.restaurantId, this.intent});
 
   final String restaurantId;
   final String? intent;

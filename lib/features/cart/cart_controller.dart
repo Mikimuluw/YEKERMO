@@ -10,8 +10,7 @@ class CartController extends Notifier<ScreenState<CartVm>> {
     return _loadState();
   }
 
-  List<CartLineItem> getItems() =>
-      ref.read(cartRepositoryProvider).getItems();
+  List<CartLineItem> getItems() => ref.read(cartRepositoryProvider).getItems();
 
   void addItem(MenuItem item, int quantity) {
     ref.read(cartRepositoryProvider).addItem(item, quantity);

@@ -145,10 +145,7 @@ class _CartLineItem extends StatelessWidget {
                   : null,
               icon: const Icon(Icons.remove_circle_outline),
             ),
-            Text(
-              lineItem.quantity.toString(),
-              style: context.text.titleMedium,
-            ),
+            Text(lineItem.quantity.toString(), style: context.text.titleMedium),
             IconButton(
               onPressed: () =>
                   onUpdate(lineItem.item.id, lineItem.quantity + 1),
