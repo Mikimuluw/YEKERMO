@@ -60,7 +60,7 @@ class _DiscoveryEmpty extends StatelessWidget {
     return ListView(
       padding: AppSpacing.pagePadding,
       children: [
-        const AppSectionHeader(title: 'Filters'),
+        const AppSectionHeader(title: 'Active filters'),
         AppSpacing.vSm,
         Wrap(
           spacing: AppSpacing.sm,
@@ -89,12 +89,19 @@ class _DiscoveryResults extends StatelessWidget {
     return ListView(
       padding: AppSpacing.pagePadding,
       children: [
-        const AppSectionHeader(title: 'Filters'),
+        const AppSectionHeader(title: 'Active filters'),
         AppSpacing.vSm,
         Wrap(
           spacing: AppSpacing.sm,
           runSpacing: AppSpacing.sm,
           children: _filterChips(vm.filters),
+        ),
+        AppSpacing.vMd,
+        Text(
+          'Showing ${vm.restaurants.length} restaurants',
+          style: context.text.bodySmall?.copyWith(
+            color: context.colors.onSurface.withValues(alpha: 0.6),
+          ),
         ),
         AppSpacing.vLg,
         const AppSectionHeader(title: 'Restaurants'),
