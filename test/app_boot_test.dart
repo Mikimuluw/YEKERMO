@@ -104,9 +104,7 @@ void main() {
             ),
           ),
         ],
-        child: MaterialApp.router(
-          routerConfig: appRouter,
-        ),
+        child: MaterialApp.router(routerConfig: appRouter),
       ),
     );
 

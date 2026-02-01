@@ -31,9 +31,7 @@ void main() {
           cartRepositoryProvider.overrideWithValue(cartRepo),
           addressRepositoryProvider.overrideWithValue(addressRepo),
         ],
-        child: MaterialApp.router(
-          routerConfig: appRouter,
-        ),
+        child: MaterialApp.router(routerConfig: appRouter),
       ),
     );
 
@@ -69,13 +67,13 @@ void main() {
     expect(find.text('\$16.50'), findsOneWidget);
 
     await tester.scrollUntilVisible(
-      find.text('Place order').first,
+      find.text('Pay and place order'),
       300,
       scrollable: find.byType(Scrollable).first,
     );
     final FilledButton button = tester.widget(
-      find.widgetWithText(FilledButton, 'Place order').first,
+      find.widgetWithText(FilledButton, 'Pay and place order'),
     );
-    expect(button.onPressed, isNotNull);
+    expect(button.onPressed, isNull);
   });
 }

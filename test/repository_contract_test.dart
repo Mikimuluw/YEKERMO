@@ -64,8 +64,9 @@ class _FailureMealsRepository implements MealsRepository {
 
 void main() {
   test('maps DTO to domain', () async {
-    const DummyMealsRepository repo =
-        DummyMealsRepository(DummyMealsDataSource());
+    const DummyMealsRepository repo = DummyMealsRepository(
+      DummyMealsDataSource(),
+    );
     final Result<HomeFeed> result = await repo.fetchHomeFeed();
 
     expect(result, isA<Success<HomeFeed>>());
@@ -107,8 +108,9 @@ void main() {
   });
 
   test('filters return expected subset', () async {
-    const DummyMealsRepository repo =
-        DummyMealsRepository(DummyMealsDataSource());
+    const DummyMealsRepository repo = DummyMealsRepository(
+      DummyMealsDataSource(),
+    );
     final Result<List<Restaurant>> result = await repo.fetchDiscovery(
       filters: const DiscoveryFilters(pickupFriendly: true),
     );

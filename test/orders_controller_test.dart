@@ -8,13 +8,16 @@ import 'package:yekermo/data/repositories/restaurant_repository.dart';
 import 'package:yekermo/data/result.dart';
 import 'package:yekermo/domain/cart.dart';
 import 'package:yekermo/domain/models.dart';
+import 'package:yekermo/domain/payment_method.dart';
 import 'package:yekermo/domain/restaurant_menu.dart';
 import 'package:yekermo/features/checkout/checkout_controller.dart';
 import 'package:yekermo/features/orders/orders_controller.dart';
 
 class _TestRestaurantRepository implements RestaurantRepository {
   @override
-  Future<Result<RestaurantMenu>> fetchRestaurantMenu(String restaurantId) async {
+  Future<Result<RestaurantMenu>> fetchRestaurantMenu(
+    String restaurantId,
+  ) async {
     return Result.success(
       const RestaurantMenu(
         restaurant: Restaurant(
@@ -27,9 +30,7 @@ class _TestRestaurantRepository implements RestaurantRepository {
           trustCopy: 'Popular with returning guests',
           dishNames: ['Misir Comfort Bowl'],
         ),
-        categories: [
-          MenuCategory(id: 'cat-1', title: 'Bowls'),
-        ],
+        categories: [MenuCategory(id: 'cat-1', title: 'Bowls')],
         items: [
           MenuItem(
             id: 'item-1',
@@ -81,17 +82,22 @@ void main() {
     );
     addTearDown(container.dispose);
 
-    final CheckoutController controller =
-        container.read(checkoutControllerProvider.notifier);
+    final CheckoutController controller = container.read(
+      checkoutControllerProvider.notifier,
+    );
     controller.setFulfillment(FulfillmentMode.delivery);
 
-    final Order? order = await controller.placeOrder();
+    final Order? order = await controller.payAndPlaceOrder(
+      paymentMethod: const PaymentMethod(brand: 'Card', last4: '4242'),
+      paymentTransactionId: 'txn-1',
+    );
     expect(order, isNotNull);
 
     final List<Order> orders = await ordersRepo.getOrders();
     expect(orders, hasLength(1));
-    expect(orders.first.status, OrderStatus.received);
+    expect(orders.first.status, OrderStatus.preparing);
     expect(orders.first.placedAt, isNotNull);
+    expect(orders.first.paymentStatus, PaymentStatus.paid);
     expect(cartRepo.getItems(), isEmpty);
   });
 
@@ -100,13 +106,16 @@ void main() {
     final ProviderContainer container = ProviderContainer(
       overrides: [
         cartRepositoryProvider.overrideWithValue(cartRepo),
-        restaurantRepositoryProvider.overrideWithValue(_TestRestaurantRepository()),
+        restaurantRepositoryProvider.overrideWithValue(
+          _TestRestaurantRepository(),
+        ),
       ],
     );
     addTearDown(container.dispose);
 
-    final OrdersController controller =
-        container.read(ordersControllerProvider.notifier);
+    final OrdersController controller = container.read(
+      ordersControllerProvider.notifier,
+    );
     const Order order = Order(
       id: 'order-1',
       restaurantId: 'rest-1',

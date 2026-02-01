@@ -41,18 +41,21 @@ void main() {
     );
     addTearDown(container.dispose);
 
-    final CheckoutController controller =
-        container.read(checkoutControllerProvider.notifier);
+    final CheckoutController controller = container.read(
+      checkoutControllerProvider.notifier,
+    );
 
     controller.setFulfillment(FulfillmentMode.delivery);
-    final ScreenState<OrderDraft> deliveryState =
-        container.read(checkoutControllerProvider);
+    final ScreenState<OrderDraft> deliveryState = container.read(
+      checkoutControllerProvider,
+    );
     final OrderDraft deliveryDraft =
         (deliveryState as SuccessState<OrderDraft>).data;
 
     controller.setFulfillment(FulfillmentMode.pickup);
-    final ScreenState<OrderDraft> pickupState =
-        container.read(checkoutControllerProvider);
+    final ScreenState<OrderDraft> pickupState = container.read(
+      checkoutControllerProvider,
+    );
     final OrderDraft pickupDraft =
         (pickupState as SuccessState<OrderDraft>).data;
 
@@ -84,12 +87,14 @@ void main() {
     );
     addTearDown(container.dispose);
 
-    final CheckoutController controller =
-        container.read(checkoutControllerProvider.notifier);
+    final CheckoutController controller = container.read(
+      checkoutControllerProvider.notifier,
+    );
 
     controller.setFulfillment(FulfillmentMode.delivery);
-    final ScreenState<OrderDraft> state =
-        container.read(checkoutControllerProvider);
+    final ScreenState<OrderDraft> state = container.read(
+      checkoutControllerProvider,
+    );
     expect(state, isA<SuccessState<OrderDraft>>());
     final OrderDraft draft = (state as SuccessState<OrderDraft>).data;
     expect(draft.address, isNull);

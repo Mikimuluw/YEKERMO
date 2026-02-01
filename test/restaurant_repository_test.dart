@@ -7,10 +7,12 @@ import 'package:yekermo/domain/restaurant_menu.dart';
 
 void main() {
   test('restaurant menu maps dto to domain', () async {
-    const RestaurantRepository repo =
-        DummyRestaurantRepository(DummyRestaurantDataSource());
-    final Result<RestaurantMenu> result =
-        await repo.fetchRestaurantMenu('rest-1');
+    const RestaurantRepository repo = DummyRestaurantRepository(
+      DummyRestaurantDataSource(),
+    );
+    final Result<RestaurantMenu> result = await repo.fetchRestaurantMenu(
+      'rest-1',
+    );
 
     expect(result, isA<Success<RestaurantMenu>>());
     final RestaurantMenu menu = (result as Success<RestaurantMenu>).data;

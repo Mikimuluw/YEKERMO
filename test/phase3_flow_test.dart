@@ -72,26 +72,26 @@ class _FastMealsRepository implements MealsRepository {
     DiscoveryFilters? filters,
     String? query,
   }) async {
-    return Result.success(
-      const [
-        Restaurant(
-          id: 'rest-1',
-          name: 'Teff & Timber',
-          tagline: 'Warm bowls, quick pickup',
-          prepTimeBand: PrepTimeBand.fast,
-          serviceModes: [ServiceMode.pickup, ServiceMode.delivery],
-          tags: [RestaurantTag.quickFilling, RestaurantTag.pickupFriendly],
-          trustCopy: 'Popular with returning guests',
-          dishNames: ['Misir Comfort Bowl'],
-        ),
-      ],
-    );
+    return Result.success(const [
+      Restaurant(
+        id: 'rest-1',
+        name: 'Teff & Timber',
+        tagline: 'Warm bowls, quick pickup',
+        prepTimeBand: PrepTimeBand.fast,
+        serviceModes: [ServiceMode.pickup, ServiceMode.delivery],
+        tags: [RestaurantTag.quickFilling, RestaurantTag.pickupFriendly],
+        trustCopy: 'Popular with returning guests',
+        dishNames: ['Misir Comfort Bowl'],
+      ),
+    ]);
   }
 }
 
 class _FastRestaurantRepository implements RestaurantRepository {
   @override
-  Future<Result<RestaurantMenu>> fetchRestaurantMenu(String restaurantId) async {
+  Future<Result<RestaurantMenu>> fetchRestaurantMenu(
+    String restaurantId,
+  ) async {
     return Result.success(
       const RestaurantMenu(
         restaurant: Restaurant(
@@ -104,9 +104,7 @@ class _FastRestaurantRepository implements RestaurantRepository {
           trustCopy: 'Popular with returning guests',
           dishNames: ['Misir Comfort Bowl'],
         ),
-        categories: [
-          MenuCategory(id: 'cat-1', title: 'Comfort bowls'),
-        ],
+        categories: [MenuCategory(id: 'cat-1', title: 'Comfort bowls')],
         items: [
           MenuItem(
             id: 'item-1',
@@ -162,8 +160,9 @@ void main() {
       ProviderScope(
         overrides: [
           mealsRepositoryProvider.overrideWithValue(_FastMealsRepository()),
-          restaurantRepositoryProvider
-              .overrideWithValue(_FastRestaurantRepository()),
+          restaurantRepositoryProvider.overrideWithValue(
+            _FastRestaurantRepository(),
+          ),
           cartRepositoryProvider.overrideWithValue(cartRepo),
           discoveryQueryProvider.overrideWithValue(
             const DiscoveryQuery(
@@ -177,9 +176,7 @@ void main() {
             () => _StaticHomeController(feed),
           ),
         ],
-        child: MaterialApp.router(
-          routerConfig: appRouter,
-        ),
+        child: MaterialApp.router(routerConfig: appRouter),
       ),
     );
 

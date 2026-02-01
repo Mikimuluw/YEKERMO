@@ -44,11 +44,11 @@ class _FastMealsRepository implements MealsRepository {
             id: 'rest-1',
             name: 'Teff & Timber',
             tagline: 'Warm bowls, quick pickup',
-                    prepTimeBand: PrepTimeBand.fast,
-                    serviceModes: [ServiceMode.pickup, ServiceMode.delivery],
-                    tags: [RestaurantTag.quickFilling, RestaurantTag.pickupFriendly],
-                    trustCopy: 'Popular with returning guests',
-                    dishNames: ['Misir Comfort Bowl'],
+            prepTimeBand: PrepTimeBand.fast,
+            serviceModes: [ServiceMode.pickup, ServiceMode.delivery],
+            tags: [RestaurantTag.quickFilling, RestaurantTag.pickupFriendly],
+            trustCopy: 'Popular with returning guests',
+            dishNames: ['Misir Comfort Bowl'],
           ),
         ],
         allRestaurants: [],
@@ -67,7 +67,9 @@ class _FastMealsRepository implements MealsRepository {
 
 class _FastRestaurantRepository implements RestaurantRepository {
   @override
-  Future<Result<RestaurantMenu>> fetchRestaurantMenu(String restaurantId) async {
+  Future<Result<RestaurantMenu>> fetchRestaurantMenu(
+    String restaurantId,
+  ) async {
     return Result.success(
       const RestaurantMenu(
         restaurant: Restaurant(
@@ -80,9 +82,7 @@ class _FastRestaurantRepository implements RestaurantRepository {
           trustCopy: 'Popular with returning guests',
           dishNames: ['Misir Comfort Bowl'],
         ),
-        categories: [
-          MenuCategory(id: 'cat-1', title: 'Comfort bowls'),
-        ],
+        categories: [MenuCategory(id: 'cat-1', title: 'Comfort bowls')],
         items: [
           MenuItem(
             id: 'item-1',
@@ -150,7 +150,10 @@ void main() {
                     tagline: 'Warm bowls, quick pickup',
                     prepTimeBand: PrepTimeBand.fast,
                     serviceModes: [ServiceMode.pickup, ServiceMode.delivery],
-                    tags: [RestaurantTag.quickFilling, RestaurantTag.pickupFriendly],
+                    tags: [
+                      RestaurantTag.quickFilling,
+                      RestaurantTag.pickupFriendly,
+                    ],
                     trustCopy: 'Popular with returning guests',
                     dishNames: ['Misir Comfort Bowl'],
                   ),
@@ -160,9 +163,7 @@ void main() {
             ),
           ),
         ],
-        child: MaterialApp.router(
-          routerConfig: appRouter,
-        ),
+        child: MaterialApp.router(routerConfig: appRouter),
       ),
     );
 

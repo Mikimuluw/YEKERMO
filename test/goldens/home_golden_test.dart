@@ -37,9 +37,7 @@ class _GoldenMealsRepository implements MealsRepository {
           Order(
             id: 'order-1',
             restaurantId: 'rest-1',
-            items: [
-              OrderItem(menuItemId: 'item-1', quantity: 1),
-            ],
+            items: [OrderItem(menuItemId: 'item-1', quantity: 1)],
             total: 21.75,
             status: OrderStatus.completed,
             fulfillmentMode: FulfillmentMode.delivery,
@@ -53,11 +51,11 @@ class _GoldenMealsRepository implements MealsRepository {
             id: 'rest-1',
             name: 'Teff & Timber',
             tagline: 'Warm bowls, quick pickup',
-                    prepTimeBand: PrepTimeBand.fast,
-                    serviceModes: [ServiceMode.pickup, ServiceMode.delivery],
-                    tags: [RestaurantTag.quickFilling, RestaurantTag.pickupFriendly],
-                    trustCopy: 'Popular with returning guests',
-                    dishNames: ['Misir Comfort Bowl'],
+            prepTimeBand: PrepTimeBand.fast,
+            serviceModes: [ServiceMode.pickup, ServiceMode.delivery],
+            tags: [RestaurantTag.quickFilling, RestaurantTag.pickupFriendly],
+            trustCopy: 'Popular with returning guests',
+            dishNames: ['Misir Comfort Bowl'],
           ),
         ],
         allRestaurants: [
@@ -65,11 +63,11 @@ class _GoldenMealsRepository implements MealsRepository {
             id: 'rest-2',
             name: 'Meskela Kitchen',
             tagline: 'Slow-simmered classics',
-                    prepTimeBand: PrepTimeBand.standard,
-                    serviceModes: [ServiceMode.delivery],
-                    tags: [RestaurantTag.familySize],
-                    trustCopy: 'Family-size favorites',
-                    dishNames: ['Family Feast Platter'],
+            prepTimeBand: PrepTimeBand.standard,
+            serviceModes: [ServiceMode.delivery],
+            tags: [RestaurantTag.familySize],
+            trustCopy: 'Family-size favorites',
+            dishNames: ['Family Feast Platter'],
           ),
         ],
       ),
@@ -97,95 +95,84 @@ class _StaticHomeController extends HomeController {
 }
 
 void main() {
-  testWidgets(
-    'Home signature layout golden',
-    (tester) async {
-      await tester.pumpWidget(
-        ProviderScope(
-          overrides: [
-            mealsRepositoryProvider.overrideWithValue(
-              const _GoldenMealsRepository(),
-            ),
-            homeControllerProvider.overrideWith(
-              () => _StaticHomeController(
-                const HomeFeed(
-                  customer: Customer(
-                    id: 'cust-1',
-                    name: 'Mina',
-                    primaryAddressId: 'addr-1',
-                    preference: Preference(
-                      favoriteCuisines: ['Ethiopian'],
-                      dietaryTags: ['Family-friendly'],
-                    ),
+  testWidgets('Home signature layout golden', (tester) async {
+    await tester.pumpWidget(
+      ProviderScope(
+        overrides: [
+          mealsRepositoryProvider.overrideWithValue(
+            const _GoldenMealsRepository(),
+          ),
+          homeControllerProvider.overrideWith(
+            () => _StaticHomeController(
+              const HomeFeed(
+                customer: Customer(
+                  id: 'cust-1',
+                  name: 'Mina',
+                  primaryAddressId: 'addr-1',
+                  preference: Preference(
+                    favoriteCuisines: ['Ethiopian'],
+                    dietaryTags: ['Family-friendly'],
                   ),
-                  primaryAddress: Address(
-                    id: 'addr-1',
-                    label: AddressLabel.home,
-                    line1: '215 Riverstone Ave',
-                    city: 'YYC',
-                  ),
-                  pastOrders: [
-                    Order(
-                      id: 'order-1',
-                      restaurantId: 'rest-1',
-                      items: [
-                        OrderItem(menuItemId: 'item-1', quantity: 1),
-                      ],
-                      total: 21.75,
-                      status: OrderStatus.completed,
-                      fulfillmentMode: FulfillmentMode.delivery,
-                      address: null,
-                      placedAt: null,
-                      scheduledTime: null,
-                    ),
-                  ],
-                  trustedRestaurants: [
-                    Restaurant(
-                      id: 'rest-1',
-                      name: 'Teff & Timber',
-                      tagline: 'Warm bowls, quick pickup',
-                      prepTimeBand: PrepTimeBand.fast,
-                      serviceModes: [
-                        ServiceMode.pickup,
-                        ServiceMode.delivery,
-                      ],
-                      tags: [
-                        RestaurantTag.quickFilling,
-                        RestaurantTag.pickupFriendly,
-                      ],
-                      trustCopy: 'Popular with returning guests',
-                      dishNames: ['Misir Comfort Bowl'],
-                    ),
-                  ],
-                  allRestaurants: [
-                    Restaurant(
-                      id: 'rest-2',
-                      name: 'Meskela Kitchen',
-                      tagline: 'Slow-simmered classics',
-                      prepTimeBand: PrepTimeBand.standard,
-                      serviceModes: [ServiceMode.delivery],
-                      tags: [RestaurantTag.familySize],
-                      trustCopy: 'Family-size favorites',
-                      dishNames: ['Family Feast Platter'],
-                    ),
-                  ],
                 ),
+                primaryAddress: Address(
+                  id: 'addr-1',
+                  label: AddressLabel.home,
+                  line1: '215 Riverstone Ave',
+                  city: 'YYC',
+                ),
+                pastOrders: [
+                  Order(
+                    id: 'order-1',
+                    restaurantId: 'rest-1',
+                    items: [OrderItem(menuItemId: 'item-1', quantity: 1)],
+                    total: 21.75,
+                    status: OrderStatus.completed,
+                    fulfillmentMode: FulfillmentMode.delivery,
+                    address: null,
+                    placedAt: null,
+                    scheduledTime: null,
+                  ),
+                ],
+                trustedRestaurants: [
+                  Restaurant(
+                    id: 'rest-1',
+                    name: 'Teff & Timber',
+                    tagline: 'Warm bowls, quick pickup',
+                    prepTimeBand: PrepTimeBand.fast,
+                    serviceModes: [ServiceMode.pickup, ServiceMode.delivery],
+                    tags: [
+                      RestaurantTag.quickFilling,
+                      RestaurantTag.pickupFriendly,
+                    ],
+                    trustCopy: 'Popular with returning guests',
+                    dishNames: ['Misir Comfort Bowl'],
+                  ),
+                ],
+                allRestaurants: [
+                  Restaurant(
+                    id: 'rest-2',
+                    name: 'Meskela Kitchen',
+                    tagline: 'Slow-simmered classics',
+                    prepTimeBand: PrepTimeBand.standard,
+                    serviceModes: [ServiceMode.delivery],
+                    tags: [RestaurantTag.familySize],
+                    trustCopy: 'Family-size favorites',
+                    dishNames: ['Family Feast Platter'],
+                  ),
+                ],
               ),
             ),
-          ],
-          child: const MaterialApp(
-            home: HomeScreen(),
           ),
-        ),
-      );
+        ],
+        child: const MaterialApp(home: HomeScreen()),
+      ),
+    );
 
-      await tester.pumpAndSettle();
+    await tester.pumpAndSettle();
 
-      await expectLater(
-        find.byType(MaterialApp),
-        matchesGoldenFile('goldens/home.png'),
-      );
-    },
-    skip: true,
-  );
+    await expectLater(
+      find.byType(MaterialApp),
+      matchesGoldenFile('goldens/home.png'),
+    );
+  }, skip: true);
 }

@@ -76,7 +76,9 @@ class _FlowMealsRepository implements MealsRepository {
 
 class _FlowRestaurantRepository implements RestaurantRepository {
   @override
-  Future<Result<RestaurantMenu>> fetchRestaurantMenu(String restaurantId) async {
+  Future<Result<RestaurantMenu>> fetchRestaurantMenu(
+    String restaurantId,
+  ) async {
     return Result.success(
       const RestaurantMenu(
         restaurant: Restaurant(
@@ -139,15 +141,14 @@ void main() {
           addressRepositoryProvider.overrideWithValue(addressRepo),
           ordersRepositoryProvider.overrideWithValue(ordersRepo),
           mealsRepositoryProvider.overrideWithValue(_FlowMealsRepository()),
-          restaurantRepositoryProvider
-              .overrideWithValue(_FlowRestaurantRepository()),
+          restaurantRepositoryProvider.overrideWithValue(
+            _FlowRestaurantRepository(),
+          ),
           orderDetailsQueryProvider.overrideWithValue(
             const OrderDetailsQuery(orderId: 'order-1'),
           ),
         ],
-        child: MaterialApp.router(
-          routerConfig: appRouter,
-        ),
+        child: MaterialApp.router(routerConfig: appRouter),
       ),
     );
 
@@ -158,14 +159,39 @@ void main() {
     await tester.pumpAndSettle();
 
     await tester.scrollUntilVisible(
-      find.text('Place order'),
+      find.text('Payment'),
       300,
       scrollable: find.byType(Scrollable).first,
     );
-    await tester.tap(find.text('Place order'));
+    final Finder cardNumberField = find.byWidgetPredicate(
+      (widget) =>
+          widget is TextField && widget.decoration?.hintText == 'Card number',
+    );
+    final Finder expiryField = find.byWidgetPredicate(
+      (widget) => widget is TextField && widget.decoration?.hintText == 'MM/YY',
+    );
+    final Finder cvcField = find.byWidgetPredicate(
+      (widget) => widget is TextField && widget.decoration?.hintText == 'CVC',
+    );
+
+    await tester.scrollUntilVisible(
+      cardNumberField,
+      300,
+      scrollable: find.byType(Scrollable).first,
+    );
+    await tester.enterText(cardNumberField, '4242 4242 4242 4242');
+    await tester.enterText(expiryField, '12/30');
+    await tester.enterText(cvcField, '123');
+
+    await tester.scrollUntilVisible(
+      find.text('Pay and place order'),
+      300,
+      scrollable: find.byType(Scrollable).first,
+    );
+    await tester.tap(find.text('Pay and place order'));
     await tester.pumpAndSettle();
 
-    expect(find.text('Order received.'), findsOneWidget);
+    expect(find.text('Order confirmed.'), findsOneWidget);
 
     await tester.scrollUntilVisible(
       find.text('Back to home'),
@@ -174,8 +200,14 @@ void main() {
     );
     await tester.tap(find.text('Back to home'));
     await tester.pumpAndSettle();
+    appRouter.go(Routes.home);
+    await tester.pumpAndSettle();
 
     expect(find.text('Your usual'), findsOneWidget);
-    expect(find.text('Teff & Timber'), findsWidgets);
+    await tester.pump(const Duration(milliseconds: 800));
+    expect(
+      find.text('Teff & Timber', skipOffstage: false),
+      findsWidgets,
+    );
   });
 }

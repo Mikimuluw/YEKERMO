@@ -63,9 +63,7 @@ void main() {
         Order(
           id: 'order-1',
           restaurantId: 'rest-1',
-          items: [
-            OrderItem(menuItemId: 'item-1', quantity: 1),
-          ],
+          items: [OrderItem(menuItemId: 'item-1', quantity: 1)],
           total: 21.75,
           status: OrderStatus.completed,
           fulfillmentMode: FulfillmentMode.delivery,
@@ -103,16 +101,12 @@ void main() {
     await tester.pumpWidget(
       ProviderScope(
         overrides: [
-          mealsRepositoryProvider.overrideWithValue(
-            _FakeMealsRepository(feed),
-          ),
+          mealsRepositoryProvider.overrideWithValue(_FakeMealsRepository(feed)),
           homeControllerProvider.overrideWith(
             () => _StaticHomeController(feed),
           ),
         ],
-        child: const MaterialApp(
-          home: HomeScreen(),
-        ),
+        child: const MaterialApp(home: HomeScreen()),
       ),
     );
 

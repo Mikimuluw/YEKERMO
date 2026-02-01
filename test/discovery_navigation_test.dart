@@ -35,20 +35,18 @@ class _DiscoveryMealsRepository implements MealsRepository {
     DiscoveryFilters? filters,
     String? query,
   }) async {
-    return Result.success(
-      const [
-        Restaurant(
-          id: 'rest-1',
-          name: 'Teff & Timber',
-          tagline: 'Warm bowls, quick pickup',
-          prepTimeBand: PrepTimeBand.fast,
-          serviceModes: [ServiceMode.pickup, ServiceMode.delivery],
-          tags: [RestaurantTag.quickFilling],
-          trustCopy: 'Popular with returning guests',
-          dishNames: ['Misir Comfort Bowl'],
-        ),
-      ],
-    );
+    return Result.success(const [
+      Restaurant(
+        id: 'rest-1',
+        name: 'Teff & Timber',
+        tagline: 'Warm bowls, quick pickup',
+        prepTimeBand: PrepTimeBand.fast,
+        serviceModes: [ServiceMode.pickup, ServiceMode.delivery],
+        tags: [RestaurantTag.quickFilling],
+        trustCopy: 'Popular with returning guests',
+        dishNames: ['Misir Comfort Bowl'],
+      ),
+    ]);
   }
 }
 
@@ -101,9 +99,7 @@ void main() {
             ),
           ),
         ],
-        child: MaterialApp.router(
-          routerConfig: appRouter,
-        ),
+        child: MaterialApp.router(routerConfig: appRouter),
       ),
     );
 
