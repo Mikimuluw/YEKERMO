@@ -102,7 +102,7 @@ class _CartBody extends StatelessWidget {
         ),
         AppSpacing.vMd,
         AppButton(
-          label: 'Checkout',
+          label: 'Review order',
           onPressed: () {},
         ),
       ],

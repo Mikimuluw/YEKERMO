@@ -55,7 +55,7 @@ class _RestaurantEmpty extends StatelessWidget {
     return Padding(
       padding: AppSpacing.pagePadding,
       child: Text(
-        'Menu details are not ready yet.',
+        'Menu isn’t ready yet — check back soon.',
         style: context.text.bodyMedium?.copyWith(
           color: context.colors.onSurface.withValues(alpha: 0.7),
         ),
