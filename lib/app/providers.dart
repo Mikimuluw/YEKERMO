@@ -1,0 +1,33 @@
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:yekermo/data/datasources/dummy_meals_datasource.dart';
+import 'package:yekermo/data/datasources/dummy_search_datasource.dart';
+import 'package:yekermo/data/repositories/dummy_meals_repository.dart';
+import 'package:yekermo/data/repositories/dummy_search_repository.dart';
+import 'package:yekermo/data/repositories/meals_repository.dart';
+import 'package:yekermo/data/repositories/search_repository.dart';
+import 'package:yekermo/observability/analytics.dart';
+import 'package:yekermo/observability/app_log.dart';
+
+final dummyMealsDataSourceProvider = Provider<DummyMealsDataSource>(
+  (ref) => const DummyMealsDataSource(),
+);
+
+final dummySearchDataSourceProvider = Provider<DummySearchDataSource>(
+  (ref) => const DummySearchDataSource(),
+);
+
+final mealsRepositoryProvider = Provider<MealsRepository>(
+  (ref) => DummyMealsRepository(ref.watch(dummyMealsDataSourceProvider)),
+);
+
+final searchRepositoryProvider = Provider<SearchRepository>(
+  (ref) => DummySearchRepository(ref.watch(dummySearchDataSourceProvider)),
+);
+
+final analyticsProvider = Provider<Analytics>(
+  (ref) => const DummyAnalytics(),
+);
+
+final logProvider = Provider<AppLog>(
+  (ref) => const AppLog(),
+);
