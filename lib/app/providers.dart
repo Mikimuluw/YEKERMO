@@ -2,7 +2,9 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:yekermo/data/datasources/dummy_meals_datasource.dart';
 import 'package:yekermo/data/datasources/dummy_restaurant_datasource.dart';
 import 'package:yekermo/data/datasources/dummy_search_datasource.dart';
+import 'package:yekermo/data/repositories/address_repository.dart';
 import 'package:yekermo/data/repositories/cart_repository.dart';
+import 'package:yekermo/data/repositories/dummy_address_repository.dart';
 import 'package:yekermo/data/repositories/dummy_cart_repository.dart';
 import 'package:yekermo/data/repositories/dummy_meals_repository.dart';
 import 'package:yekermo/data/repositories/dummy_restaurant_repository.dart';
@@ -40,6 +42,10 @@ final searchRepositoryProvider = Provider<SearchRepository>(
 
 final cartRepositoryProvider = Provider<CartRepository>(
   (ref) => DummyCartRepository(),
+);
+
+final addressRepositoryProvider = Provider<AddressRepository>(
+  (ref) => DummyAddressRepository(),
 );
 
 final analyticsProvider = Provider<Analytics>(

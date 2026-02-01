@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
 import 'package:yekermo/app/di.dart';
+import 'package:yekermo/app/routes.dart';
 import 'package:yekermo/domain/cart.dart';
 import 'package:yekermo/features/cart/cart_controller.dart';
 import 'package:yekermo/shared/extensions/context_extensions.dart';
@@ -103,7 +105,7 @@ class _CartBody extends StatelessWidget {
         AppSpacing.vMd,
         AppButton(
           label: 'Review order',
-          onPressed: () {},
+          onPressed: () => context.push(Routes.checkout),
         ),
       ],
     );
