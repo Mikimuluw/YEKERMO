@@ -55,3 +55,21 @@
 - No payments, promos, tips, scheduling, or order placement
 - Calm copy, no pressure language
 - Tests green (flutter analyze, flutter test)
+
+## Phase 5 — Memory & Return: Review → Confirmation → History
+
+**Status:** Completed ✅
+
+**Shipped:**
+- Order placement creates an Order record and clears cart
+- Order confirmation screen with status, fulfillment, address, and timing band
+- Orders history list (most recent first) with calm empty state
+- Reorder prefills cart and routes back to Review Order with gentle notice on changes
+- Home “Your usual” derives from real orders
+- Orders repository + controllers for history and detail views
+- Tests: order placement, reorder, and end-to-end confirmation flow
+
+**Constraints upheld:**
+- No payments or retries
+- Calm status copy and honest mocked messaging
+- Tests green (flutter analyze, flutter test)
