@@ -44,6 +44,10 @@ class _FastMealsRepository implements MealsRepository {
             restaurantId: 'rest-1',
             items: [OrderItem(menuItemId: 'item-1', quantity: 2)],
             total: 28.50,
+            status: OrderStatus.completed,
+            fulfillmentMode: FulfillmentMode.delivery,
+            address: null,
+            placedAt: null,
           ),
         ],
         trustedRestaurants: [

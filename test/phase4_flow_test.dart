@@ -57,16 +57,25 @@ void main() {
     await tester.tap(find.text('Save address'));
     await tester.pumpAndSettle();
 
-    await tester.pageBack();
+    appRouter.go(Routes.checkout);
     await tester.pumpAndSettle();
 
-    await tester.scrollUntilVisible(find.text('Delivery fee'), 300);
+    await tester.scrollUntilVisible(
+      find.text('Delivery fee'),
+      300,
+      scrollable: find.byType(Scrollable).first,
+    );
     expect(find.text('Delivery fee'), findsOneWidget);
     expect(find.text('\$16.50'), findsOneWidget);
 
-    final FilledButton button = tester.widget(
-      find.widgetWithText(FilledButton, 'Ready to place order'),
+    await tester.scrollUntilVisible(
+      find.text('Place order').first,
+      300,
+      scrollable: find.byType(Scrollable).first,
     );
-    expect(button.onPressed, isNull);
+    final FilledButton button = tester.widget(
+      find.widgetWithText(FilledButton, 'Place order').first,
+    );
+    expect(button.onPressed, isNotNull);
   });
 }

@@ -20,6 +20,10 @@ void main() {
       restaurantId: 'rest-1',
       items: [OrderItem(menuItemId: 'item-1', quantity: 1)],
       total: 21.75,
+      status: OrderStatus.completed,
+      fulfillmentMode: FulfillmentMode.delivery,
+      address: null,
+      placedAt: null,
       scheduledTime: null,
     );
 
