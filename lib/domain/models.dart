@@ -94,6 +94,7 @@ class Restaurant {
     required this.tags,
     required this.trustCopy,
     required this.dishNames,
+    this.address = '',
   });
 
   final String id;
@@ -104,6 +105,7 @@ class Restaurant {
   final List<RestaurantTag> tags;
   final String trustCopy;
   final List<String> dishNames;
+  final String address;
 }
 
 class MenuCategory {

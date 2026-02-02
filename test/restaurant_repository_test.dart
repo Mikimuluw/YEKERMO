@@ -11,12 +11,12 @@ void main() {
       DummyRestaurantDataSource(),
     );
     final Result<RestaurantMenu> result = await repo.fetchRestaurantMenu(
-      'rest-1',
+      'yyc_abyssinia',
     );
 
     expect(result, isA<Success<RestaurantMenu>>());
     final RestaurantMenu menu = (result as Success<RestaurantMenu>).data;
-    expect(menu.restaurant.id, 'rest-1');
+    expect(menu.restaurant.id, 'yyc_abyssinia');
     expect(menu.categories, isNotEmpty);
     expect(menu.items, isNotEmpty);
     expect(menu.items.first.tags, isNotEmpty);
