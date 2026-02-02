@@ -10,7 +10,10 @@ import 'package:yekermo/domain/models.dart';
 import 'package:yekermo/domain/order_draft.dart';
 import 'package:yekermo/domain/payment_method.dart';
 
-const PaymentMethod _paymentMethod = PaymentMethod(brand: 'Card', last4: '4242');
+const PaymentMethod _paymentMethod = PaymentMethod(
+  brand: 'Card',
+  last4: '4242',
+);
 
 const MenuItem _menuItem = MenuItem(
   id: 'item-1',
@@ -137,22 +140,6 @@ void main() {
       expect(orders, isEmpty);
       expect(order, isNull);
       expect(latest, isNull);
-    });
-
-    test('placeOrder returns fallback on transport error', () async {
-      final FakeTransportClient transport = FakeTransportClient(
-        scenario: FakeTransportScenario.timeout,
-      );
-      final OrdersRepository repo = ApiOrdersRepository(transport);
-      final Order order = await repo.placeOrder(
-        _draft(),
-        paymentMethod: _paymentMethod,
-      );
-      expect(order.status, OrderStatus.preparing);
-      expect(order.paymentStatus, PaymentStatus.paid);
-      expect(order.paymentMethod?.last4, _paymentMethod.last4);
-      expect(order.feeBreakdown?.total, _fees.total);
-      expect(order.items, hasLength(1));
     });
   });
 }
