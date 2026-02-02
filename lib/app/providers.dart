@@ -1,4 +1,5 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:yekermo/core/city/city.dart';
 import 'package:yekermo/data/datasources/dummy_meals_datasource.dart';
 import 'package:yekermo/data/datasources/dummy_restaurant_datasource.dart';
 import 'package:yekermo/data/datasources/dummy_search_datasource.dart';
@@ -32,6 +33,10 @@ final dummySearchDataSourceProvider = Provider<DummySearchDataSource>(
 
 final dummyRestaurantDataSourceProvider = Provider<DummyRestaurantDataSource>(
   (ref) => const DummyRestaurantDataSource(),
+);
+
+final cityContextProvider = Provider<CityContext>(
+  (ref) => const CityContext(CityId.calgary),
 );
 
 final mealsRepositoryProvider = Provider<MealsRepository>(
