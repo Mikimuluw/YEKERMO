@@ -5,6 +5,7 @@ import 'package:yekermo/data/payments/payment_result.dart';
 import 'package:yekermo/domain/failure.dart';
 import 'package:yekermo/domain/payment_method.dart';
 import 'package:yekermo/shared/state/screen_state.dart';
+import 'package:yekermo/core/copy/trust_copy.dart';
 
 class PaymentController extends Notifier<ScreenState<PaymentVm>> {
   @override
@@ -35,9 +36,7 @@ class PaymentController extends Notifier<ScreenState<PaymentVm>> {
       state = ScreenState.success(PaymentVm(method: method));
     } else {
       state = ScreenState.error(
-        Failure(
-          result.message ?? "Payment didn't go through. Nothing was charged.",
-        ),
+        Failure(result.message ?? TrustCopy.paymentNotCharged),
       );
     }
     return result;

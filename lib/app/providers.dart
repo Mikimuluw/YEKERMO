@@ -16,6 +16,8 @@ import 'package:yekermo/data/repositories/orders_repository.dart';
 import 'package:yekermo/data/repositories/payments_repository.dart';
 import 'package:yekermo/data/repositories/restaurant_repository.dart';
 import 'package:yekermo/data/repositories/search_repository.dart';
+import 'package:yekermo/domain/support.dart';
+import 'package:yekermo/domain/support_handoff.dart';
 import 'package:yekermo/observability/analytics.dart';
 import 'package:yekermo/observability/app_log.dart';
 
@@ -65,3 +67,18 @@ final analyticsProvider = Provider<Analytics>((ref) => const DummyAnalytics());
 final logProvider = Provider<AppLog>((ref) => const AppLog());
 
 final currentUserEmailProvider = Provider<String>((_) => 'user@yekermo.app');
+
+final supportHandoffProvider = Provider<SupportHandoff>(
+  (ref) => LogSupportHandoff(ref.watch(logProvider)),
+);
+
+class LogSupportHandoff implements SupportHandoff {
+  const LogSupportHandoff(this.log);
+
+  final AppLog log;
+
+  @override
+  Future<void> submit(SupportRequestDraft draft) async {
+    log.i('Support handoff: ${draft.toPayload()}');
+  }
+}

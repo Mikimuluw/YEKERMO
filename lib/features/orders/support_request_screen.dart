@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:yekermo/app/providers.dart';
+import 'package:yekermo/core/copy/trust_copy.dart';
 import 'package:yekermo/domain/support.dart';
 import 'package:yekermo/observability/analytics.dart';
 import 'package:yekermo/shared/tokens/app_spacing.dart';
@@ -96,15 +97,13 @@ class _SupportRequestScreenState extends ConsumerState<SupportRequestScreen> {
       message: message.isEmpty ? null : message,
     );
     // TODO(phase8): replace log-only handoff with email/POST transport.
-    ref.read(logProvider).i('Support handoff: ${draft.toPayload()}');
+    await ref.read(supportHandoffProvider).submit(draft);
     if (!mounted) return;
     await showDialog<void>(
       context: context,
       builder: (context) => AlertDialog(
-        title: const Text("We'll look into this."),
-        content: const Text(
-          "You won't be charged while we review.\n\nThanks for letting us know.",
-        ),
+        title: const Text(TrustCopy.supportConfirmationTitle),
+        content: const Text(TrustCopy.supportConfirmationBody),
         actions: [
           TextButton(
             onPressed: () => Navigator.of(context).pop(),
