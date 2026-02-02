@@ -1,0 +1,6 @@
+This codebase is for YEKERMO only.
+Do NOT reference:
+- YeneFresh
+- EthiomealKit
+- Any Supabase project, schema, or UI from other repos
+Assume total isolation.

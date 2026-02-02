@@ -1,3 +1,7 @@
+# YEKERMO
+🚫 This repository is NOT related to YeneFresh / EthiomealKit.
+Product: Yekermo customer-facing app.
+
 # yekermo
 
 A new Flutter project.
