@@ -9,6 +9,7 @@ import 'package:yekermo/domain/models.dart';
 import 'package:yekermo/domain/order_draft.dart';
 import 'package:yekermo/domain/payment_method.dart';
 import 'package:yekermo/features/payments/payment_controller.dart';
+import 'package:yekermo/observability/analytics.dart';
 import 'package:yekermo/shared/extensions/context_extensions.dart';
 import 'package:yekermo/shared/state/screen_state.dart';
 import 'package:yekermo/shared/tokens/app_spacing.dart';
@@ -61,6 +62,7 @@ class _CheckoutScreenState extends ConsumerState<CheckoutScreen> {
     final ScreenState<PaymentVm> paymentState = ref.watch(
       paymentControllerProvider,
     );
+    final bool hasPaymentError = paymentState is ErrorState<PaymentVm>;
     final bool needsAddress = switch (state) {
       EmptyState<OrderDraft>(:final message) =>
         (message ?? '').toLowerCase().contains('address'),
@@ -78,6 +80,7 @@ class _CheckoutScreenState extends ConsumerState<CheckoutScreen> {
         dataBuilder: (context, data) => _CheckoutBody(
           draft: data,
           paymentState: paymentState,
+          hasPaymentError: hasPaymentError,
           cardNumber: _cardNumber,
           expiry: _expiry,
           cvc: _cvc,
@@ -105,6 +108,11 @@ class _CheckoutScreenState extends ConsumerState<CheckoutScreen> {
             if (order == null) return;
             if (!context.mounted) return;
             context.go(Routes.orderConfirmation(order.id));
+          },
+          onRetryPayment: () {
+            ref
+                .read(analyticsProvider)
+                .track(AnalyticsEvents.paymentRetryTriggered);
           },
         ),
       ),
@@ -162,6 +170,7 @@ class _CheckoutBody extends StatelessWidget {
   const _CheckoutBody({
     required this.draft,
     required this.paymentState,
+    required this.hasPaymentError,
     required this.cardNumber,
     required this.expiry,
     required this.cvc,
@@ -170,10 +179,12 @@ class _CheckoutBody extends StatelessWidget {
     required this.onAddAddress,
     required this.onNotesChanged,
     required this.onPayAndPlaceOrder,
+    required this.onRetryPayment,
   });
 
   final OrderDraft draft;
   final ScreenState<PaymentVm> paymentState;
+  final bool hasPaymentError;
   final TextEditingController cardNumber;
   final TextEditingController expiry;
   final TextEditingController cvc;
@@ -182,6 +193,7 @@ class _CheckoutBody extends StatelessWidget {
   final VoidCallback onAddAddress;
   final ValueChanged<String> onNotesChanged;
   final Future<void> Function() onPayAndPlaceOrder;
+  final VoidCallback onRetryPayment;
 
   @override
   Widget build(BuildContext context) {
@@ -301,11 +313,18 @@ class _CheckoutBody extends StatelessWidget {
           ),
         ),
         AppSpacing.vSm,
-        if (paymentState case ErrorState<PaymentVm>(:final failure)) ...[
+        if (hasPaymentError) ...[
+          // TODO(phase8): categorize retry copy by error (network/timeout/unknown).
           Text(
-            failure.message,
+            'Nothing was charged.',
             style: context.text.bodySmall?.copyWith(
-              color: context.colors.error,
+              color: context.colors.onSurface.withValues(alpha: 0.7),
+            ),
+          ),
+          Text(
+            'You can try again.',
+            style: context.text.bodySmall?.copyWith(
+              color: context.colors.onSurface.withValues(alpha: 0.7),
             ),
           ),
           AppSpacing.vSm,
@@ -319,7 +338,7 @@ class _CheckoutBody extends StatelessWidget {
           ),
           AppSpacing.vSm,
         ],
-        if (placeHint != null) ...[
+        if (placeHint != null && !hasPaymentError) ...[
           Text(
             placeHint,
             style: context.text.bodySmall?.copyWith(
@@ -328,7 +347,7 @@ class _CheckoutBody extends StatelessWidget {
           ),
           AppSpacing.vSm,
         ],
-        if (!hasCardNumber) ...[
+        if (!hasCardNumber && !hasPaymentError) ...[
           Text(
             'Add a payment method to continue.',
             style: context.text.bodySmall?.copyWith(
@@ -337,19 +356,26 @@ class _CheckoutBody extends StatelessWidget {
           ),
           AppSpacing.vSm,
         ],
-        Text(
-          "You'll see a confirmation next.",
-          style: context.text.bodySmall?.copyWith(
-            color: context.colors.onSurface.withValues(alpha: 0.7),
-          ),
-        ),
-        AppSpacing.vSm,
         AppButton(
-          label: 'Pay and place order',
+          label: hasPaymentError ? 'Retry payment' : 'Pay and place order',
           onPressed: canPlace && hasCardNumber && !isProcessing
-              ? onPayAndPlaceOrder
+              ? () async {
+                  if (hasPaymentError) {
+                    onRetryPayment();
+                  }
+                  await onPayAndPlaceOrder();
+                }
               : null,
         ),
+        if (!hasPaymentError) ...[
+          AppSpacing.vSm,
+          Text(
+            "You'll see a confirmation next.",
+            style: context.text.bodySmall?.copyWith(
+              color: context.colors.onSurface.withValues(alpha: 0.7),
+            ),
+          ),
+        ],
       ],
     );
   }
