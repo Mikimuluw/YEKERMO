@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:yekermo/core/copy/trust_copy.dart';
 import 'package:yekermo/domain/models.dart';
 import 'package:yekermo/features/orders/order_detail_controller.dart';
 import 'package:yekermo/shared/extensions/context_extensions.dart';
@@ -73,13 +74,13 @@ class OrderDetailContent extends StatelessWidget {
               AppSpacing.vXs,
               if (isStatusStale) ...[
                 Text(
-                  "We're checking on this.",
+                  TrustCopy.orderStatusChecking,
                   style: context.text.bodySmall?.copyWith(
                     color: context.colors.onSurface.withValues(alpha: 0.7),
                   ),
                 ),
                 Text(
-                  'No action needed right now.',
+                  TrustCopy.orderStatusNoAction,
                   style: context.text.bodySmall?.copyWith(
                     color: context.colors.onSurface.withValues(alpha: 0.7),
                   ),
@@ -216,7 +217,8 @@ class OrderDetailContent extends StatelessWidget {
     final DateTime? placedAt = order.placedAt ?? order.paidAt;
     if (placedAt == null) return false;
     if (order.status == OrderStatus.completed) return false;
-    return DateTime.now().difference(placedAt) > const Duration(minutes: 20);
+    return DateTime.now().difference(placedAt) >
+        TrustCopy.orderStatusStaleThreshold;
   }
 }
 

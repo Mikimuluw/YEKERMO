@@ -16,7 +16,6 @@ class DummyPaymentsRepository implements PaymentsRepository {
       return const PaymentResult(
         status: PaymentResultStatus.failure,
         transactionId: 'txn-failed',
-        message: "Payment didn't go through. Nothing was charged.",
       );
     }
     final int suffix = Random().nextInt(9999);

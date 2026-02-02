@@ -9,6 +9,7 @@ import 'package:yekermo/domain/models.dart';
 import 'package:yekermo/domain/order_draft.dart';
 import 'package:yekermo/domain/payment_method.dart';
 import 'package:yekermo/features/payments/payment_controller.dart';
+import 'package:yekermo/core/copy/trust_copy.dart';
 import 'package:yekermo/observability/analytics.dart';
 import 'package:yekermo/shared/extensions/context_extensions.dart';
 import 'package:yekermo/shared/state/screen_state.dart';
@@ -316,13 +317,13 @@ class _CheckoutBody extends StatelessWidget {
         if (hasPaymentError) ...[
           // TODO(phase8): categorize retry copy by error (network/timeout/unknown).
           Text(
-            'Nothing was charged.',
+            TrustCopy.paymentNotCharged,
             style: context.text.bodySmall?.copyWith(
               color: context.colors.onSurface.withValues(alpha: 0.7),
             ),
           ),
           Text(
-            'You can try again.',
+            TrustCopy.paymentTryAgain,
             style: context.text.bodySmall?.copyWith(
               color: context.colors.onSurface.withValues(alpha: 0.7),
             ),
