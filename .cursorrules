@@ -1,6 +1,10 @@
-This codebase is for YEKERMO only.
-Do NOT reference:
+This repository is YEKERMO.
+
+We are ONLY working on Yekermo in this workspace.
+
+Do NOT reference, import, mention, or reuse:
+- Ethiomealkit
 - YeneFresh
-- EthiomealKit
-- Any Supabase project, schema, or UI from other repos
-Assume total isolation.
+- Any food delivery, meal-kit, or Supabase schema from other projects
+
+Assume this is a completely independent product, company, and codebase.

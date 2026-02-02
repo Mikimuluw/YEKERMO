@@ -1,6 +1,9 @@
 # YEKERMO
-🚫 This repository is NOT related to YeneFresh / EthiomealKit.
-Product: Yekermo customer-facing app.
+
+🚫 This repository is NOT YeneFresh / Ethiomealkit  
+🚫 No shared code, schemas, or assumptions
+
+This is a standalone project.
 
 # yekermo
 
