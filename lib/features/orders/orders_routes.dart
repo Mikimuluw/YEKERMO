@@ -5,6 +5,7 @@ import 'package:yekermo/features/orders/order_confirmation_screen.dart';
 import 'package:yekermo/features/orders/order_detail_controller.dart';
 import 'package:yekermo/features/orders/order_detail_screen.dart';
 import 'package:yekermo/features/orders/orders_screen.dart';
+import 'package:yekermo/features/orders/receipt_screen.dart';
 import 'package:yekermo/features/orders/support_request_screen.dart';
 
 /// FEATURE ROUTE OWNERSHIP
@@ -35,6 +36,17 @@ GoRoute ordersRoute() {
             ),
           ],
           child: const OrderDetailScreen(),
+        ),
+      ),
+      GoRoute(
+        path: Routes.orderReceiptSegment,
+        builder: (context, state) => ProviderScope(
+          overrides: [
+            orderDetailsQueryProvider.overrideWithValue(
+              OrderDetailsQuery(orderId: state.pathParameters['id'] ?? ''),
+            ),
+          ],
+          child: const ReceiptScreen(),
         ),
       ),
       GoRoute(

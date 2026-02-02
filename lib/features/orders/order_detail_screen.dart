@@ -25,6 +25,7 @@ class OrderDetailScreen extends ConsumerWidget {
         emptyBuilder: (context) => const _OrderEmptyState(),
         dataBuilder: (context, data) => OrderDetailContent(
           viewModel: data,
+          onViewReceipt: () => context.push(Routes.orderReceipt(data.order.id)),
           onGetHelp: () => context.push(Routes.orderSupport(data.order.id)),
         ),
       ),

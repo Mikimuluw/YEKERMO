@@ -17,6 +17,7 @@ class OrderDetailContent extends StatelessWidget {
     this.showActions = false,
     this.onBackHome,
     this.onViewOrder,
+    this.onViewReceipt,
     this.onGetHelp,
   });
 
@@ -27,6 +28,7 @@ class OrderDetailContent extends StatelessWidget {
   final bool showActions;
   final VoidCallback? onBackHome;
   final VoidCallback? onViewOrder;
+  final VoidCallback? onViewReceipt;
   final VoidCallback? onGetHelp;
 
   @override
@@ -174,6 +176,10 @@ class OrderDetailContent extends StatelessWidget {
               color: context.colors.onSurface.withValues(alpha: 0.7),
             ),
           ),
+          if (onViewReceipt != null) ...[
+            AppSpacing.vSm,
+            AppButton(label: 'View receipt', onPressed: onViewReceipt),
+          ],
         ],
         if (onGetHelp != null) ...[
           AppSpacing.vLg,
