@@ -15,6 +15,7 @@ import 'package:yekermo/domain/home_feed.dart';
 import 'package:yekermo/domain/models.dart';
 import 'package:yekermo/domain/restaurant_menu.dart';
 import 'package:yekermo/features/orders/order_detail_controller.dart';
+import 'support/test_fixtures.dart';
 
 class _FlowMealsRepository implements MealsRepository {
   @override
@@ -41,7 +42,7 @@ class _FlowMealsRepository implements MealsRepository {
           Restaurant(
             id: 'rest-1',
             name: 'Teff & Timber',
-            address: '120 King St W, Toronto, ON',
+            address: kTestRestaurantAddress,
             tagline: 'Warm bowls, quick pickup',
             prepTimeBand: PrepTimeBand.fast,
             serviceModes: [ServiceMode.pickup, ServiceMode.delivery],
@@ -54,7 +55,7 @@ class _FlowMealsRepository implements MealsRepository {
           Restaurant(
             id: 'rest-1',
             name: 'Teff & Timber',
-            address: '120 King St W, Toronto, ON',
+            address: kTestRestaurantAddress,
             tagline: 'Warm bowls, quick pickup',
             prepTimeBand: PrepTimeBand.fast,
             serviceModes: [ServiceMode.pickup, ServiceMode.delivery],
@@ -86,7 +87,7 @@ class _FlowRestaurantRepository implements RestaurantRepository {
         restaurant: Restaurant(
           id: 'rest-1',
           name: 'Teff & Timber',
-          address: '120 King St W, Toronto, ON',
+          address: kTestRestaurantAddress,
           tagline: 'Warm bowls, quick pickup',
           prepTimeBand: PrepTimeBand.fast,
           serviceModes: [ServiceMode.pickup, ServiceMode.delivery],
