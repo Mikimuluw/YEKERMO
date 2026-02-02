@@ -17,6 +17,7 @@ class OrderDetailContent extends StatelessWidget {
     this.showActions = false,
     this.onBackHome,
     this.onViewOrder,
+    this.onGetHelp,
   });
 
   final OrderDetailVm viewModel;
@@ -26,11 +27,13 @@ class OrderDetailContent extends StatelessWidget {
   final bool showActions;
   final VoidCallback? onBackHome;
   final VoidCallback? onViewOrder;
+  final VoidCallback? onGetHelp;
 
   @override
   Widget build(BuildContext context) {
     final Order order = viewModel.order;
     final Restaurant? restaurant = viewModel.restaurant;
+    final bool isStatusStale = _isStatusStale(order);
     return ListView(
       padding: AppSpacing.pagePadding,
       children: [
@@ -66,12 +69,26 @@ class OrderDetailContent extends StatelessWidget {
               AppSpacing.vXs,
               Text(order.status.label, style: context.text.bodyMedium),
               AppSpacing.vXs,
-              Text(
-                'Status updates will appear here.',
-                style: context.text.bodySmall?.copyWith(
-                  color: context.colors.onSurface.withValues(alpha: 0.7),
+              if (isStatusStale) ...[
+                Text(
+                  "We're checking on this.",
+                  style: context.text.bodySmall?.copyWith(
+                    color: context.colors.onSurface.withValues(alpha: 0.7),
+                  ),
                 ),
-              ),
+                Text(
+                  'No action needed right now.',
+                  style: context.text.bodySmall?.copyWith(
+                    color: context.colors.onSurface.withValues(alpha: 0.7),
+                  ),
+                ),
+              ] else
+                Text(
+                  'Status updates will appear here.',
+                  style: context.text.bodySmall?.copyWith(
+                    color: context.colors.onSurface.withValues(alpha: 0.7),
+                  ),
+                ),
             ],
           ),
         ),
@@ -158,6 +175,14 @@ class OrderDetailContent extends StatelessWidget {
             ),
           ),
         ],
+        if (onGetHelp != null) ...[
+          AppSpacing.vLg,
+          AppButton(
+            label: 'Get help',
+            onPressed: onGetHelp,
+            style: AppButtonStyle.secondary,
+          ),
+        ],
         if (showActions) ...[
           AppSpacing.vLg,
           AppButton(label: 'Back to home', onPressed: onBackHome),
@@ -179,6 +204,13 @@ class OrderDetailContent extends StatelessWidget {
       case AddressLabel.work:
         return 'Work';
     }
+  }
+
+  bool _isStatusStale(Order order) {
+    final DateTime? placedAt = order.placedAt ?? order.paidAt;
+    if (placedAt == null) return false;
+    if (order.status == OrderStatus.completed) return false;
+    return DateTime.now().difference(placedAt) > const Duration(minutes: 20);
   }
 }
 

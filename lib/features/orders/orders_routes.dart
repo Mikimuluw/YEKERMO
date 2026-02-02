@@ -5,6 +5,7 @@ import 'package:yekermo/features/orders/order_confirmation_screen.dart';
 import 'package:yekermo/features/orders/order_detail_controller.dart';
 import 'package:yekermo/features/orders/order_detail_screen.dart';
 import 'package:yekermo/features/orders/orders_screen.dart';
+import 'package:yekermo/features/orders/support_request_screen.dart';
 
 /// FEATURE ROUTE OWNERSHIP
 /// This file is the single source of truth for orders routes.
@@ -35,6 +36,11 @@ GoRoute ordersRoute() {
           ],
           child: const OrderDetailScreen(),
         ),
+      ),
+      GoRoute(
+        path: Routes.orderSupportSegment,
+        builder: (context, state) =>
+            SupportRequestScreen(orderId: state.pathParameters['id'] ?? ''),
       ),
     ],
   );

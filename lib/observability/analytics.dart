@@ -18,4 +18,5 @@ class AnalyticsEvents {
   static const String mealOpened = 'meal_opened';
   static const String cartItemAdded = 'cart_item_added';
   static const String cartUpdated = 'cart_updated';
+  static const String supportCategorySelected = 'support_category_selected';
 }

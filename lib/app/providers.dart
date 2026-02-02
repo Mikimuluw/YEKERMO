@@ -63,3 +63,5 @@ final paymentsRepositoryProvider = Provider<PaymentsRepository>(
 final analyticsProvider = Provider<Analytics>((ref) => const DummyAnalytics());
 
 final logProvider = Provider<AppLog>((ref) => const AppLog());
+
+final currentUserEmailProvider = Provider<String>((_) => 'user@yekermo.app');
