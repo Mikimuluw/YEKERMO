@@ -1,5 +1,6 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:yekermo/core/city/city.dart';
+import 'package:yekermo/core/config/app_config.dart';
 import 'package:yekermo/data/datasources/dummy_meals_datasource.dart';
 import 'package:yekermo/data/datasources/dummy_restaurant_datasource.dart';
 import 'package:yekermo/data/datasources/dummy_search_datasource.dart';
@@ -35,8 +36,12 @@ final dummyRestaurantDataSourceProvider = Provider<DummyRestaurantDataSource>(
   (ref) => const DummyRestaurantDataSource(),
 );
 
+final appConfigProvider = Provider<AppConfig>(
+  (ref) => const AppConfig(),
+);
+
 final cityContextProvider = Provider<CityContext>(
-  (ref) => const CityContext(CityId.calgary),
+  (ref) => ref.watch(appConfigProvider).defaultCity,
 );
 
 final mealsRepositoryProvider = Provider<MealsRepository>(
@@ -64,16 +69,17 @@ final ordersRepositoryProvider = Provider<OrdersRepository>(
   (ref) => DummyOrdersRepository(),
 );
 
-const bool _useApiPayments = false;
-
 final transportClientProvider = Provider<TransportClient>(
   (ref) => FakeTransportClient(),
 );
 
 final paymentsRepositoryProvider = Provider<PaymentsRepository>(
-  (ref) => _useApiPayments
-      ? ApiPaymentsRepository(ref.watch(transportClientProvider))
-      : DummyPaymentsRepository(),
+  (ref) {
+    final AppConfig config = ref.watch(appConfigProvider);
+    return config.useRealBackend
+        ? ApiPaymentsRepository(ref.watch(transportClientProvider))
+        : DummyPaymentsRepository();
+  },
 );
 
 final analyticsProvider = Provider<Analytics>((ref) => const DummyAnalytics());
