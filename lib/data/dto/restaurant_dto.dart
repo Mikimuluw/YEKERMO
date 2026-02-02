@@ -4,6 +4,7 @@ class RestaurantDto {
   const RestaurantDto({
     required this.id,
     required this.name,
+    required this.address,
     required this.tagline,
     required this.prepTimeBand,
     required this.serviceModes,
@@ -14,6 +15,7 @@ class RestaurantDto {
 
   final String id;
   final String name;
+  final String address;
   final String tagline;
   final PrepTimeBand prepTimeBand;
   final List<ServiceMode> serviceModes;
@@ -24,6 +26,7 @@ class RestaurantDto {
   Restaurant toModel() => Restaurant(
     id: id,
     name: name,
+    address: address,
     tagline: tagline,
     prepTimeBand: prepTimeBand,
     serviceModes: serviceModes,

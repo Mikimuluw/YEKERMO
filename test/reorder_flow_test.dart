@@ -41,6 +41,7 @@ class _FlowMealsRepository implements MealsRepository {
           Restaurant(
             id: 'rest-1',
             name: 'Teff & Timber',
+            address: '120 King St W, Toronto, ON',
             tagline: 'Warm bowls, quick pickup',
             prepTimeBand: PrepTimeBand.fast,
             serviceModes: [ServiceMode.pickup, ServiceMode.delivery],
@@ -53,6 +54,7 @@ class _FlowMealsRepository implements MealsRepository {
           Restaurant(
             id: 'rest-1',
             name: 'Teff & Timber',
+            address: '120 King St W, Toronto, ON',
             tagline: 'Warm bowls, quick pickup',
             prepTimeBand: PrepTimeBand.fast,
             serviceModes: [ServiceMode.pickup, ServiceMode.delivery],
@@ -84,6 +86,7 @@ class _FlowRestaurantRepository implements RestaurantRepository {
         restaurant: Restaurant(
           id: 'rest-1',
           name: 'Teff & Timber',
+          address: '120 King St W, Toronto, ON',
           tagline: 'Warm bowls, quick pickup',
           prepTimeBand: PrepTimeBand.fast,
           serviceModes: [ServiceMode.pickup, ServiceMode.delivery],
@@ -205,9 +208,6 @@ void main() {
 
     expect(find.text('Your usual'), findsOneWidget);
     await tester.pump(const Duration(milliseconds: 800));
-    expect(
-      find.text('Teff & Timber', skipOffstage: false),
-      findsWidgets,
-    );
+    expect(find.text('Teff & Timber', skipOffstage: false), findsWidgets);
   });
 }

@@ -21,6 +21,7 @@ class DummyRestaurantDataSource {
       restaurant: RestaurantDto(
         id: 'rest-1',
         name: 'Teff & Timber',
+        address: '120 King St W, Toronto, ON',
         tagline: 'Warm bowls, quick pickup',
         prepTimeBand: PrepTimeBand.fast,
         serviceModes: [ServiceMode.pickup, ServiceMode.delivery],
@@ -66,6 +67,7 @@ class DummyRestaurantDataSource {
       restaurant: RestaurantDto(
         id: 'rest-2',
         name: 'Meskela Kitchen',
+        address: '88 Queen St E, Toronto, ON',
         tagline: 'Slow-simmered classics',
         prepTimeBand: PrepTimeBand.standard,
         serviceModes: [ServiceMode.delivery],
@@ -111,6 +113,7 @@ class DummyRestaurantDataSource {
       restaurant: RestaurantDto(
         id: 'rest-3',
         name: 'Blue River Platters',
+        address: '350 Bloor St W, Toronto, ON',
         tagline: 'Comfort meals for cold nights',
         prepTimeBand: PrepTimeBand.standard,
         serviceModes: [ServiceMode.delivery, ServiceMode.pickup],
@@ -144,6 +147,7 @@ class DummyRestaurantDataSource {
       restaurant: RestaurantDto(
         id: 'rest-4',
         name: 'Cedar Street Deli',
+        address: '45 Front St E, Toronto, ON',
         tagline: 'Family size portions',
         prepTimeBand: PrepTimeBand.fast,
         serviceModes: [ServiceMode.pickup],
@@ -177,6 +181,7 @@ class DummyRestaurantDataSource {
       restaurant: RestaurantDto(
         id: 'rest-5',
         name: 'Bahir Spice House',
+        address: '200 Danforth Ave, Toronto, ON',
         tagline: 'Slow heat, deep flavor',
         prepTimeBand: PrepTimeBand.slow,
         serviceModes: [ServiceMode.delivery],

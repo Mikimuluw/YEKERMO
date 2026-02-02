@@ -88,6 +88,7 @@ class Restaurant {
   const Restaurant({
     required this.id,
     required this.name,
+    required this.address,
     required this.tagline,
     required this.prepTimeBand,
     required this.serviceModes,
@@ -98,6 +99,7 @@ class Restaurant {
 
   final String id;
   final String name;
+  final String address;
   final String tagline;
   final PrepTimeBand prepTimeBand;
   final List<ServiceMode> serviceModes;
