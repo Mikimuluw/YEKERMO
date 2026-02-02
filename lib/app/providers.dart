@@ -3,6 +3,7 @@ import 'package:yekermo/data/datasources/dummy_meals_datasource.dart';
 import 'package:yekermo/data/datasources/dummy_restaurant_datasource.dart';
 import 'package:yekermo/data/datasources/dummy_search_datasource.dart';
 import 'package:yekermo/data/repositories/address_repository.dart';
+import 'package:yekermo/data/repositories/api_payments_repository.dart';
 import 'package:yekermo/data/repositories/cart_repository.dart';
 import 'package:yekermo/data/repositories/dummy_address_repository.dart';
 import 'package:yekermo/data/repositories/dummy_cart_repository.dart';
@@ -16,6 +17,8 @@ import 'package:yekermo/data/repositories/orders_repository.dart';
 import 'package:yekermo/data/repositories/payments_repository.dart';
 import 'package:yekermo/data/repositories/restaurant_repository.dart';
 import 'package:yekermo/data/repositories/search_repository.dart';
+import 'package:yekermo/core/transport/fake_transport_client.dart';
+import 'package:yekermo/core/transport/transport_client.dart';
 import 'package:yekermo/observability/analytics.dart';
 import 'package:yekermo/observability/app_log.dart';
 
@@ -56,8 +59,16 @@ final ordersRepositoryProvider = Provider<OrdersRepository>(
   (ref) => DummyOrdersRepository(),
 );
 
+const bool _useApiPayments = false;
+
+final transportClientProvider = Provider<TransportClient>(
+  (ref) => FakeTransportClient(),
+);
+
 final paymentsRepositoryProvider = Provider<PaymentsRepository>(
-  (ref) => DummyPaymentsRepository(),
+  (ref) => _useApiPayments
+      ? ApiPaymentsRepository(ref.watch(transportClientProvider))
+      : DummyPaymentsRepository(),
 );
 
 final analyticsProvider = Provider<Analytics>((ref) => const DummyAnalytics());
