@@ -7,9 +7,9 @@ class _RecordingTransportClient extends TransportClient {
   Uri? lastUrl;
 
   @override
-  Future<TransportResponse<String>> send(TransportRequest request) async {
+  Future<TransportResponse<T>> send<T>(TransportRequest request) async {
     lastUrl = request.url;
-    return const TransportResponse<String>(data: 'ok', statusCode: 200);
+    return TransportResponse<T>(data: 'ok' as T, statusCode: 200);
   }
 }
 
