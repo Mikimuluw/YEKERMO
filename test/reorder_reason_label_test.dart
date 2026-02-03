@@ -5,7 +5,6 @@ import 'package:yekermo/app/di.dart';
 import 'package:yekermo/app/reorder_signal_provider.dart';
 import 'package:yekermo/domain/models.dart';
 import 'package:yekermo/domain/reorder_signal.dart';
-import 'package:yekermo/domain/restaurant_menu.dart';
 import 'package:yekermo/features/restaurant/restaurant_controller.dart';
 import 'package:yekermo/features/restaurant/restaurant_screen.dart';
 import 'package:yekermo/shared/state/screen_state.dart';
@@ -27,21 +26,19 @@ const Restaurant _stubRestaurant = Restaurant(
 void main() {
   testWidgets('reorder reason label visible when count >= 2', (tester) async {
     final fakeStore = FakeReorderSignalStore(
-      initial: ReorderSignal({_restaurantId: 2}),
+      initial: const ReorderSignal({_restaurantId: 2}),
     );
 
     await tester.pumpWidget(
       ProviderScope(
         overrides: [
           reorderSignalStoreProvider.overrideWithValue(fakeStore),
-          restaurantControllerProvider.overrideWith(
-            () => _StubRestaurantController(),
-          ),
+          restaurantControllerProvider.overrideWith(_StubRestaurantController.new),
           restaurantQueryProvider.overrideWithValue(
-            RestaurantQuery(restaurantId: _restaurantId),
+            const RestaurantQuery(restaurantId: _restaurantId),
           ),
         ],
-        child: MaterialApp(
+        child: const MaterialApp(
           home: RestaurantScreen(restaurantId: _restaurantId),
         ),
       ),
@@ -61,14 +58,12 @@ void main() {
       ProviderScope(
         overrides: [
           reorderSignalStoreProvider.overrideWithValue(fakeStore),
-          restaurantControllerProvider.overrideWith(
-            () => _StubRestaurantController(),
-          ),
+          restaurantControllerProvider.overrideWith(_StubRestaurantController.new),
           restaurantQueryProvider.overrideWithValue(
-            RestaurantQuery(restaurantId: _restaurantId),
+            const RestaurantQuery(restaurantId: _restaurantId),
           ),
         ],
-        child: MaterialApp(
+        child: const MaterialApp(
           home: RestaurantScreen(restaurantId: _restaurantId),
         ),
       ),

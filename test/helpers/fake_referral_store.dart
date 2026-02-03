@@ -4,7 +4,7 @@ import 'package:yekermo/domain/referral.dart';
 /// In-memory store that records save() calls for tests.
 class FakeReferralStore extends ReferralStore {
   FakeReferralStore({Referral? initial})
-      : _referral = initial ?? Referral(code: 'test-code');
+      : _referral = initial ?? const Referral(code: 'test-code');
 
   Referral _referral;
 

@@ -10,7 +10,7 @@ void main() {
   late DummyMealsRepository repo;
 
   setUp(() {
-    repo = DummyMealsRepository(DummyMealsDataSource());
+    repo = const DummyMealsRepository(DummyMealsDataSource());
   });
 
   test('count 0 and 1 give no reorder boost', () async {

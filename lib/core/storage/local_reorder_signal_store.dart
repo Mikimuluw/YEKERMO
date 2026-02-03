@@ -15,7 +15,7 @@ class LocalReorderSignalStore extends ReorderSignalStore {
     try {
       final Map<String, dynamic> decoded = jsonDecode(raw) as Map<String, dynamic>;
       final Map<String, int> counts = decoded.map(
-        (k, v) => MapEntry(k as String, (v as num).toInt()),
+        (k, v) => MapEntry(k, v as int),
       );
       return ReorderSignal(counts);
     } catch (_) {

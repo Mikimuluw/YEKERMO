@@ -14,7 +14,7 @@ final referralProvider =
 class ReferralNotifier extends Notifier<Referral> {
   @override
   Referral build() {
-    state = Referral(code: '');
+    state = const Referral(code: '');
     Future<void>.microtask(_load);
     return state;
   }
