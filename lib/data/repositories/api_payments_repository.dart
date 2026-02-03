@@ -15,23 +15,23 @@ class ApiPaymentsRepository implements PaymentsRepository {
     PaymentMethod method,
   ) async {
     try {
-      final TransportResponse<PaymentResult> response =
-          await transportClient.request<PaymentResult>(
-        TransportRequest(
-          method: 'POST',
-          url: Uri(path: '/payments/charge'),
-          body: <String, Object?>{
-            'amount': intent.amount,
-            'currency': intent.currency,
-            'description': intent.description,
-            'paymentMethod': <String, Object?>{
-              'brand': method.brand,
-              'last4': method.last4,
-            },
-          },
-          timeout: const Duration(seconds: 12),
-        ),
-      );
+      final TransportResponse<PaymentResult> response = await transportClient
+          .request<PaymentResult>(
+            TransportRequest(
+              method: 'POST',
+              url: Uri(path: '/payments/charge'),
+              body: <String, Object?>{
+                'amount': intent.amount,
+                'currency': intent.currency,
+                'description': intent.description,
+                'paymentMethod': <String, Object?>{
+                  'brand': method.brand,
+                  'last4': method.last4,
+                },
+              },
+              timeout: const Duration(seconds: 12),
+            ),
+          );
       return response.data;
     } on TransportError catch (error) {
       return _failureFromTransport(error);

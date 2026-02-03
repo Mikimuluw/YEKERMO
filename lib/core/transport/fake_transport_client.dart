@@ -1,17 +1,16 @@
-import 'package:yekermo/core/city/city.dart';
 import 'package:yekermo/core/transport/transport_client.dart';
 
 enum FakeTransportScenario { success, timeout, network, server }
 
 class FakeTransportClient extends TransportClient {
   FakeTransportClient({
-    CityContext? cityContext,
+    super.cityContext,
     this.scenario = FakeTransportScenario.success,
     this.response,
     this.error,
     this.responses = const {},
     this.errors = const {},
-  }) : super(cityContext: cityContext);
+  });
 
   final FakeTransportScenario scenario;
   final TransportResponse<dynamic>? response;

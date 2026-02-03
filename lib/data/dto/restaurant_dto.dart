@@ -10,6 +10,7 @@ class RestaurantDto {
     required this.tags,
     required this.trustCopy,
     required this.dishNames,
+    this.address = '',
   });
 
   final String id;
@@ -20,6 +21,7 @@ class RestaurantDto {
   final List<RestaurantTag> tags;
   final String trustCopy;
   final List<String> dishNames;
+  final String address;
 
   Restaurant toModel() => Restaurant(
     id: id,
@@ -30,5 +32,6 @@ class RestaurantDto {
     tags: tags,
     trustCopy: trustCopy,
     dishNames: dishNames,
+    address: address,
   );
 }
