@@ -37,3 +37,10 @@ const yycRestaurants = <YYCRestaurantSeed>[
 
   // Add the rest incrementally (Piassa, Habesha, Solomon, Mesob, Geez, Arada, Ensira, Yegna, Horeb)
 ];
+
+YYCRestaurantSeed? yycRestaurantById(String id) {
+  for (final YYCRestaurantSeed restaurant in yycRestaurants) {
+    if (restaurant.id == id) return restaurant;
+  }
+  return null;
+}
