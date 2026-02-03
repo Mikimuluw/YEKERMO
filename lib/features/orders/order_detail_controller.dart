@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:yekermo/app/providers.dart';
 import 'package:yekermo/data/result.dart';
@@ -29,41 +31,51 @@ class OrderDetailController extends Notifier<ScreenState<OrderDetailVm>> {
   Future<void> _loadLatest() async {
     final int requestId = ++_requestId;
     final OrderDetailsQuery query = ref.read(orderDetailsQueryProvider);
-    final Order? order = await ref
-        .read(ordersRepositoryProvider)
-        .getOrder(query.orderId);
-    if (requestId != _requestId) return;
+    final Duration threshold = ref.read(staleThresholdProvider);
+    final Timer staleTimer = Timer(threshold, () {
+      if (state is LoadingState<OrderDetailVm> && _requestId == requestId) {
+        state = ScreenState.staleLoading();
+      }
+    });
+    try {
+      final Order? order = await ref
+          .read(ordersRepositoryProvider)
+          .getOrder(query.orderId);
+      if (requestId != _requestId) return;
 
-    if (order == null) {
-      state = ScreenState.empty('Order details will appear here.');
-      return;
+      if (order == null) {
+        state = ScreenState.empty('Order details will appear here.');
+        return;
+      }
+
+      final Result<RestaurantMenu> menuResult = await ref
+          .read(restaurantRepositoryProvider)
+          .fetchRestaurantMenu(order.restaurantId);
+      final Restaurant? restaurant = switch (menuResult) {
+        Success<RestaurantMenu>(:final data) => data.restaurant,
+        FailureResult<RestaurantMenu>() => null,
+      };
+      final Map<String, MenuItem> itemMap = switch (menuResult) {
+        Success<RestaurantMenu>(:final data) => {
+          for (final item in data.items) item.id: item,
+        },
+        FailureResult<RestaurantMenu>() => const {},
+      };
+      final List<OrderLineView> lines = order.items
+          .map(
+            (line) => OrderLineView(
+              itemName: itemMap[line.menuItemId]?.name ?? 'Item unavailable',
+              quantity: line.quantity,
+            ),
+          )
+          .toList();
+      if (requestId != _requestId) return;
+      state = ScreenState.success(
+        OrderDetailVm(order: order, restaurant: restaurant, lines: lines),
+      );
+    } finally {
+      staleTimer.cancel();
     }
-
-    final Result<RestaurantMenu> menuResult = await ref
-        .read(restaurantRepositoryProvider)
-        .fetchRestaurantMenu(order.restaurantId);
-    final Restaurant? restaurant = switch (menuResult) {
-      Success<RestaurantMenu>(:final data) => data.restaurant,
-      FailureResult<RestaurantMenu>() => null,
-    };
-    final Map<String, MenuItem> itemMap = switch (menuResult) {
-      Success<RestaurantMenu>(:final data) => {
-        for (final item in data.items) item.id: item,
-      },
-      FailureResult<RestaurantMenu>() => const {},
-    };
-    final List<OrderLineView> lines = order.items
-        .map(
-          (line) => OrderLineView(
-            itemName: itemMap[line.menuItemId]?.name ?? 'Item unavailable',
-            quantity: line.quantity,
-          ),
-        )
-        .toList();
-    if (requestId != _requestId) return;
-    state = ScreenState.success(
-      OrderDetailVm(order: order, restaurant: restaurant, lines: lines),
-    );
   }
 }
 
