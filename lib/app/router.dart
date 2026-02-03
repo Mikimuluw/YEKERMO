@@ -14,6 +14,7 @@ import 'package:yekermo/features/orders/orders_routes.dart';
 import 'package:yekermo/features/profile/profile_routes.dart';
 import 'package:yekermo/features/restaurant/restaurant_routes.dart';
 import 'package:yekermo/features/search/search_routes.dart';
+import 'package:yekermo/features/settings/settings_routes.dart';
 import 'package:yekermo/features/shell/app_shell.dart';
 
 final GlobalKey<NavigatorState> _rootNavigatorKey = GlobalKey<NavigatorState>();
@@ -68,6 +69,7 @@ final GoRouter appRouter = GoRouter(
     checkoutRoute(parentNavigatorKey: _rootNavigatorKey),
     orderTrackingRoute(parentNavigatorKey: _rootNavigatorKey),
     addressManagerRoute(parentNavigatorKey: _rootNavigatorKey),
+    settingsRoute(),
     GoRoute(
       path: Routes.notFound,
       builder: (context, state) => const NotFoundScreen(),

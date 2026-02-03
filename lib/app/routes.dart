@@ -5,6 +5,8 @@ class Routes {
   static const String orders = '/orders';
   static const String favorites = '/favorites';
   static const String profile = '/profile';
+  static const String settings = '/settings';
+  static const String preferences = '/settings/preferences';
 
   static const String restaurant = '/restaurant/:id';
   static const String restaurantSegment = 'restaurant/:id';
