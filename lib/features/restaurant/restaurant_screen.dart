@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:yekermo/app/di.dart';
+import 'package:yekermo/app/reorder_signal_provider.dart';
+import 'package:yekermo/core/ranking/reorder_personalization.dart';
 import 'package:yekermo/domain/models.dart';
 import 'package:yekermo/features/restaurant/restaurant_controller.dart';
 import 'package:yekermo/shared/extensions/context_extensions.dart';
@@ -25,6 +27,9 @@ class RestaurantScreen extends ConsumerWidget {
       restaurantControllerProvider,
     );
 
+    final int reorderCount =
+        ref.watch(reorderSignalProvider).countForRestaurant(restaurantId);
+
     return AppScaffold(
       title: 'Restaurant',
       body: AsyncStateView<RestaurantVm>(
@@ -32,6 +37,7 @@ class RestaurantScreen extends ConsumerWidget {
         emptyBuilder: (_) => const _RestaurantEmpty(),
         dataBuilder: (context, data) => _RestaurantBody(
           vm: data,
+          reorderCount: reorderCount,
           onMealTap: (item) => _showMealSheet(context, ref, data, item),
         ),
       ),
@@ -57,9 +63,14 @@ class _RestaurantEmpty extends StatelessWidget {
 }
 
 class _RestaurantBody extends StatelessWidget {
-  const _RestaurantBody({required this.vm, required this.onMealTap});
+  const _RestaurantBody({
+    required this.vm,
+    required this.reorderCount,
+    required this.onMealTap,
+  });
 
   final RestaurantVm vm;
+  final int reorderCount;
   final ValueChanged<MenuItem> onMealTap;
 
   @override
@@ -78,6 +89,15 @@ class _RestaurantBody extends StatelessWidget {
             color: context.colors.onSurface.withValues(alpha: 0.7),
           ),
         ),
+        if (canPersonalizeReorder(reorderCount)) ...[
+          AppSpacing.vXs,
+          Text(
+            'Because you reorder',
+            style: context.text.bodySmall?.copyWith(
+              color: context.colors.onSurface.withValues(alpha: 0.5),
+            ),
+          ),
+        ],
         AppSpacing.vMd,
         if (vm.forYouItems.isNotEmpty) ...[
           const AppSectionHeader(title: 'For you'),
