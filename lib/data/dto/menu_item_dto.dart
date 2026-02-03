@@ -9,6 +9,7 @@ class MenuItemDto {
     required this.description,
     required this.price,
     required this.tags,
+    this.available = true,
   });
 
   final String id;
@@ -18,6 +19,7 @@ class MenuItemDto {
   final String description;
   final double price;
   final List<MenuItemTag> tags;
+  final bool available;
 
   MenuItem toModel() => MenuItem(
     id: id,
