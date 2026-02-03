@@ -80,6 +80,7 @@ class _GoldenMealsRepository implements MealsRepository {
     DiscoveryFilters? filters,
     String? query,
     required UserPreferences preferences,
+    Map<String, int> reorderCountByRestaurant = const {},
   }) async {
     return Result.success(const []);
   }

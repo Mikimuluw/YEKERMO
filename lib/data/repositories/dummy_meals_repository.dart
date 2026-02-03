@@ -1,6 +1,7 @@
 import 'dart:async';
 
 import 'package:yekermo/core/ranking/preference_scoring.dart';
+import 'package:yekermo/core/ranking/reorder_personalization.dart';
 import 'package:yekermo/data/datasources/dummy_meals_datasource.dart';
 import 'package:yekermo/data/dto/home_feed_dto.dart';
 import 'package:yekermo/data/repositories/meals_repository.dart';
@@ -56,6 +57,7 @@ class DummyMealsRepository implements MealsRepository {
     DiscoveryFilters? filters,
     String? query,
     required UserPreferences preferences,
+    Map<String, int> reorderCountByRestaurant = const {},
   }) async {
     await Future<void>.delayed(const Duration(milliseconds: 320));
     try {
@@ -72,27 +74,33 @@ class DummyMealsRepository implements MealsRepository {
       );
       final List<Restaurant> adjusted = _applyBehavioralCopy(filtered, now);
       final List<Restaurant> weatherBiased = _applyWeatherBias(adjusted, now);
-      final List<Restaurant> preferenceOrdered =
-          _applyPreferenceOrdering(weatherBiased, preferences);
+      final List<Restaurant> preferenceOrdered = _applyPreferenceOrdering(
+        weatherBiased,
+        preferences,
+        reorderCountByRestaurant,
+      );
       return Result.success(preferenceOrdered);
     } catch (error) {
       return Result.failure(const Failure('Unable to load discovery.'));
     }
   }
 
-  /// Stable sort by preference score (higher first); preserves base order on tie.
+  /// Stable sort by preference + reorder score (higher first); reorder only if count >= 2.
   List<Restaurant> _applyPreferenceOrdering(
     List<Restaurant> restaurants,
     UserPreferences preferences,
+    Map<String, int> reorderCountByRestaurant,
   ) {
     final List<(Restaurant, int)> withScores = restaurants.map((r) {
-      final score = preferenceScore(
+      final prefScore = preferenceScore(
         prefs: preferences,
         supportsPickup: r.serviceModes.contains(ServiceMode.pickup),
         isFastingFriendly: r.tags.contains(RestaurantTag.fastingFriendly),
         isVegetarian: false,
       );
-      return (r, score);
+      final count = reorderCountByRestaurant[r.id] ?? 0;
+      final reordScore = reorderScore(count);
+      return (r, prefScore + reordScore);
     }).toList();
     withScores.sort((a, b) => b.$2.compareTo(a.$2));
     return withScores.map((e) => e.$1).toList();

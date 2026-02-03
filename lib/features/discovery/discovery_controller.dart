@@ -1,5 +1,6 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:yekermo/app/providers.dart';
+import 'package:yekermo/app/reorder_signal_provider.dart';
 import 'package:yekermo/app/user_preferences_provider.dart';
 import 'package:yekermo/data/result.dart';
 import 'package:yekermo/domain/discovery_filters.dart';
@@ -36,6 +37,7 @@ class DiscoveryController extends Notifier<ScreenState<DiscoveryVm>> {
           filters: query.filters,
           query: query.query,
           preferences: ref.read(userPreferencesProvider),
+          reorderCountByRestaurant: ref.read(reorderSignalProvider).counts,
         );
 
     if (requestId != _requestId) return;
