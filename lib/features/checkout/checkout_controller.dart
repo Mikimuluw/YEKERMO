@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:yekermo/app/di.dart';
 import 'package:yekermo/domain/cart.dart';
@@ -98,6 +99,7 @@ class CheckoutController extends Notifier<ScreenState<OrderDraft>> {
   }
 
   Failure _failureForPlaceOrderCode(PlaceOrderFailureCode code) {
+    debugPrint('PlaceOrderFailure: $code');
     switch (code) {
       case PlaceOrderFailureCode.restaurantClosed:
         return const Failure('Restaurant is closed.');
