@@ -13,6 +13,7 @@ import 'package:yekermo/data/result.dart';
 import 'package:yekermo/domain/discovery_filters.dart';
 import 'package:yekermo/domain/home_feed.dart';
 import 'package:yekermo/domain/models.dart';
+import 'package:yekermo/domain/user_preferences.dart';
 import 'package:yekermo/domain/restaurant_menu.dart';
 import 'package:yekermo/features/orders/order_detail_controller.dart';
 
@@ -69,6 +70,7 @@ class _FlowMealsRepository implements MealsRepository {
   Future<Result<List<Restaurant>>> fetchDiscovery({
     DiscoveryFilters? filters,
     String? query,
+    required UserPreferences preferences,
   }) async {
     return Result.success(const []);
   }

@@ -1,5 +1,6 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:yekermo/app/providers.dart';
+import 'package:yekermo/app/user_preferences_provider.dart';
 import 'package:yekermo/data/result.dart';
 import 'package:yekermo/domain/discovery_filters.dart';
 import 'package:yekermo/domain/models.dart';
@@ -31,7 +32,11 @@ class DiscoveryController extends Notifier<ScreenState<DiscoveryVm>> {
     final DiscoveryQuery query = ref.read(discoveryQueryProvider);
     final Result<List<Restaurant>> result = await ref
         .read(mealsRepositoryProvider)
-        .fetchDiscovery(filters: query.filters, query: query.query);
+        .fetchDiscovery(
+          filters: query.filters,
+          query: query.query,
+          preferences: ref.read(userPreferencesProvider),
+        );
 
     if (requestId != _requestId) return;
     switch (result) {
