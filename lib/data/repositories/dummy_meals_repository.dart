@@ -1,5 +1,7 @@
 import 'dart:async';
 
+import 'package:yekermo/core/ranking/preference_scoring.dart';
+import 'package:yekermo/core/ranking/reorder_personalization.dart';
 import 'package:yekermo/data/datasources/dummy_meals_datasource.dart';
 import 'package:yekermo/data/dto/home_feed_dto.dart';
 import 'package:yekermo/data/repositories/meals_repository.dart';
@@ -8,6 +10,7 @@ import 'package:yekermo/domain/discovery_filters.dart';
 import 'package:yekermo/domain/failure.dart';
 import 'package:yekermo/domain/home_feed.dart';
 import 'package:yekermo/domain/models.dart';
+import 'package:yekermo/domain/user_preferences.dart';
 
 class DummyMealsRepository implements MealsRepository {
   const DummyMealsRepository(this.dataSource);
@@ -53,6 +56,9 @@ class DummyMealsRepository implements MealsRepository {
   Future<Result<List<Restaurant>>> fetchDiscovery({
     DiscoveryFilters? filters,
     String? query,
+    required UserPreferences preferences,
+    Map<String, int> reorderCountByRestaurant = const {},
+    bool enableReorderPersonalization = true,
   }) async {
     await Future<void>.delayed(const Duration(milliseconds: 320));
     try {
@@ -68,10 +74,39 @@ class DummyMealsRepository implements MealsRepository {
         query,
       );
       final List<Restaurant> adjusted = _applyBehavioralCopy(filtered, now);
-      return Result.success(_applyWeatherBias(adjusted, now));
+      final List<Restaurant> weatherBiased = _applyWeatherBias(adjusted, now);
+      final List<Restaurant> preferenceOrdered = _applyPreferenceOrdering(
+        weatherBiased,
+        preferences,
+        reorderCountByRestaurant,
+        enableReorderPersonalization,
+      );
+      return Result.success(preferenceOrdered);
     } catch (error) {
       return Result.failure(const Failure('Unable to load discovery.'));
     }
+  }
+
+  /// Stable sort by preference + reorder score (higher first); reorder only if count >= 2 and enabled.
+  List<Restaurant> _applyPreferenceOrdering(
+    List<Restaurant> restaurants,
+    UserPreferences preferences,
+    Map<String, int> reorderCountByRestaurant,
+    bool enableReorderPersonalization,
+  ) {
+    final List<(Restaurant, int)> withScores = restaurants.map((r) {
+      final prefScore = preferenceScore(
+        prefs: preferences,
+        supportsPickup: r.serviceModes.contains(ServiceMode.pickup),
+        isFastingFriendly: r.tags.contains(RestaurantTag.fastingFriendly),
+        isVegetarian: false,
+      );
+      final count = reorderCountByRestaurant[r.id] ?? 0;
+      final reordScore = enableReorderPersonalization ? reorderScore(count) : 0;
+      return (r, prefScore + reordScore);
+    }).toList();
+    withScores.sort((a, b) => b.$2.compareTo(a.$2));
+    return withScores.map((e) => e.$1).toList();
   }
 
   List<Restaurant> _applyFilters(

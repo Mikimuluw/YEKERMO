@@ -7,6 +7,7 @@ import 'package:yekermo/data/result.dart';
 import 'package:yekermo/domain/discovery_filters.dart';
 import 'package:yekermo/domain/home_feed.dart';
 import 'package:yekermo/domain/models.dart';
+import 'package:yekermo/domain/user_preferences.dart';
 import 'package:yekermo/features/discovery/discovery_controller.dart';
 import 'package:yekermo/features/discovery/discovery_screen.dart';
 
@@ -41,6 +42,9 @@ class _DiscoveryMealsRepository implements MealsRepository {
   Future<Result<List<Restaurant>>> fetchDiscovery({
     DiscoveryFilters? filters,
     String? query,
+    required UserPreferences preferences,
+    Map<String, int> reorderCountByRestaurant = const {},
+    bool enableReorderPersonalization = true,
   }) async {
     return Result.success(const [
       Restaurant(

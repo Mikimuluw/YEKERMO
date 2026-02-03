@@ -1,5 +1,6 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:yekermo/app/providers.dart';
+import 'package:yekermo/app/reorder_signal_provider.dart';
 import 'package:yekermo/data/result.dart';
 import 'package:yekermo/domain/models.dart';
 import 'package:yekermo/domain/restaurant_menu.dart';
@@ -70,6 +71,11 @@ class OrdersController extends Notifier<ScreenState<OrdersVm>> {
       }
       ref.read(cartRepositoryProvider).addItem(menuItem, item.quantity);
       addedCount += 1;
+    }
+    if (addedCount > 0) {
+      ref
+          .read(reorderSignalProvider.notifier)
+          .incrementForRestaurant(order.restaurantId);
     }
     return ReorderResult(missingCount: missingCount, addedCount: addedCount);
   }

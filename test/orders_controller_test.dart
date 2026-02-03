@@ -1,6 +1,7 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:yekermo/app/di.dart';
+import 'package:yekermo/app/reorder_signal_provider.dart';
 import 'package:yekermo/data/repositories/dummy_address_repository.dart';
 import 'package:yekermo/data/repositories/dummy_cart_repository.dart';
 import 'package:yekermo/data/repositories/dummy_orders_repository.dart';
@@ -12,6 +13,7 @@ import 'package:yekermo/domain/payment_method.dart';
 import 'package:yekermo/domain/restaurant_menu.dart';
 import 'package:yekermo/features/checkout/checkout_controller.dart';
 import 'package:yekermo/features/orders/orders_controller.dart';
+import 'helpers/fake_reorder_signal_store.dart';
 
 class _TestRestaurantRepository implements RestaurantRepository {
   @override
@@ -109,6 +111,7 @@ void main() {
         restaurantRepositoryProvider.overrideWithValue(
           _TestRestaurantRepository(),
         ),
+        reorderSignalStoreProvider.overrideWithValue(FakeReorderSignalStore()),
       ],
     );
     addTearDown(container.dispose);
