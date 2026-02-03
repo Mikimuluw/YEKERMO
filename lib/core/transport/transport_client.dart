@@ -58,7 +58,7 @@ class TransportResponse<T> {
 
 abstract class TransportClient {
   TransportClient({CityContext? cityContext})
-      : cityContext = cityContext ?? const CityContext(CityId.calgary);
+    : cityContext = cityContext ?? const CityContext(CityId.calgary);
 
   final CityContext cityContext;
 

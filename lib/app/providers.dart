@@ -36,9 +36,7 @@ final dummyRestaurantDataSourceProvider = Provider<DummyRestaurantDataSource>(
   (ref) => const DummyRestaurantDataSource(),
 );
 
-final appConfigProvider = Provider<AppConfig>(
-  (ref) => const AppConfig(),
-);
+final appConfigProvider = Provider<AppConfig>((ref) => const AppConfig());
 
 final cityContextProvider = Provider<CityContext>(
   (ref) => ref.watch(appConfigProvider).defaultCity,
@@ -73,14 +71,12 @@ final transportClientProvider = Provider<TransportClient>(
   (ref) => FakeTransportClient(),
 );
 
-final paymentsRepositoryProvider = Provider<PaymentsRepository>(
-  (ref) {
-    final AppConfig config = ref.watch(appConfigProvider);
-    return config.useRealBackend
-        ? ApiPaymentsRepository(ref.watch(transportClientProvider))
-        : DummyPaymentsRepository();
-  },
-);
+final paymentsRepositoryProvider = Provider<PaymentsRepository>((ref) {
+  final AppConfig config = ref.watch(appConfigProvider);
+  return config.useRealBackend
+      ? ApiPaymentsRepository(ref.watch(transportClientProvider))
+      : DummyPaymentsRepository();
+});
 
 final analyticsProvider = Provider<Analytics>((ref) => const DummyAnalytics());
 

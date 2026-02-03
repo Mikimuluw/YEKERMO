@@ -24,7 +24,8 @@ const PaymentMethod _failureMethod = PaymentMethod(
   last4: '0000',
 );
 
-const String _failureMessage = "Payment didn't go through. Nothing was charged.";
+const String _failureMessage =
+    "Payment didn't go through. Nothing was charged.";
 
 void main() {
   group('PaymentsRepository contract', () {

@@ -205,9 +205,6 @@ void main() {
 
     expect(find.text('Your usual'), findsOneWidget);
     await tester.pump(const Duration(milliseconds: 800));
-    expect(
-      find.text('Teff & Timber', skipOffstage: false),
-      findsWidgets,
-    );
+    expect(find.text('Teff & Timber', skipOffstage: false), findsWidgets);
   });
 }

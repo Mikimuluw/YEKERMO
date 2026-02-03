@@ -64,9 +64,7 @@ class DummyRestaurantDataSource {
         dishNames: const ['Injera platter'],
         address: seed.address,
       ),
-      categories: [
-        MenuCategoryDto(id: categoryId, title: 'House favorites'),
-      ],
+      categories: [MenuCategoryDto(id: categoryId, title: 'House favorites')],
       items: availableItems,
     );
   }

@@ -26,9 +26,7 @@ bool isOpenNow(Map<int, String> hoursByWeekday, DateTime now) {
   final int previousDay = weekday == DateTime.monday
       ? DateTime.sunday
       : weekday - 1;
-  final _TimeRange? previousRange = _parseRange(
-    hoursByWeekday[previousDay],
-  );
+  final _TimeRange? previousRange = _parseRange(hoursByWeekday[previousDay]);
   if (previousRange != null && previousRange.spansMidnight) {
     return minutes < previousRange.endMinutes;
   }
