@@ -25,6 +25,7 @@ class DummyRestaurantDataSource {
   static RestaurantMenuDto _menuForSeed(YYCRestaurantSeed seed) {
     final String categoryId = '${seed.id}-cat-1';
     final String itemId = '${seed.id}-item-1';
+    final String unavailableItemId = '${seed.id}-item-2';
     return RestaurantMenuDto(
       restaurant: RestaurantDto(
         id: seed.id,
@@ -49,6 +50,16 @@ class DummyRestaurantDataSource {
           description: 'Assorted house favorites served with injera.',
           price: 18.00,
           tags: const [MenuItemTag.familySize],
+        ),
+        MenuItemDto(
+          id: unavailableItemId,
+          restaurantId: seed.id,
+          categoryId: categoryId,
+          name: 'Kitfo special',
+          description: 'Temporarily unavailable.',
+          price: 19.50,
+          tags: const [MenuItemTag.quickFilling],
+          available: false,
         ),
       ],
     );
