@@ -1,4 +1,5 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:yekermo/app/clock_provider.dart';
 import 'package:yekermo/core/city/city.dart';
 import 'package:yekermo/core/config/app_config.dart';
 import 'package:yekermo/core/transport/fake_transport_client.dart';
@@ -64,7 +65,7 @@ final addressRepositoryProvider = Provider<AddressRepository>(
 );
 
 final ordersRepositoryProvider = Provider<OrdersRepository>(
-  (ref) => DummyOrdersRepository(),
+  (ref) => DummyOrdersRepository(clock: ref.watch(clockProvider)),
 );
 
 final transportClientProvider = Provider<TransportClient>(

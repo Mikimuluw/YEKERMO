@@ -1,3 +1,4 @@
+import 'package:yekermo/core/time/clock.dart';
 import 'package:yekermo/core/time/restaurant_hours.dart';
 import 'package:yekermo/data/repositories/orders_repository.dart';
 import 'package:yekermo/data/seed/yyc_restaurants.dart';
@@ -8,12 +9,12 @@ import 'package:yekermo/domain/payment_method.dart';
 
 class DummyOrdersRepository implements OrdersRepository {
   DummyOrdersRepository({
-    DateTime Function()? now,
+    Clock? clock,
     YYCRestaurantSeed? Function(String id)? restaurantLookup,
-  }) : _now = now ?? DateTime.now,
-       _restaurantLookup = restaurantLookup ?? yycRestaurantById;
+  })  : _clock = clock ?? const SystemClock(),
+        _restaurantLookup = restaurantLookup ?? yycRestaurantById;
 
-  final DateTime Function() _now;
+  final Clock _clock;
   final YYCRestaurantSeed? Function(String id) _restaurantLookup;
   final List<Order> _orders = [];
   int _counter = 1;
@@ -42,7 +43,7 @@ class DummyOrdersRepository implements OrdersRepository {
         ? ''
         : draft.items.first.item.restaurantId;
     final YYCRestaurantSeed? seed = _restaurantLookup(restaurantId);
-    if (seed != null && !isOpenNow(seed.hoursByWeekday, _now())) {
+    if (seed != null && !isOpenNow(seed.hoursByWeekday, _clock.now())) {
       throw const Failure('Restaurant is closed.');
     }
     if (seed != null &&
@@ -67,9 +68,9 @@ class DummyOrdersRepository implements OrdersRepository {
       paymentStatus: PaymentStatus.paid,
       paymentMethod: paymentMethod,
       feeBreakdown: draft.fees,
-      paidAt: _now(),
+      paidAt: _clock.now(),
       address: draft.address,
-      placedAt: _now(),
+      placedAt: _clock.now(),
       scheduledTime: null,
     );
     _orders.insert(0, order);
