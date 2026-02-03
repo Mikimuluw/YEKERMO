@@ -32,11 +32,11 @@ const FeeBreakdown _fees = FeeBreakdown(
   tax: 1,
 );
 
-OrderDraft _draft() => OrderDraft(
-  items: const [CartLineItem(item: _menuItem, quantity: 1)],
+OrderDraft _draft() => const OrderDraft(
+  items: [CartLineItem(item: _menuItem, quantity: 1)],
   fulfillmentMode: FulfillmentMode.delivery,
   fees: _fees,
-  address: const Address(
+  address: Address(
     id: 'addr-1',
     label: AddressLabel.home,
     line1: '215 Riverstone Ave',

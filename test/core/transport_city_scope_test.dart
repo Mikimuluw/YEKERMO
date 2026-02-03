@@ -2,7 +2,7 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:yekermo/core/transport/transport_client.dart';
 
 class _RecordingTransportClient extends TransportClient {
-  _RecordingTransportClient({super.cityContext});
+  _RecordingTransportClient();
 
   Uri? lastUrl;
 

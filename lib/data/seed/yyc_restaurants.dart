@@ -1,13 +1,6 @@
 import 'package:yekermo/domain/models.dart';
 
 class YYCRestaurantSeed {
-  final String id;
-  final String name;
-  final String address;
-  final List<ServiceMode> serviceModes;
-  final Map<int, String> hoursByWeekday; // 1=Mon … 7=Sun
-  final List<RestaurantTag> tags;
-
   const YYCRestaurantSeed({
     required this.id,
     required this.name,
@@ -16,6 +9,13 @@ class YYCRestaurantSeed {
     required this.hoursByWeekday,
     this.tags = const [],
   });
+
+  final String id;
+  final String name;
+  final String address;
+  final List<ServiceMode> serviceModes;
+  final Map<int, String> hoursByWeekday; // 1=Mon … 7=Sun
+  final List<RestaurantTag> tags;
 }
 
 const yycRestaurants = <YYCRestaurantSeed>[
