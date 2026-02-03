@@ -12,5 +12,6 @@ abstract class MealsRepository {
     String? query,
     required UserPreferences preferences,
     Map<String, int> reorderCountByRestaurant = const {},
+    bool enableReorderPersonalization = true,
   });
 }

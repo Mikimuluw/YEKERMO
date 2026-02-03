@@ -58,6 +58,7 @@ class DummyMealsRepository implements MealsRepository {
     String? query,
     required UserPreferences preferences,
     Map<String, int> reorderCountByRestaurant = const {},
+    bool enableReorderPersonalization = true,
   }) async {
     await Future<void>.delayed(const Duration(milliseconds: 320));
     try {
@@ -78,6 +79,7 @@ class DummyMealsRepository implements MealsRepository {
         weatherBiased,
         preferences,
         reorderCountByRestaurant,
+        enableReorderPersonalization,
       );
       return Result.success(preferenceOrdered);
     } catch (error) {
@@ -85,11 +87,12 @@ class DummyMealsRepository implements MealsRepository {
     }
   }
 
-  /// Stable sort by preference + reorder score (higher first); reorder only if count >= 2.
+  /// Stable sort by preference + reorder score (higher first); reorder only if count >= 2 and enabled.
   List<Restaurant> _applyPreferenceOrdering(
     List<Restaurant> restaurants,
     UserPreferences preferences,
     Map<String, int> reorderCountByRestaurant,
+    bool enableReorderPersonalization,
   ) {
     final List<(Restaurant, int)> withScores = restaurants.map((r) {
       final prefScore = preferenceScore(
@@ -99,7 +102,7 @@ class DummyMealsRepository implements MealsRepository {
         isVegetarian: false,
       );
       final count = reorderCountByRestaurant[r.id] ?? 0;
-      final reordScore = reorderScore(count);
+      final reordScore = enableReorderPersonalization ? reorderScore(count) : 0;
       return (r, prefScore + reordScore);
     }).toList();
     withScores.sort((a, b) => b.$2.compareTo(a.$2));

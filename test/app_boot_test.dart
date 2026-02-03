@@ -58,6 +58,7 @@ class _FastMealsRepository implements MealsRepository {
     String? query,
     required UserPreferences preferences,
     Map<String, int> reorderCountByRestaurant = const {},
+    bool enableReorderPersonalization = true,
   }) async {
     return Result.success(const []);
   }
