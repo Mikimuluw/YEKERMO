@@ -51,9 +51,13 @@ OrderDraft _draftFor(MenuItem item, FulfillmentMode mode) {
   );
 }
 
+/// Monday noon local — inside 11:00–21:30 so hours check passes on CI.
+DateTime _openNow() => DateTime(2026, 2, 2, 12, 0);
+
 void main() {
   test('pickup-only restaurants allow pickup but reject delivery', () async {
     final DummyOrdersRepository repo = DummyOrdersRepository(
+      now: _openNow,
       restaurantLookup: (id) {
         if (id == 'rest-pickup') {
           return const YYCRestaurantSeed(
@@ -93,6 +97,7 @@ void main() {
 
   test('delivery-enabled restaurants allow delivery', () async {
     final DummyOrdersRepository repo = DummyOrdersRepository(
+      now: _openNow,
       restaurantLookup: (id) {
         if (id == 'rest-delivery') {
           return const YYCRestaurantSeed(
