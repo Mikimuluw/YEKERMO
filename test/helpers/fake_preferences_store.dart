@@ -3,7 +3,8 @@ import 'package:yekermo/domain/user_preferences.dart';
 
 /// In-memory store that records save() calls for tests.
 class FakePreferencesStore extends PreferencesStore {
-  FakePreferencesStore({UserPreferences? initial}) : _prefs = initial ?? UserPreferences.defaults;
+  FakePreferencesStore({UserPreferences? initial})
+    : _prefs = initial ?? UserPreferences.defaults;
 
   UserPreferences _prefs;
 

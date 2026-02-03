@@ -9,8 +9,8 @@ final preferencesStoreProvider = Provider<PreferencesStore>((ref) {
 
 final userPreferencesProvider =
     NotifierProvider<UserPreferencesNotifier, UserPreferences>(
-  UserPreferencesNotifier.new,
-);
+      UserPreferencesNotifier.new,
+    );
 
 class UserPreferencesNotifier extends Notifier<UserPreferences> {
   @override

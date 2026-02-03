@@ -4,7 +4,7 @@ import 'package:yekermo/domain/reorder_signal.dart';
 /// In-memory store that records save() calls for tests.
 class FakeReorderSignalStore extends ReorderSignalStore {
   FakeReorderSignalStore({ReorderSignal? initial})
-      : _signal = initial ?? ReorderSignal.empty;
+    : _signal = initial ?? ReorderSignal.empty;
 
   ReorderSignal _signal;
 

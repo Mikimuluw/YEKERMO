@@ -90,9 +90,13 @@ void main() {
     expect(resultNoCount, isA<Success<List<Restaurant>>>());
 
     final List<String> idsDisabled =
-        (resultDisabled as Success<List<Restaurant>>).data.map((r) => r.id).toList();
-    final List<String> idsNoCount =
-        (resultNoCount as Success<List<Restaurant>>).data.map((r) => r.id).toList();
+        (resultDisabled as Success<List<Restaurant>>).data
+            .map((r) => r.id)
+            .toList();
+    final List<String> idsNoCount = (resultNoCount as Success<List<Restaurant>>)
+        .data
+        .map((r) => r.id)
+        .toList();
 
     expect(
       idsDisabled,

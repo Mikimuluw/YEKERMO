@@ -10,10 +10,7 @@ class Referral {
   final int sentCount;
   final int redeemedCount;
 
-  Referral copyWith({
-    int? sentCount,
-    int? redeemedCount,
-  }) {
+  Referral copyWith({int? sentCount, int? redeemedCount}) {
     return Referral(
       code: code,
       sentCount: sentCount ?? this.sentCount,

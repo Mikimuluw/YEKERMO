@@ -25,25 +25,28 @@ void main() {
   });
 
   group('Referral code stability', () {
-    test('code generated once and stable across load/save round-trip', () async {
-      final fakeStore = FakeReferralStore();
-      final container = ProviderContainer(
-        overrides: [referralStoreProvider.overrideWithValue(fakeStore)],
-      );
-      addTearDown(container.dispose);
+    test(
+      'code generated once and stable across load/save round-trip',
+      () async {
+        final fakeStore = FakeReferralStore();
+        final container = ProviderContainer(
+          overrides: [referralStoreProvider.overrideWithValue(fakeStore)],
+        );
+        addTearDown(container.dispose);
 
-      await _waitForLoad(container);
+        await _waitForLoad(container);
 
-      final code1 = container.read(referralProvider).code;
-      expect(code1, isNotEmpty);
+        final code1 = container.read(referralProvider).code;
+        expect(code1, isNotEmpty);
 
-      await container.read(referralProvider.notifier).incrementSent();
-      final code2 = container.read(referralProvider).code;
-      expect(code2, code1);
+        await container.read(referralProvider.notifier).incrementSent();
+        final code2 = container.read(referralProvider).code;
+        expect(code2, code1);
 
-      expect(fakeStore.saveCalls, isNotEmpty);
-      expect(fakeStore.saveCalls.last.code, code1);
-    });
+        expect(fakeStore.saveCalls, isNotEmpty);
+        expect(fakeStore.saveCalls.last.code, code1);
+      },
+    );
   });
 
   group('ReferralProvider', () {

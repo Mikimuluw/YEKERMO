@@ -33,7 +33,9 @@ void main() {
       ProviderScope(
         overrides: [
           reorderSignalStoreProvider.overrideWithValue(fakeStore),
-          restaurantControllerProvider.overrideWith(_StubRestaurantController.new),
+          restaurantControllerProvider.overrideWith(
+            _StubRestaurantController.new,
+          ),
           restaurantQueryProvider.overrideWithValue(
             const RestaurantQuery(restaurantId: _restaurantId),
           ),
@@ -50,15 +52,15 @@ void main() {
   });
 
   testWidgets('reorder reason label hidden when count < 2', (tester) async {
-    final fakeStore = FakeReorderSignalStore(
-      initial: ReorderSignal.empty,
-    );
+    final fakeStore = FakeReorderSignalStore(initial: ReorderSignal.empty);
 
     await tester.pumpWidget(
       ProviderScope(
         overrides: [
           reorderSignalStoreProvider.overrideWithValue(fakeStore),
-          restaurantControllerProvider.overrideWith(_StubRestaurantController.new),
+          restaurantControllerProvider.overrideWith(
+            _StubRestaurantController.new,
+          ),
           restaurantQueryProvider.overrideWithValue(
             const RestaurantQuery(restaurantId: _restaurantId),
           ),

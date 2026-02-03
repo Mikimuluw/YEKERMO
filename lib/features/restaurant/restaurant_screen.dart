@@ -27,8 +27,9 @@ class RestaurantScreen extends ConsumerWidget {
       restaurantControllerProvider,
     );
 
-    final int reorderCount =
-        ref.watch(reorderSignalProvider).countForRestaurant(restaurantId);
+    final int reorderCount = ref
+        .watch(reorderSignalProvider)
+        .countForRestaurant(restaurantId);
 
     return AppScaffold(
       title: 'Restaurant',

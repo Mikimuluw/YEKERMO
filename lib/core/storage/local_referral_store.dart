@@ -24,8 +24,7 @@ class LocalReferralStore extends ReferralStore {
       return referral;
     }
     try {
-      final Map<String, dynamic> map =
-          jsonDecode(raw) as Map<String, dynamic>;
+      final Map<String, dynamic> map = jsonDecode(raw) as Map<String, dynamic>;
       return Referral(
         code: map['code'] as String,
         sentCount: (map['sentCount'] as num?)?.toInt() ?? 0,

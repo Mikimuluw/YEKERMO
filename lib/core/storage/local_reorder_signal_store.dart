@@ -13,7 +13,8 @@ class LocalReorderSignalStore extends ReorderSignalStore {
     final String? raw = sp.getString(_key);
     if (raw == null) return ReorderSignal.empty;
     try {
-      final Map<String, dynamic> decoded = jsonDecode(raw) as Map<String, dynamic>;
+      final Map<String, dynamic> decoded =
+          jsonDecode(raw) as Map<String, dynamic>;
       final Map<String, int> counts = decoded.map(
         (k, v) => MapEntry(k, v as int),
       );

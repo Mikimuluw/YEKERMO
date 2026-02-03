@@ -7,19 +7,21 @@ import 'package:yekermo/features/settings/preferences_screen.dart';
 import 'helpers/fake_preferences_store.dart';
 
 void main() {
-  testWidgets('toggle switch updates provider state and calls save', (tester) async {
+  testWidgets('toggle switch updates provider state and calls save', (
+    tester,
+  ) async {
     final fakeStore = FakePreferencesStore(
-      initial: const UserPreferences(pickupPreferred: false, fastingFriendly: false, vegetarianBias: false),
+      initial: const UserPreferences(
+        pickupPreferred: false,
+        fastingFriendly: false,
+        vegetarianBias: false,
+      ),
     );
 
     await tester.pumpWidget(
       ProviderScope(
-        overrides: [
-          preferencesStoreProvider.overrideWithValue(fakeStore),
-        ],
-        child: const MaterialApp(
-          home: PreferencesScreen(),
-        ),
+        overrides: [preferencesStoreProvider.overrideWithValue(fakeStore)],
+        child: const MaterialApp(home: PreferencesScreen()),
       ),
     );
 
@@ -28,7 +30,10 @@ void main() {
     expect(fakeStore.saveCalls, isEmpty);
 
     final pickupSwitch = find.byWidgetPredicate(
-      (w) => w is SwitchListTile && w.title is Text && (w.title as Text).data == 'Prefer pickup',
+      (w) =>
+          w is SwitchListTile &&
+          w.title is Text &&
+          (w.title as Text).data == 'Prefer pickup',
     );
     expect(pickupSwitch, findsOneWidget);
 

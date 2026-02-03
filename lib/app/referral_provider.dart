@@ -8,8 +8,9 @@ final referralStoreProvider = Provider<ReferralStore>((ref) {
   return LocalReferralStore();
 });
 
-final referralProvider =
-    NotifierProvider<ReferralNotifier, Referral>(ReferralNotifier.new);
+final referralProvider = NotifierProvider<ReferralNotifier, Referral>(
+  ReferralNotifier.new,
+);
 
 class ReferralNotifier extends Notifier<Referral> {
   @override

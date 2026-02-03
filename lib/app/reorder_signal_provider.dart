@@ -9,8 +9,8 @@ final reorderSignalStoreProvider = Provider<ReorderSignalStore>((ref) {
 
 final reorderSignalProvider =
     NotifierProvider<ReorderSignalNotifier, ReorderSignal>(
-  ReorderSignalNotifier.new,
-);
+      ReorderSignalNotifier.new,
+    );
 
 class ReorderSignalNotifier extends Notifier<ReorderSignal> {
   @override

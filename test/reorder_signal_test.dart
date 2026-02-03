@@ -47,9 +47,7 @@ void main() {
       final fakeStore = FakeReorderSignalStore();
 
       final container = ProviderContainer(
-        overrides: [
-          reorderSignalStoreProvider.overrideWithValue(fakeStore),
-        ],
+        overrides: [reorderSignalStoreProvider.overrideWithValue(fakeStore)],
       );
       addTearDown(container.dispose);
 
@@ -65,4 +63,3 @@ void main() {
     });
   });
 }
-
