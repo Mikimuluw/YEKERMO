@@ -2,8 +2,8 @@ import 'package:yekermo/core/time/clock.dart';
 import 'package:yekermo/core/time/restaurant_hours.dart';
 import 'package:yekermo/data/repositories/orders_repository.dart';
 import 'package:yekermo/data/seed/yyc_restaurants.dart';
-import 'package:yekermo/domain/failure.dart';
 import 'package:yekermo/domain/models.dart';
+import 'package:yekermo/domain/order_failures.dart';
 import 'package:yekermo/domain/order_draft.dart';
 import 'package:yekermo/domain/payment_method.dart';
 
@@ -11,8 +11,8 @@ class DummyOrdersRepository implements OrdersRepository {
   DummyOrdersRepository({
     Clock? clock,
     YYCRestaurantSeed? Function(String id)? restaurantLookup,
-  })  : _clock = clock ?? const SystemClock(),
-        _restaurantLookup = restaurantLookup ?? yycRestaurantById;
+  }) : _clock = clock ?? const SystemClock(),
+       _restaurantLookup = restaurantLookup ?? yycRestaurantById;
 
   final Clock _clock;
   final YYCRestaurantSeed? Function(String id) _restaurantLookup;
@@ -44,12 +44,16 @@ class DummyOrdersRepository implements OrdersRepository {
         : draft.items.first.item.restaurantId;
     final YYCRestaurantSeed? seed = _restaurantLookup(restaurantId);
     if (seed != null && !isOpenNow(seed.hoursByWeekday, _clock.now())) {
-      throw const Failure('Restaurant is closed.');
+      throw const PlaceOrderException(
+        PlaceOrderFailure(PlaceOrderFailureCode.restaurantClosed),
+      );
     }
     if (seed != null &&
         draft.fulfillmentMode == FulfillmentMode.delivery &&
         !seed.serviceModes.contains(ServiceMode.delivery)) {
-      throw const Failure('Unable to place order right now.');
+      throw const PlaceOrderException(
+        PlaceOrderFailure(PlaceOrderFailureCode.serviceModeUnavailable),
+      );
     }
     final Order order = Order(
       id: 'order-${_counter++}',
