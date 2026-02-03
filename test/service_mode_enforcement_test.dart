@@ -4,7 +4,7 @@ import 'package:yekermo/data/repositories/dummy_orders_repository.dart';
 import 'package:yekermo/data/seed/yyc_restaurants.dart';
 import 'helpers/fixed_clock.dart';
 import 'package:yekermo/domain/cart.dart';
-import 'package:yekermo/domain/failure.dart';
+import 'package:yekermo/domain/order_failures.dart';
 import 'package:yekermo/domain/fees.dart';
 import 'package:yekermo/domain/models.dart';
 import 'package:yekermo/domain/order_draft.dart';
@@ -93,7 +93,13 @@ void main() {
         _draftFor(_item, FulfillmentMode.delivery),
         paymentMethod: const PaymentMethod(brand: 'Card', last4: '4242'),
       ),
-      throwsA(isA<Failure>()),
+      throwsA(
+      isA<PlaceOrderException>().having(
+        (e) => e.failure.code,
+        'code',
+        PlaceOrderFailureCode.serviceModeUnavailable,
+      ),
+    ),
     );
   });
 
