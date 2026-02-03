@@ -1,4 +1,5 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:yekermo/app/providers.dart';
 import 'package:yekermo/core/storage/local_referral_store.dart';
 import 'package:yekermo/core/storage/referral_store.dart';
 import 'package:yekermo/domain/referral.dart';
@@ -26,6 +27,8 @@ class ReferralNotifier extends Notifier<Referral> {
   }
 
   Future<void> incrementSent() async {
+    final config = ref.read(appConfigProvider);
+    if (!config.enableReferral) return;
     final newState = state.copyWith(sentCount: state.sentCount + 1);
     state = newState;
     await ref.read(referralStoreProvider).save(newState);
@@ -33,6 +36,8 @@ class ReferralNotifier extends Notifier<Referral> {
 
   /// Stubbed for now; no server/redemption flow yet.
   Future<void> incrementRedeemed() async {
+    final config = ref.read(appConfigProvider);
+    if (!config.enableReferral) return;
     final newState = state.copyWith(redeemedCount: state.redeemedCount + 1);
     state = newState;
     await ref.read(referralStoreProvider).save(newState);
