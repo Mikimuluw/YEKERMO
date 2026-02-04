@@ -9,6 +9,7 @@ import 'package:yekermo/domain/discovery_filters.dart';
 import 'package:yekermo/domain/failure.dart';
 import 'package:yekermo/domain/home_feed.dart';
 import 'package:yekermo/domain/models.dart';
+import 'package:yekermo/domain/user_preferences.dart';
 import 'package:yekermo/shared/state/screen_state.dart';
 
 class _EmptyMealsRepository implements MealsRepository {
@@ -42,6 +43,9 @@ class _EmptyMealsRepository implements MealsRepository {
   Future<Result<List<Restaurant>>> fetchDiscovery({
     DiscoveryFilters? filters,
     String? query,
+    required UserPreferences preferences,
+    Map<String, int> reorderCountByRestaurant = const {},
+    bool enableReorderPersonalization = true,
   }) async {
     return Result.success(const []);
   }
@@ -57,6 +61,9 @@ class _FailureMealsRepository implements MealsRepository {
   Future<Result<List<Restaurant>>> fetchDiscovery({
     DiscoveryFilters? filters,
     String? query,
+    required UserPreferences preferences,
+    Map<String, int> reorderCountByRestaurant = const {},
+    bool enableReorderPersonalization = true,
   }) async {
     return Result.failure(const Failure('Boom'));
   }
@@ -113,6 +120,7 @@ void main() {
     );
     final Result<List<Restaurant>> result = await repo.fetchDiscovery(
       filters: const DiscoveryFilters(pickupFriendly: true),
+      preferences: UserPreferences.defaults,
     );
 
     expect(result, isA<Success<List<Restaurant>>>());

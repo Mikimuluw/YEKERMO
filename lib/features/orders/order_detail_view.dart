@@ -17,6 +17,7 @@ class OrderDetailContent extends StatelessWidget {
     this.showActions = false,
     this.onBackHome,
     this.onViewOrder,
+    this.onInviteSomeone,
     this.onViewReceipt,
     this.onGetHelp,
   });
@@ -28,6 +29,7 @@ class OrderDetailContent extends StatelessWidget {
   final bool showActions;
   final VoidCallback? onBackHome;
   final VoidCallback? onViewOrder;
+  final VoidCallback? onInviteSomeone;
   final VoidCallback? onViewReceipt;
   final VoidCallback? onGetHelp;
 
@@ -191,6 +193,21 @@ class OrderDetailContent extends StatelessWidget {
         ],
         if (showActions) ...[
           AppSpacing.vLg,
+          if (onInviteSomeone != null) ...[
+            InkWell(
+              onTap: onInviteSomeone,
+              child: Padding(
+                padding: const EdgeInsets.symmetric(vertical: AppSpacing.sm),
+                child: Text(
+                  'Invite someone',
+                  style: context.text.bodyMedium?.copyWith(
+                    color: context.colors.onSurface.withValues(alpha: 0.8),
+                  ),
+                ),
+              ),
+            ),
+            AppSpacing.vSm,
+          ],
           AppButton(label: 'Back to home', onPressed: onBackHome),
           AppSpacing.vSm,
           AppButton(

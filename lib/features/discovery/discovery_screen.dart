@@ -100,12 +100,6 @@ class _DiscoveryResults extends StatelessWidget {
           children: _filterChips(vm.filters),
         ),
         AppSpacing.vMd,
-        Text(
-          'Showing ${vm.restaurants.length} restaurants',
-          style: context.text.bodySmall?.copyWith(
-            color: context.colors.onSurface.withValues(alpha: 0.6),
-          ),
-        ),
         AppSpacing.vLg,
         const AppSectionHeader(title: 'Restaurants'),
         AppSpacing.vSm,
