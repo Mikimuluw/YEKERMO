@@ -183,6 +183,7 @@ class DummyMealsRepository implements MealsRepository {
       return Restaurant(
         id: restaurant.id,
         name: restaurant.name,
+        address: restaurant.address,
         tagline: restaurant.tagline,
         prepTimeBand: restaurant.prepTimeBand,
         serviceModes: restaurant.serviceModes,

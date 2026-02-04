@@ -14,6 +14,7 @@ import 'package:yekermo/domain/restaurant_menu.dart';
 import 'package:yekermo/features/checkout/checkout_controller.dart';
 import 'package:yekermo/features/orders/orders_controller.dart';
 import 'helpers/fake_reorder_signal_store.dart';
+import 'support/test_fixtures.dart';
 
 class _TestRestaurantRepository implements RestaurantRepository {
   @override
@@ -31,6 +32,7 @@ class _TestRestaurantRepository implements RestaurantRepository {
           tags: [RestaurantTag.quickFilling],
           trustCopy: 'Popular with returning guests',
           dishNames: ['Misir Comfort Bowl'],
+          address: kTestRestaurantAddress,
         ),
         categories: [MenuCategory(id: 'cat-1', title: 'Bowls')],
         items: [

@@ -3,6 +3,7 @@ class Routes {
   static const String discovery = '/discover';
   static const String search = '/search';
   static const String orders = '/orders';
+  @Deprecated('Favorites tab removed Phase 11.1')
   static const String favorites = '/favorites';
   static const String profile = '/profile';
   static const String settings = '/settings';
@@ -11,14 +12,20 @@ class Routes {
   static const String restaurant = '/restaurant/:id';
   static const String restaurantSegment = 'restaurant/:id';
   static const String discoverySegment = 'discover';
+  @Deprecated('Meal route removed Phase 11.1')
   static const String meal = '/meal/:id';
   static const String cart = '/cart';
   static const String checkout = '/checkout';
+  @Deprecated('Order tracking route removed Phase 11.1')
   static const String orderTracking = '/order-tracking/:id';
   static const String orderDetailsPath = '/orders/:id';
   static const String orderDetailsSegment = ':id';
   static const String orderConfirmationPath = '/orders/confirmation/:id';
   static const String orderConfirmationSegment = 'confirmation/:id';
+  static const String orderSupportPath = '/orders/support/:id';
+  static const String orderSupportSegment = 'support/:id';
+  static const String orderReceiptPath = '/orders/receipt/:id';
+  static const String orderReceiptSegment = 'receipt/:id';
   static const String addressManager = '/address-manager';
   static const String notFound = '/not-found';
 
@@ -33,10 +40,14 @@ class Routes {
     return uri.toString();
   }
 
+  @Deprecated('Meal route removed Phase 11.1')
   static String mealDetails(String id) => '/meal/$id';
+  @Deprecated('Order tracking route removed Phase 11.1')
   static String orderTrackingDetails(String id) => '/order-tracking/$id';
   static String orderDetails(String id) => '/orders/$id';
   static String orderConfirmation(String id) => '/orders/confirmation/$id';
+  static String orderSupport(String id) => '/orders/support/$id';
+  static String orderReceipt(String id) => '/orders/receipt/$id';
 
   static String discoveryWithFilters({
     String? intent,

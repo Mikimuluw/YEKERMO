@@ -1,6 +1,8 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:yekermo/app/clock_provider.dart';
 import 'package:yekermo/core/city/city.dart';
 import 'package:yekermo/core/config/app_config.dart';
+import 'package:yekermo/core/time/stale_thresholds.dart';
 import 'package:yekermo/core/transport/fake_transport_client.dart';
 import 'package:yekermo/core/transport/transport_client.dart';
 import 'package:yekermo/data/datasources/dummy_meals_datasource.dart';
@@ -64,7 +66,7 @@ final addressRepositoryProvider = Provider<AddressRepository>(
 );
 
 final ordersRepositoryProvider = Provider<OrdersRepository>(
-  (ref) => DummyOrdersRepository(),
+  (ref) => DummyOrdersRepository(clock: ref.watch(clockProvider)),
 );
 
 final transportClientProvider = Provider<TransportClient>(
@@ -78,6 +80,11 @@ final paymentsRepositoryProvider = Provider<PaymentsRepository>((ref) {
       : DummyPaymentsRepository();
 });
 
+final staleThresholdProvider =
+    Provider<Duration>((ref) => StaleThresholds.orderStatus);
+
 final analyticsProvider = Provider<Analytics>((ref) => const DummyAnalytics());
 
 final logProvider = Provider<AppLog>((ref) => const AppLog());
+
+final currentUserEmailProvider = Provider<String>((_) => 'user@yekermo.app');

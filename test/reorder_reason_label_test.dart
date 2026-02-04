@@ -15,6 +15,7 @@ const String _restaurantId = 'rest-1';
 const Restaurant _stubRestaurant = Restaurant(
   id: _restaurantId,
   name: 'Stub',
+  address: '123 Test St',
   tagline: 'Tag',
   prepTimeBand: PrepTimeBand.fast,
   serviceModes: [ServiceMode.delivery],

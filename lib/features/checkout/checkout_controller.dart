@@ -1,7 +1,9 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:yekermo/app/di.dart';
 import 'package:yekermo/domain/cart.dart';
 import 'package:yekermo/domain/failure.dart';
+import 'package:yekermo/domain/order_failures.dart';
 import 'package:yekermo/domain/fees.dart';
 import 'package:yekermo/domain/models.dart';
 import 'package:yekermo/domain/order_draft.dart';
@@ -56,9 +58,10 @@ class CheckoutController extends Notifier<ScreenState<OrderDraft>> {
       ref.invalidate(ordersControllerProvider);
       return order;
     } catch (error) {
-      state = ScreenState.error(
-        const Failure('Unable to place order right now.'),
-      );
+      final Failure failure = error is PlaceOrderException
+          ? _failureForPlaceOrderCode(error.failure.code)
+          : const Failure('Unable to place order right now.');
+      state = ScreenState.error(failure);
       return null;
     }
   }
@@ -93,6 +96,18 @@ class CheckoutController extends Notifier<ScreenState<OrderDraft>> {
       return ScreenState.empty('Add items to review your order.');
     }
     return ScreenState.success(draft);
+  }
+
+  Failure _failureForPlaceOrderCode(PlaceOrderFailureCode code) {
+    debugPrint('PlaceOrderFailure: $code');
+    switch (code) {
+      case PlaceOrderFailureCode.restaurantClosed:
+        return const Failure('Restaurant is closed.');
+      case PlaceOrderFailureCode.serviceModeUnavailable:
+      case PlaceOrderFailureCode.unknownRestaurant:
+      case PlaceOrderFailureCode.unknown:
+        return const Failure('Unable to place order right now.');
+    }
   }
 
   bool _canPlace(OrderDraft draft) {
