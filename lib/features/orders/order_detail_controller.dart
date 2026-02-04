@@ -66,6 +66,7 @@ class OrderDetailController extends Notifier<ScreenState<OrderDetailVm>> {
             (line) => OrderLineView(
               itemName: itemMap[line.menuItemId]?.name ?? 'Item unavailable',
               quantity: line.quantity,
+              price: itemMap[line.menuItemId]?.price ?? 0,
             ),
           )
           .toList();
@@ -98,8 +99,15 @@ class OrderDetailVm {
 }
 
 class OrderLineView {
-  const OrderLineView({required this.itemName, required this.quantity});
+  const OrderLineView({
+    required this.itemName,
+    required this.quantity,
+    required this.price,
+  });
 
   final String itemName;
   final int quantity;
+  final double price;
+
+  double get lineTotal => price * quantity;
 }

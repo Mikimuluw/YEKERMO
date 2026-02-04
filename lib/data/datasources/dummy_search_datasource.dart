@@ -9,6 +9,7 @@ class DummySearchDataSource {
       RestaurantDto(
         id: 'rest-1',
         name: 'Teff & Timber',
+        address: '120 King St W, Toronto, ON',
         tagline: 'Warm bowls, quick pickup',
         prepTimeBand: PrepTimeBand.fast,
         serviceModes: [ServiceMode.pickup, ServiceMode.delivery],
@@ -19,6 +20,7 @@ class DummySearchDataSource {
       RestaurantDto(
         id: 'rest-2',
         name: 'Meskela Kitchen',
+        address: '88 Queen St E, Toronto, ON',
         tagline: 'Slow-simmered classics',
         prepTimeBand: PrepTimeBand.standard,
         serviceModes: [ServiceMode.delivery],

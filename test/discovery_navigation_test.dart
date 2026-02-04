@@ -13,6 +13,7 @@ import 'package:yekermo/domain/user_preferences.dart';
 import 'package:yekermo/features/discovery/discovery_controller.dart';
 import 'package:yekermo/features/home/home_controller.dart';
 import 'package:yekermo/shared/state/screen_state.dart';
+import 'support/test_fixtures.dart';
 
 class _StaticHomeController extends HomeController {
   _StaticHomeController(this.feed);
@@ -49,6 +50,7 @@ class _DiscoveryMealsRepository implements MealsRepository {
         tags: [RestaurantTag.quickFilling],
         trustCopy: 'Popular with returning guests',
         dishNames: ['Misir Comfort Bowl'],
+        address: kTestRestaurantAddress,
       ),
     ]);
   }
@@ -83,6 +85,7 @@ void main() {
           tags: [RestaurantTag.quickFilling],
           trustCopy: 'Popular with returning guests',
           dishNames: ['Misir Comfort Bowl'],
+          address: kTestRestaurantAddress,
         ),
       ],
       allRestaurants: [],

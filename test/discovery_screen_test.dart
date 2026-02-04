@@ -10,6 +10,7 @@ import 'package:yekermo/domain/models.dart';
 import 'package:yekermo/domain/user_preferences.dart';
 import 'package:yekermo/features/discovery/discovery_controller.dart';
 import 'package:yekermo/features/discovery/discovery_screen.dart';
+import 'support/test_fixtures.dart';
 
 class _DiscoveryMealsRepository implements MealsRepository {
   @override
@@ -56,6 +57,7 @@ class _DiscoveryMealsRepository implements MealsRepository {
         tags: [RestaurantTag.quickFilling],
         trustCopy: 'Popular with returning guests',
         dishNames: ['Misir Comfort Bowl'],
+        address: kTestRestaurantAddress,
       ),
     ]);
   }

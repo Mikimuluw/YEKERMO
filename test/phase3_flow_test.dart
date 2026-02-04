@@ -18,6 +18,7 @@ import 'package:yekermo/features/discovery/discovery_controller.dart';
 import 'package:yekermo/features/home/home_controller.dart';
 import 'package:yekermo/features/restaurant/restaurant_controller.dart';
 import 'package:yekermo/shared/state/screen_state.dart';
+import 'support/test_fixtures.dart';
 
 class _FastMealsRepository implements MealsRepository {
   @override
@@ -61,6 +62,7 @@ class _FastMealsRepository implements MealsRepository {
             tags: [RestaurantTag.quickFilling, RestaurantTag.pickupFriendly],
             trustCopy: 'Popular with returning guests',
             dishNames: ['Misir Comfort Bowl'],
+            address: kTestRestaurantAddress,
           ),
         ],
         allRestaurants: [],
@@ -86,6 +88,7 @@ class _FastMealsRepository implements MealsRepository {
         tags: [RestaurantTag.quickFilling, RestaurantTag.pickupFriendly],
         trustCopy: 'Popular with returning guests',
         dishNames: ['Misir Comfort Bowl'],
+        address: kTestRestaurantAddress,
       ),
     ]);
   }
@@ -107,6 +110,7 @@ class _FastRestaurantRepository implements RestaurantRepository {
           tags: [RestaurantTag.quickFilling, RestaurantTag.pickupFriendly],
           trustCopy: 'Popular with returning guests',
           dishNames: ['Misir Comfort Bowl'],
+          address: kTestRestaurantAddress,
         ),
         categories: [MenuCategory(id: 'cat-1', title: 'Comfort bowls')],
         items: [

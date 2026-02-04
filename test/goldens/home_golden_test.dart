@@ -11,6 +11,7 @@ import 'package:yekermo/domain/user_preferences.dart';
 import 'package:yekermo/features/home/home_controller.dart';
 import 'package:yekermo/features/home/home_screen.dart';
 import 'package:yekermo/shared/state/screen_state.dart';
+import '../support/test_fixtures.dart';
 
 class _GoldenMealsRepository implements MealsRepository {
   const _GoldenMealsRepository();
@@ -57,6 +58,7 @@ class _GoldenMealsRepository implements MealsRepository {
             tags: [RestaurantTag.quickFilling, RestaurantTag.pickupFriendly],
             trustCopy: 'Popular with returning guests',
             dishNames: ['Misir Comfort Bowl'],
+            address: kTestRestaurantAddress,
           ),
         ],
         allRestaurants: [
@@ -69,6 +71,7 @@ class _GoldenMealsRepository implements MealsRepository {
             tags: [RestaurantTag.familySize],
             trustCopy: 'Family-size favorites',
             dishNames: ['Family Feast Platter'],
+            address: kTestRestaurantAddress,
           ),
         ],
       ),
@@ -150,6 +153,7 @@ void main() {
                     ],
                     trustCopy: 'Popular with returning guests',
                     dishNames: ['Misir Comfort Bowl'],
+                    address: kTestRestaurantAddress,
                   ),
                 ],
                 allRestaurants: [
@@ -162,6 +166,7 @@ void main() {
                     tags: [RestaurantTag.familySize],
                     trustCopy: 'Family-size favorites',
                     dishNames: ['Family Feast Platter'],
+                    address: kTestRestaurantAddress,
                   ),
                 ],
               ),

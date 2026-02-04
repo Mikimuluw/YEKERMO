@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
+import 'package:yekermo/app/routes.dart';
 import 'package:yekermo/features/orders/order_detail_controller.dart';
 import 'package:yekermo/features/orders/order_detail_view.dart';
 import 'package:yekermo/shared/extensions/context_extensions.dart';
@@ -21,7 +23,11 @@ class OrderDetailScreen extends ConsumerWidget {
       body: AsyncStateView<OrderDetailVm>(
         state: state,
         emptyBuilder: (context) => const _OrderEmptyState(),
-        dataBuilder: (context, data) => OrderDetailContent(viewModel: data),
+        dataBuilder: (context, data) => OrderDetailContent(
+          viewModel: data,
+          onViewReceipt: () => context.push(Routes.orderReceipt(data.order.id)),
+          onGetHelp: () => context.push(Routes.orderSupport(data.order.id)),
+        ),
       ),
     );
   }
