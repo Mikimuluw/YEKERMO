@@ -3,9 +3,6 @@
   "version": "1.0.0",
   "description": "Production-ready backend for Yekermo (Phase 12.1)",
   "main": "dist/server.js",
-  "prisma": {
-    "seed": "tsx prisma/seed.ts"
-  },
   "scripts": {
     "dev": "tsx watch src/server.ts",
     "build": "prisma generate && tsc",
