@@ -11,9 +11,11 @@
 .svn/
 .swiftpm/
 migrate_working_dir/
-# Windows reserved device name (must not be committed)
-/nul
+# Windows reserved device name (must not be committed; case variants and nul.*)
 nul
+NUL
+nul.*
+NUL.*
 
 # IntelliJ related
 *.iml
