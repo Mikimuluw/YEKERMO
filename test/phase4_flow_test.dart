@@ -4,6 +4,7 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:yekermo/app/providers.dart';
 import 'package:yekermo/app/router.dart';
 import 'package:yekermo/app/routes.dart';
+import 'helpers/fake_welcome_storage.dart';
 import 'package:yekermo/data/repositories/dummy_address_repository.dart';
 import 'package:yekermo/data/repositories/dummy_cart_repository.dart';
 import 'package:yekermo/domain/models.dart';
@@ -28,6 +29,7 @@ void main() {
     await tester.pumpWidget(
       ProviderScope(
         overrides: [
+          welcomeStorageProvider.overrideWithValue(FakeWelcomeStorage()),
           cartRepositoryProvider.overrideWithValue(cartRepo),
           addressRepositoryProvider.overrideWithValue(addressRepo),
         ],

@@ -4,6 +4,7 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:yekermo/app/providers.dart';
 import 'package:yekermo/app/router.dart';
 import 'package:yekermo/app/routes.dart';
+import 'helpers/fake_welcome_storage.dart';
 import 'package:yekermo/data/repositories/dummy_address_repository.dart';
 import 'package:yekermo/data/repositories/dummy_cart_repository.dart';
 import 'package:yekermo/data/repositories/dummy_orders_repository.dart';
@@ -16,6 +17,7 @@ import 'package:yekermo/domain/models.dart';
 import 'package:yekermo/domain/restaurant_menu.dart';
 import 'package:yekermo/domain/user_preferences.dart';
 import 'package:yekermo/features/orders/order_detail_controller.dart';
+import 'support/test_fixtures.dart';
 
 class _FlowMealsRepository implements MealsRepository {
   @override
@@ -42,6 +44,7 @@ class _FlowMealsRepository implements MealsRepository {
           Restaurant(
             id: 'rest-1',
             name: 'Teff & Timber',
+            address: kTestRestaurantAddress,
             tagline: 'Warm bowls, quick pickup',
             prepTimeBand: PrepTimeBand.fast,
             serviceModes: [ServiceMode.pickup, ServiceMode.delivery],
@@ -54,6 +57,7 @@ class _FlowMealsRepository implements MealsRepository {
           Restaurant(
             id: 'rest-1',
             name: 'Teff & Timber',
+            address: kTestRestaurantAddress,
             tagline: 'Warm bowls, quick pickup',
             prepTimeBand: PrepTimeBand.fast,
             serviceModes: [ServiceMode.pickup, ServiceMode.delivery],
@@ -88,6 +92,7 @@ class _FlowRestaurantRepository implements RestaurantRepository {
         restaurant: Restaurant(
           id: 'rest-1',
           name: 'Teff & Timber',
+          address: kTestRestaurantAddress,
           tagline: 'Warm bowls, quick pickup',
           prepTimeBand: PrepTimeBand.fast,
           serviceModes: [ServiceMode.pickup, ServiceMode.delivery],
@@ -141,6 +146,7 @@ void main() {
     await tester.pumpWidget(
       ProviderScope(
         overrides: [
+          welcomeStorageProvider.overrideWithValue(FakeWelcomeStorage()),
           cartRepositoryProvider.overrideWithValue(cartRepo),
           addressRepositoryProvider.overrideWithValue(addressRepo),
           ordersRepositoryProvider.overrideWithValue(ordersRepo),

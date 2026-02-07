@@ -1,5 +1,7 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:yekermo/app/clock_provider.dart';
 import 'package:yekermo/app/providers.dart';
+import 'package:yekermo/core/time/restaurant_hours.dart';
 import 'package:yekermo/data/result.dart';
 import 'package:yekermo/domain/home_feed.dart';
 import 'package:yekermo/domain/models.dart';
@@ -63,6 +65,11 @@ class RestaurantController extends Notifier<ScreenState<RestaurantVm>> {
       hasRestaurantOrders: pastQuantities.isNotEmpty,
     );
 
+    final String? unavailabilityReason = _unavailabilityReason(
+      menu.restaurant,
+      ref.read(clockProvider).now(),
+    );
+
     state = ScreenState.success(
       RestaurantVm(
         restaurant: menu.restaurant,
@@ -73,8 +80,29 @@ class RestaurantController extends Notifier<ScreenState<RestaurantVm>> {
         headerSubtitle: header.subtitle,
         pastOrderQuantities: pastQuantities,
         intent: query.intent,
+        unavailabilityReason: unavailabilityReason,
       ),
     );
+  }
+
+  /// Plain-language reason when restaurant is closed or a service mode is unavailable (PRD §4.1).
+  String? _unavailabilityReason(Restaurant restaurant, DateTime now) {
+    final Map<int, String>? hours = restaurant.hoursByWeekday;
+    if (hours != null) {
+      final bool open = isOpenNow(hours, now);
+      if (!open) {
+        return 'This restaurant is closed right now.';
+      }
+      if (restaurant.serviceModes.length == 1) {
+        if (restaurant.serviceModes.contains(ServiceMode.pickup)) {
+          return 'Delivery unavailable right now.';
+        }
+        if (restaurant.serviceModes.contains(ServiceMode.delivery)) {
+          return 'Pickup unavailable right now.';
+        }
+      }
+    }
+    return null;
   }
 
   Map<String, int> _pastQuantities(List<Order> orders, String restaurantId) {
@@ -182,6 +210,7 @@ class RestaurantVm {
     required this.headerSubtitle,
     required this.pastOrderQuantities,
     required this.intent,
+    this.unavailabilityReason,
   });
 
   final Restaurant restaurant;
@@ -192,6 +221,8 @@ class RestaurantVm {
   final String headerSubtitle;
   final Map<String, int> pastOrderQuantities;
   final String? intent;
+  /// Plain-language reason when closed or a service mode is unavailable (PRD §4.1). Shown on restaurant detail.
+  final String? unavailabilityReason;
 }
 
 class _HeaderCopy {

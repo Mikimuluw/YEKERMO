@@ -1,12 +1,15 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
+import 'package:yekermo/app/routes.dart';
 import 'package:yekermo/features/orders/order_detail_controller.dart';
 import 'package:yekermo/features/orders/order_detail_view.dart';
 import 'package:yekermo/shared/extensions/context_extensions.dart';
 import 'package:yekermo/shared/state/screen_state.dart';
 import 'package:yekermo/shared/tokens/app_spacing.dart';
-import 'package:yekermo/shared/widgets/app_scaffold.dart';
+import 'package:yekermo/shared/widgets/app_loading.dart';
 import 'package:yekermo/shared/widgets/async_state_view.dart';
+import 'package:yekermo/ui/app_scaffold.dart';
 
 class OrderDetailScreen extends ConsumerWidget {
   const OrderDetailScreen({super.key});
@@ -20,8 +23,16 @@ class OrderDetailScreen extends ConsumerWidget {
       title: 'Order details',
       body: AsyncStateView<OrderDetailVm>(
         state: state,
+        loadingBuilder: (_) => const AppLoading(
+          textOnly: true,
+          message: 'Loading order details.',
+        ),
         emptyBuilder: (context) => const _OrderEmptyState(),
-        dataBuilder: (context, data) => OrderDetailContent(viewModel: data),
+        dataBuilder: (context, data) => OrderDetailContent(
+          viewModel: data,
+          onViewReceipt: () => context.push(Routes.orderReceipt(data.order.id)),
+          onGetHelp: () => context.push(Routes.orderSupport(data.order.id)),
+        ),
       ),
     );
   }
@@ -35,9 +46,9 @@ class _OrderEmptyState extends StatelessWidget {
     return Padding(
       padding: AppSpacing.pagePadding,
       child: Text(
-        'Order details will appear here.',
+        'We couldn\'t load this order.',
         style: context.text.bodyMedium?.copyWith(
-          color: context.colors.onSurface.withValues(alpha: 0.7),
+          color: context.textMuted,
         ),
       ),
     );

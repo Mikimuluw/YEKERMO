@@ -2,8 +2,10 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:yekermo/app/di.dart';
+import 'package:yekermo/app/providers.dart';
 import 'package:yekermo/app/router.dart';
 import 'package:yekermo/app/routes.dart';
+import 'helpers/fake_welcome_storage.dart';
 import 'package:yekermo/data/repositories/cart_repository.dart';
 import 'package:yekermo/data/repositories/dummy_cart_repository.dart';
 import 'package:yekermo/data/repositories/meals_repository.dart';
@@ -18,6 +20,7 @@ import 'package:yekermo/features/discovery/discovery_controller.dart';
 import 'package:yekermo/features/home/home_controller.dart';
 import 'package:yekermo/features/restaurant/restaurant_controller.dart';
 import 'package:yekermo/shared/state/screen_state.dart';
+import 'support/test_fixtures.dart';
 
 class _FastMealsRepository implements MealsRepository {
   @override
@@ -61,6 +64,7 @@ class _FastMealsRepository implements MealsRepository {
             tags: [RestaurantTag.quickFilling, RestaurantTag.pickupFriendly],
             trustCopy: 'Popular with returning guests',
             dishNames: ['Misir Comfort Bowl'],
+            address: kTestRestaurantAddress,
           ),
         ],
         allRestaurants: [],
@@ -86,6 +90,7 @@ class _FastMealsRepository implements MealsRepository {
         tags: [RestaurantTag.quickFilling, RestaurantTag.pickupFriendly],
         trustCopy: 'Popular with returning guests',
         dishNames: ['Misir Comfort Bowl'],
+        address: kTestRestaurantAddress,
       ),
     ]);
   }
@@ -107,6 +112,7 @@ class _FastRestaurantRepository implements RestaurantRepository {
           tags: [RestaurantTag.quickFilling, RestaurantTag.pickupFriendly],
           trustCopy: 'Popular with returning guests',
           dishNames: ['Misir Comfort Bowl'],
+          address: kTestRestaurantAddress,
         ),
         categories: [MenuCategory(id: 'cat-1', title: 'Comfort bowls')],
         items: [
@@ -163,6 +169,7 @@ void main() {
     await tester.pumpWidget(
       ProviderScope(
         overrides: [
+          welcomeStorageProvider.overrideWithValue(FakeWelcomeStorage()),
           mealsRepositoryProvider.overrideWithValue(_FastMealsRepository()),
           restaurantRepositoryProvider.overrideWithValue(
             _FastRestaurantRepository(),

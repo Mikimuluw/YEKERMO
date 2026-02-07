@@ -63,6 +63,7 @@ class DummyRestaurantDataSource {
         trustCopy: 'Local favorite',
         dishNames: const ['Injera platter'],
         address: seed.address,
+        hoursByWeekday: seed.hoursByWeekday,
       ),
       categories: [MenuCategoryDto(id: categoryId, title: 'House favorites')],
       items: availableItems,

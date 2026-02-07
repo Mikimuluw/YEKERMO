@@ -2,18 +2,17 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:yekermo/app/di.dart';
 import 'package:yekermo/app/reorder_signal_provider.dart';
-import 'package:yekermo/core/ranking/reorder_personalization.dart';
 import 'package:yekermo/domain/models.dart';
 import 'package:yekermo/features/restaurant/restaurant_controller.dart';
 import 'package:yekermo/shared/extensions/context_extensions.dart';
 import 'package:yekermo/shared/state/screen_state.dart';
 import 'package:yekermo/shared/tokens/app_spacing.dart';
-import 'package:yekermo/shared/widgets/app_button.dart';
-import 'package:yekermo/shared/widgets/app_card.dart';
 import 'package:yekermo/shared/widgets/app_chip.dart';
-import 'package:yekermo/shared/widgets/app_scaffold.dart';
-import 'package:yekermo/shared/widgets/app_section_header.dart';
 import 'package:yekermo/shared/widgets/async_state_view.dart';
+import 'package:yekermo/ui/app_button.dart';
+import 'package:yekermo/ui/app_card.dart';
+import 'package:yekermo/ui/app_scaffold.dart';
+import 'package:yekermo/ui/app_section_header.dart';
 
 class RestaurantScreen extends ConsumerWidget {
   const RestaurantScreen({super.key, required this.restaurantId, this.intent});
@@ -39,7 +38,9 @@ class RestaurantScreen extends ConsumerWidget {
         dataBuilder: (context, data) => _RestaurantBody(
           vm: data,
           reorderCount: reorderCount,
-          onMealTap: (item) => _showMealSheet(context, ref, data, item),
+          onMealTap: data.unavailabilityReason == null
+              ? (item) => _showMealSheet(context, ref, data, item)
+              : null,
         ),
       ),
     );
@@ -54,9 +55,9 @@ class _RestaurantEmpty extends StatelessWidget {
     return Padding(
       padding: AppSpacing.pagePadding,
       child: Text(
-        'Menu isn’t ready yet — check back soon.',
+        "This menu is not’t available right now.",
         style: context.text.bodyMedium?.copyWith(
-          color: context.colors.onSurface.withValues(alpha: 0.7),
+          color: context.textMuted,
         ),
       ),
     );
@@ -67,12 +68,14 @@ class _RestaurantBody extends StatelessWidget {
   const _RestaurantBody({
     required this.vm,
     required this.reorderCount,
-    required this.onMealTap,
+    this.onMealTap,
   });
 
   final RestaurantVm vm;
   final int reorderCount;
-  final ValueChanged<MenuItem> onMealTap;
+
+  /// Null when restaurant is unavailable; add-to-cart is disabled, menu stays visible.
+  final ValueChanged<MenuItem>? onMealTap;
 
   @override
   Widget build(BuildContext context) {
@@ -87,15 +90,15 @@ class _RestaurantBody extends StatelessWidget {
         Text(
           vm.headerSubtitle,
           style: context.text.bodyMedium?.copyWith(
-            color: context.colors.onSurface.withValues(alpha: 0.7),
+            color: context.textMuted,
           ),
         ),
-        if (canPersonalizeReorder(reorderCount)) ...[
-          AppSpacing.vXs,
+        if (vm.unavailabilityReason != null) ...[
+          AppSpacing.vSm,
           Text(
-            'Because you reorder',
-            style: context.text.bodySmall?.copyWith(
-              color: context.colors.onSurface.withValues(alpha: 0.5),
+            vm.unavailabilityReason!,
+            style: context.text.bodyMedium?.copyWith(
+              color: context.textMuted,
             ),
           ),
         ],
@@ -115,7 +118,7 @@ class _RestaurantBody extends StatelessWidget {
                   width: 220,
                   child: AppCard(
                     padding: AppSpacing.cardPadding,
-                    onTap: () => onMealTap(item),
+                    onTap: onMealTap != null ? () => onMealTap!(item) : null,
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
@@ -126,9 +129,7 @@ class _RestaurantBody extends StatelessWidget {
                           maxLines: 1,
                           overflow: TextOverflow.ellipsis,
                           style: context.text.bodySmall?.copyWith(
-                            color: context.colors.onSurface.withValues(
-                              alpha: 0.7,
-                            ),
+                            color: context.textMuted,
                           ),
                         ),
                         AppSpacing.vXs,
@@ -158,7 +159,7 @@ class _RestaurantBody extends StatelessWidget {
                 padding: const EdgeInsets.only(bottom: AppSpacing.sm),
                 child: AppCard(
                   padding: AppSpacing.cardPadding,
-                  onTap: () => onMealTap(item),
+                  onTap: onMealTap != null ? () => onMealTap!(item) : null,
                   child: _MealCard(item: item),
                 ),
               ),
@@ -194,7 +195,7 @@ class _MealCard extends StatelessWidget {
         Text(
           item.description,
           style: context.text.bodySmall?.copyWith(
-            color: context.colors.onSurface.withValues(alpha: 0.7),
+            color: context.textMuted,
           ),
         ),
         AppSpacing.vSm,
@@ -238,7 +239,7 @@ void _showMealSheet(
                 Text(
                   item.description,
                   style: context.text.bodyMedium?.copyWith(
-                    color: context.colors.onSurface.withValues(alpha: 0.7),
+                    color: context.textMuted,
                   ),
                 ),
                 AppSpacing.vSm,

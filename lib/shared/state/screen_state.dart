@@ -5,6 +5,7 @@ sealed class ScreenState<T> {
 
   factory ScreenState.initial() = InitialState<T>;
   factory ScreenState.loading() = LoadingState<T>;
+  factory ScreenState.staleLoading([T? previousData]) = StaleLoadingState<T>;
   factory ScreenState.success(T data) = SuccessState<T>;
   factory ScreenState.empty([String? message]) = EmptyState<T>;
   factory ScreenState.error(Failure failure) = ErrorState<T>;
@@ -16,6 +17,11 @@ final class InitialState<T> extends ScreenState<T> {
 
 final class LoadingState<T> extends ScreenState<T> {
   const LoadingState();
+}
+
+final class StaleLoadingState<T> extends ScreenState<T> {
+  const StaleLoadingState([this.previousData]);
+  final T? previousData;
 }
 
 final class SuccessState<T> extends ScreenState<T> {

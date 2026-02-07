@@ -1,6 +1,9 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:yekermo/app/clock_provider.dart';
 import 'package:yekermo/app/providers.dart';
 import 'package:yekermo/app/reorder_signal_provider.dart';
+import 'package:yekermo/core/config/app_config.dart';
+import 'package:yekermo/core/time/restaurant_hours.dart';
 import 'package:yekermo/data/result.dart';
 import 'package:yekermo/domain/models.dart';
 import 'package:yekermo/domain/restaurant_menu.dart';
@@ -38,6 +41,16 @@ class OrdersController extends Notifier<ScreenState<OrdersVm>> {
   }
 
   Future<OrderSummary> _buildSummary(Order order) async {
+    final AppConfig config = ref.read(appConfigProvider);
+    if (!config.enableReorder) {
+      return OrderSummary(
+        order: order,
+        restaurant: null,
+        isEligibleForReorder: false,
+        ineligibleReason: 'Reorder is not available.',
+      );
+    }
+
     final Result<RestaurantMenu> menuResult = await ref
         .read(restaurantRepositoryProvider)
         .fetchRestaurantMenu(order.restaurantId);
@@ -45,7 +58,47 @@ class OrdersController extends Notifier<ScreenState<OrdersVm>> {
       Success<RestaurantMenu>(:final data) => data.restaurant,
       FailureResult<RestaurantMenu>() => null,
     };
-    return OrderSummary(order: order, restaurant: restaurant);
+    final List<MenuItem> menuItems = switch (menuResult) {
+      Success<RestaurantMenu>(:final data) => data.items,
+      FailureResult<RestaurantMenu>() => const [],
+    };
+
+    final bool eligible;
+    final String? ineligibleReason;
+    if (restaurant == null) {
+      eligible = false;
+      ineligibleReason = 'Restaurant is no longer available.';
+    } else {
+      final DateTime now = ref.read(clockProvider).now();
+      final bool open = restaurant.hoursByWeekday != null &&
+          isOpenNow(restaurant.hoursByWeekday!, now);
+      if (!open) {
+        eligible = false;
+        ineligibleReason = 'Restaurant is closed right now.';
+      } else if (!restaurant.serviceModes.contains(order.fulfillmentMode)) {
+        eligible = false;
+        ineligibleReason =
+            'Pickup or delivery is no longer available for this restaurant.';
+      } else {
+        final bool allOffered = order.items.every(
+          (line) => menuItems.any((m) => m.id == line.menuItemId),
+        );
+        if (!allOffered) {
+          eligible = false;
+          ineligibleReason = 'Some items are no longer available.';
+        } else {
+          eligible = true;
+          ineligibleReason = null;
+        }
+      }
+    }
+
+    return OrderSummary(
+      order: order,
+      restaurant: restaurant,
+      isEligibleForReorder: eligible,
+      ineligibleReason: ineligibleReason,
+    );
   }
 
   Future<ReorderResult> reorder(Order order) async {
@@ -88,10 +141,18 @@ class OrdersVm {
 }
 
 class OrderSummary {
-  const OrderSummary({required this.order, required this.restaurant});
+  const OrderSummary({
+    required this.order,
+    required this.restaurant,
+    this.isEligibleForReorder = true,
+    this.ineligibleReason,
+  });
 
   final Order order;
   final Restaurant? restaurant;
+  /// When false, Reorder CTA should be disabled and [ineligibleReason] shown (Phase 11.2 / PRD §4.3).
+  final bool isEligibleForReorder;
+  final String? ineligibleReason;
 }
 
 class ReorderResult {

@@ -3,9 +3,10 @@ import 'package:yekermo/domain/models.dart';
 import 'package:yekermo/features/orders/order_detail_controller.dart';
 import 'package:yekermo/shared/extensions/context_extensions.dart';
 import 'package:yekermo/shared/tokens/app_spacing.dart';
-import 'package:yekermo/shared/widgets/app_button.dart';
-import 'package:yekermo/shared/widgets/app_card.dart';
-import 'package:yekermo/shared/widgets/app_section_header.dart';
+import 'package:yekermo/ui/app_button.dart';
+import 'package:yekermo/ui/app_card.dart';
+import 'package:yekermo/ui/app_section_header.dart';
+import 'package:yekermo/ui/price_row.dart';
 
 class OrderDetailContent extends StatelessWidget {
   const OrderDetailContent({
@@ -18,6 +19,8 @@ class OrderDetailContent extends StatelessWidget {
     this.onBackHome,
     this.onViewOrder,
     this.onInviteSomeone,
+    this.onViewReceipt,
+    this.onGetHelp,
   });
 
   final OrderDetailVm viewModel;
@@ -28,11 +31,14 @@ class OrderDetailContent extends StatelessWidget {
   final VoidCallback? onBackHome;
   final VoidCallback? onViewOrder;
   final VoidCallback? onInviteSomeone;
+  final VoidCallback? onViewReceipt;
+  final VoidCallback? onGetHelp;
 
   @override
   Widget build(BuildContext context) {
     final Order order = viewModel.order;
     final Restaurant? restaurant = viewModel.restaurant;
+    final bool isStatusStale = _isStatusStale(order);
     return ListView(
       padding: AppSpacing.pagePadding,
       children: [
@@ -45,7 +51,7 @@ class OrderDetailContent extends StatelessWidget {
           Text(
             headerSubtitle ?? "We'll keep you posted.",
             style: context.text.bodyMedium?.copyWith(
-              color: context.colors.onSurface.withValues(alpha: 0.7),
+              color: context.textMuted,
             ),
           ),
           AppSpacing.vMd,
@@ -55,10 +61,11 @@ class OrderDetailContent extends StatelessWidget {
         Text(
           'Order #${order.id}',
           style: context.text.bodySmall?.copyWith(
-            color: context.colors.onSurface.withValues(alpha: 0.7),
+            color: context.textMuted,
           ),
         ),
         AppSpacing.vSm,
+        // Status card: always current state; never animate indefinitely (Phase 10.4 / PRD §4.2).
         AppCard(
           padding: AppSpacing.cardPadding,
           child: Column(
@@ -66,26 +73,34 @@ class OrderDetailContent extends StatelessWidget {
             children: [
               Text('Status', style: context.text.titleSmall),
               AppSpacing.vXs,
-              Text(order.status.label, style: context.text.bodyMedium),
-              AppSpacing.vXs,
               Text(
-                'Status updates will appear here.',
-                style: context.text.bodySmall?.copyWith(
-                  color: context.colors.onSurface.withValues(alpha: 0.7),
-                ),
+                order.status.displayLabel(order.fulfillmentMode),
+                style: context.text.bodyMedium,
               ),
+              AppSpacing.vXs,
+              if (isStatusStale) ...[
+                Text(
+                  "We're checking on this.",
+                  style: context.text.bodySmall?.copyWith(
+                    color: context.textMuted,
+                  ),
+                ),
+                Text(
+                  'No action needed right now.',
+                  style: context.text.bodySmall?.copyWith(
+                    color: context.textMuted,
+                  ),
+                ),
+              ] else
+                Text(
+                  _statusSubtext(order.status),
+                  style: context.text.bodySmall?.copyWith(
+                    color: context.textMuted,
+                  ),
+                ),
             ],
           ),
         ),
-        if (showConfirmationHeader) ...[
-          AppSpacing.vSm,
-          Text(
-            'Estimated timing: 25-35 min',
-            style: context.text.bodySmall?.copyWith(
-              color: context.colors.onSurface.withValues(alpha: 0.7),
-            ),
-          ),
-        ],
         AppSpacing.vMd,
         const AppSectionHeader(title: 'Items'),
         AppSpacing.vSm,
@@ -121,7 +136,7 @@ class OrderDetailContent extends StatelessWidget {
           Text(
             '${_label(order.address!.label)} • ${order.address!.line1}',
             style: context.text.bodySmall?.copyWith(
-              color: context.colors.onSurface.withValues(alpha: 0.7),
+              color: context.textMuted,
             ),
           ),
         ],
@@ -136,18 +151,15 @@ class OrderDetailContent extends StatelessWidget {
           AppSpacing.vMd,
           const AppSectionHeader(title: 'Receipt'),
           AppSpacing.vSm,
-          _ReceiptRow(label: 'Subtotal', value: order.feeBreakdown!.subtotal),
-          _ReceiptRow(
-            label: 'Service fee',
-            value: order.feeBreakdown!.serviceFee,
-          ),
-          _ReceiptRow(
+          PriceRow(label: 'Subtotal', value: order.feeBreakdown!.subtotal),
+          PriceRow(label: 'Service fee', value: order.feeBreakdown!.serviceFee),
+          PriceRow(
             label: 'Delivery fee',
             value: order.feeBreakdown!.deliveryFee,
           ),
-          _ReceiptRow(label: 'Tax', value: order.feeBreakdown!.tax),
+          PriceRow(label: 'Tax', value: order.feeBreakdown!.tax),
           AppSpacing.vSm,
-          _ReceiptRow(
+          PriceRow(
             label: 'Total paid',
             value: order.feeBreakdown!.total,
             emphasize: true,
@@ -156,7 +168,23 @@ class OrderDetailContent extends StatelessWidget {
           Text(
             order.paymentMethod!.label,
             style: context.text.bodySmall?.copyWith(
-              color: context.colors.onSurface.withValues(alpha: 0.7),
+              color: context.textMuted,
+            ),
+          ),
+          if (onViewReceipt != null) ...[
+            AppSpacing.vSm,
+            AppButton(label: 'View receipt', onPressed: onViewReceipt),
+          ],
+        ],
+        if (onGetHelp != null) ...[
+          AppSpacing.vLg,
+          TextButton(
+            onPressed: onGetHelp,
+            child: Text(
+              'Get help',
+              style: context.text.bodyMedium?.copyWith(
+                color: context.colors.primary,
+              ),
             ),
           ),
         ],
@@ -170,7 +198,7 @@ class OrderDetailContent extends StatelessWidget {
                 child: Text(
                   'Invite someone',
                   style: context.text.bodyMedium?.copyWith(
-                    color: context.colors.onSurface.withValues(alpha: 0.8),
+                    color: context.textMuted,
                   ),
                 ),
               ),
@@ -179,10 +207,14 @@ class OrderDetailContent extends StatelessWidget {
           ],
           AppButton(label: 'Back to home', onPressed: onBackHome),
           AppSpacing.vSm,
-          AppButton(
-            label: 'View order',
+          TextButton(
             onPressed: onViewOrder,
-            style: AppButtonStyle.secondary,
+            child: Text(
+              'View order',
+              style: context.text.bodyMedium?.copyWith(
+                color: context.colors.primary,
+              ),
+            ),
           ),
         ],
       ],
@@ -197,35 +229,29 @@ class OrderDetailContent extends StatelessWidget {
         return 'Work';
     }
   }
-}
 
-class _ReceiptRow extends StatelessWidget {
-  const _ReceiptRow({
-    required this.label,
-    required this.value,
-    this.emphasize = false,
-  });
+  String _statusSubtext(OrderStatus status) {
+    switch (status) {
+      case OrderStatus.received:
+        return 'The restaurant has received your order.';
+      case OrderStatus.preparing:
+      case OrderStatus.ready:
+        return 'Status updates will appear here.';
+      case OrderStatus.completed:
+        return 'Thank you for your order.';
+      case OrderStatus.cancelled:
+        return 'This order was cancelled.';
+      case OrderStatus.failed:
+        return 'This order could not be completed.';
+      case OrderStatus.refunded:
+        return 'This order was refunded.';
+    }
+  }
 
-  final String label;
-  final double value;
-  final bool emphasize;
-
-  @override
-  Widget build(BuildContext context) {
-    final TextStyle? style = emphasize
-        ? context.text.titleSmall
-        : context.text.bodySmall?.copyWith(
-            color: context.colors.onSurface.withValues(alpha: 0.7),
-          );
-    return Padding(
-      padding: const EdgeInsets.only(bottom: AppSpacing.xs),
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-        children: [
-          Text(label, style: style),
-          Text('\$${value.toStringAsFixed(2)}', style: style),
-        ],
-      ),
-    );
+  bool _isStatusStale(Order order) {
+    final DateTime? placedAt = order.placedAt ?? order.paidAt;
+    if (placedAt == null) return false;
+    if (order.status.isTerminal) return false;
+    return DateTime.now().difference(placedAt) > const Duration(minutes: 20);
   }
 }

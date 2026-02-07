@@ -9,6 +9,7 @@ class AppTextField extends StatelessWidget {
     this.prefixIcon,
     this.onSubmitted,
     this.enabled = true,
+    this.maxLines = 1,
   });
 
   final TextEditingController? controller;
@@ -16,13 +17,17 @@ class AppTextField extends StatelessWidget {
   final IconData? prefixIcon;
   final ValueChanged<String>? onSubmitted;
   final bool enabled;
+  final int maxLines;
 
   @override
   Widget build(BuildContext context) {
     return TextField(
       controller: controller,
       enabled: enabled,
-      textInputAction: TextInputAction.search,
+      maxLines: maxLines,
+      textInputAction: maxLines > 1
+          ? TextInputAction.newline
+          : TextInputAction.search,
       onSubmitted: onSubmitted,
       decoration: InputDecoration(
         hintText: hintText,

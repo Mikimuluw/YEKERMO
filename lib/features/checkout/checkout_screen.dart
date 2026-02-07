@@ -1,508 +1,389 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:go_router/go_router.dart';
 import 'package:yekermo/app/di.dart';
-import 'package:yekermo/app/routes.dart';
-import 'package:yekermo/data/payments/payment_result.dart';
-import 'package:yekermo/domain/cart.dart';
+import 'package:yekermo/features/payments/payment_controller.dart';
 import 'package:yekermo/domain/models.dart';
 import 'package:yekermo/domain/order_draft.dart';
 import 'package:yekermo/domain/payment_method.dart';
-import 'package:yekermo/features/payments/payment_controller.dart';
-import 'package:yekermo/shared/extensions/context_extensions.dart';
 import 'package:yekermo/shared/state/screen_state.dart';
-import 'package:yekermo/shared/tokens/app_spacing.dart';
-import 'package:yekermo/shared/widgets/app_button.dart';
-import 'package:yekermo/shared/widgets/app_card.dart';
-import 'package:yekermo/shared/widgets/app_scaffold.dart';
-import 'package:yekermo/shared/widgets/app_section_header.dart';
-import 'package:yekermo/shared/widgets/app_text_field.dart';
-import 'package:yekermo/shared/widgets/async_state_view.dart';
+import 'package:yekermo/shared/widgets/app_loading.dart';
+import 'package:yekermo/theme/color_tokens.dart';
+import 'package:yekermo/theme/radii.dart';
+import 'package:yekermo/theme/spacing.dart';
+import 'package:yekermo/shared/extensions/context_extensions.dart';
+import 'package:yekermo/ui/app_button.dart';
+import 'package:yekermo/ui/app_bar_with_back.dart';
+import 'package:yekermo/ui/app_card.dart';
+import 'package:yekermo/ui/app_scaffold.dart';
+import 'package:yekermo/ui/price_row.dart';
 
-class CheckoutScreen extends ConsumerStatefulWidget {
+class CheckoutScreen extends ConsumerWidget {
   const CheckoutScreen({super.key});
 
   @override
-  ConsumerState<CheckoutScreen> createState() => _CheckoutScreenState();
-}
-
-class _CheckoutScreenState extends ConsumerState<CheckoutScreen> {
-  final TextEditingController _cardNumber = TextEditingController();
-  final TextEditingController _expiry = TextEditingController();
-  final TextEditingController _cvc = TextEditingController();
-  bool _hasCardNumber = false;
-
-  @override
-  void initState() {
-    super.initState();
-    _cardNumber.addListener(_syncCardState);
-  }
-
-  @override
-  void dispose() {
-    _cardNumber.removeListener(_syncCardState);
-    _cardNumber.dispose();
-    _expiry.dispose();
-    _cvc.dispose();
-    super.dispose();
-  }
-
-  void _syncCardState() {
-    final String digits = _cardNumber.text.replaceAll(RegExp(r'\D'), '');
-    final bool nextHasCardNumber = digits.length >= 4;
-    if (nextHasCardNumber != _hasCardNumber) {
-      setState(() => _hasCardNumber = nextHasCardNumber);
-    }
-  }
-
-  @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
     final ScreenState<OrderDraft> state = ref.watch(checkoutControllerProvider);
-    final ScreenState<PaymentVm> paymentState = ref.watch(
-      paymentControllerProvider,
-    );
-    final bool needsAddress = switch (state) {
-      EmptyState<OrderDraft>(:final message) =>
-        (message ?? '').toLowerCase().contains('address'),
-      _ => false,
-    };
+    final double bottomPadding =
+        AppSpacing.tapTarget +
+        MediaQuery.paddingOf(context).bottom +
+        AppSpacing.lg * 2;
+
     return AppScaffold(
-      title: 'Review order',
-      body: AsyncStateView<OrderDraft>(
-        state: state,
-        emptyBuilder: (_) => _CheckoutEmpty(
-          message: _emptyMessage(state),
-          showAddressAction: needsAddress,
-          onAddAddress: () => context.push(Routes.addressManager),
+      appBar: const AppBarWithBack(title: 'Checkout'),
+      body: switch (state) {
+        InitialState<OrderDraft>() => const AppLoading(),
+        LoadingState<OrderDraft>() => const AppLoading(),
+        StaleLoadingState<OrderDraft>() => const AppLoading(),
+        EmptyState<OrderDraft>() => _CheckoutEmpty(
+          bottomPadding: bottomPadding,
         ),
-        dataBuilder: (context, data) => _CheckoutBody(
+        ErrorState<OrderDraft>(:final failure) => _CheckoutError(
+          message: failure.message,
+          bottomPadding: bottomPadding,
+        ),
+        SuccessState<OrderDraft>(:final data) => _CheckoutContent(
           draft: data,
-          paymentState: paymentState,
-          cardNumber: _cardNumber,
-          expiry: _expiry,
-          cvc: _cvc,
-          hasCardNumber: _hasCardNumber,
-          onFulfillmentChange: (mode) => ref
-              .read(checkoutControllerProvider.notifier)
-              .setFulfillment(mode),
-          onAddAddress: () => context.push(Routes.addressManager),
-          onNotesChanged: (value) =>
-              ref.read(checkoutControllerProvider.notifier).setNotes(value),
-          onPayAndPlaceOrder: () async {
-            final PaymentMethod? method = _buildPaymentMethod(_cardNumber.text);
-            if (method == null) return;
-            ref.read(paymentControllerProvider.notifier).setMethod(method);
-            final PaymentResult result = await ref
-                .read(paymentControllerProvider.notifier)
-                .processPayment(amount: data.fees.total, method: method);
-            if (!result.isSuccess) return;
-            final order = await ref
-                .read(checkoutControllerProvider.notifier)
-                .payAndPlaceOrder(
-                  paymentMethod: method,
-                  paymentTransactionId: result.transactionId,
-                );
-            if (order == null) return;
-            if (!context.mounted) return;
-            context.go(Routes.orderConfirmation(order.id));
-          },
+          bottomPadding: bottomPadding,
+          paymentLast4: _paymentLast4(ref),
+          onPlaceOrder: () => _placeOrder(context, ref),
         ),
-      ),
+      },
     );
   }
 
-  String _emptyMessage(ScreenState<OrderDraft> state) {
-    return switch (state) {
-      EmptyState<OrderDraft>(:final message) =>
-        message ?? 'Review details will show here.',
-      _ => 'Review details will show here.',
+  static String _paymentLast4(WidgetRef ref) {
+    final paymentState = ref.read(paymentControllerProvider);
+    return switch (paymentState) {
+      SuccessState(:final data) => data.method?.last4 ?? '4242',
+      _ => '4242',
     };
+  }
+
+  static Future<void> _placeOrder(BuildContext context, WidgetRef ref) async {
+    final paymentState = ref.read(paymentControllerProvider);
+    final PaymentMethod method = switch (paymentState) {
+      SuccessState<PaymentVm>(:final data) =>
+        data.method ?? const PaymentMethod(brand: 'Card', last4: '4242'),
+      _ => const PaymentMethod(brand: 'Card', last4: '4242'),
+    };
+    final String txId = 'stub-${DateTime.now().millisecondsSinceEpoch}';
+    final Order? order = await ref
+        .read(checkoutControllerProvider.notifier)
+        .payAndPlaceOrder(paymentMethod: method, paymentTransactionId: txId);
+    if (context.mounted && order != null) {
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(const SnackBar(content: Text('Order placed.')));
+    }
   }
 }
 
 class _CheckoutEmpty extends StatelessWidget {
-  const _CheckoutEmpty({
-    required this.message,
-    required this.showAddressAction,
-    required this.onAddAddress,
-  });
+  const _CheckoutEmpty({required this.bottomPadding});
 
-  final String message;
-  final bool showAddressAction;
-  final VoidCallback onAddAddress;
+  final double bottomPadding;
 
   @override
   Widget build(BuildContext context) {
-    return Padding(
-      padding: AppSpacing.pagePadding,
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Text(
-            message,
-            style: context.text.bodyMedium?.copyWith(
-              color: context.colors.onSurface.withValues(alpha: 0.7),
+    return ListView(
+      padding: AppSpacing.pagePadding.copyWith(bottom: bottomPadding),
+      children: [
+        Center(
+          child: Padding(
+            padding: AppSpacing.pagePadding,
+            child: Text(
+              'Add items to review your order.',
+              style: context.text.bodyMedium?.copyWith(
+                color: context.textMuted,
+              ),
+              textAlign: TextAlign.center,
             ),
           ),
-          if (showAddressAction) ...[
-            AppSpacing.vSm,
-            AppButton(
-              label: 'Add address',
-              onPressed: onAddAddress,
-              style: AppButtonStyle.secondary,
+        ),
+        AppSpacing.vXl,
+      ],
+    );
+  }
+}
+
+class _CheckoutError extends StatelessWidget {
+  const _CheckoutError({required this.message, required this.bottomPadding});
+
+  final String message;
+  final double bottomPadding;
+
+  @override
+  Widget build(BuildContext context) {
+    return ListView(
+      padding: AppSpacing.pagePadding.copyWith(bottom: bottomPadding),
+      children: [
+        Center(
+          child: Padding(
+            padding: AppSpacing.pagePadding,
+            child: Text(
+              message,
+              style: context.text.bodyMedium?.copyWith(
+                color: context.textMuted,
+              ),
+              textAlign: TextAlign.center,
             ),
+          ),
+        ),
+        AppSpacing.vXl,
+      ],
+    );
+  }
+}
+
+class _CheckoutContent extends StatelessWidget {
+  const _CheckoutContent({
+    required this.draft,
+    required this.bottomPadding,
+    required this.paymentLast4,
+    required this.onPlaceOrder,
+  });
+
+  final OrderDraft draft;
+  final double bottomPadding;
+  final String paymentLast4;
+  final VoidCallback onPlaceOrder;
+
+  static String _addressLabel(Address a) {
+    final name = a.label.name;
+    return name.isEmpty
+        ? 'Address'
+        : '${name[0].toUpperCase()}${name.substring(1)}';
+  }
+
+  static String _addressLine(Address a) => '${a.line1}, ${a.city}';
+
+  @override
+  Widget build(BuildContext context) {
+    final Address? address = draft.address;
+    final String addressLabel = address != null
+        ? _addressLabel(address)
+        : 'Address';
+    final String addressLine = address != null ? _addressLine(address) : '—';
+    final double deliveryAndFees =
+        draft.fees.deliveryFee + draft.fees.serviceFee;
+
+    return Stack(
+      children: [
+        ListView(
+          padding: AppSpacing.pagePadding.copyWith(bottom: bottomPadding),
+          children: [
+            _AddressCard(label: addressLabel, address: addressLine),
+            AppSpacing.vMd,
+            _PaymentCard(last4: paymentLast4),
+            AppSpacing.vMd,
+            _OrderSummaryCard(
+              lines: draft.items
+                  .map(
+                    (line) => _OrderLineDto(
+                      name: line.item.name,
+                      quantity: line.quantity,
+                      lineTotal: line.total,
+                    ),
+                  )
+                  .toList(),
+              subtotal: draft.fees.subtotal,
+              deliveryAndFees: deliveryAndFees,
+              tax: draft.fees.tax,
+              total: draft.fees.total,
+            ),
+            AppSpacing.vSm,
+            Text(
+              'Totals may adjust at confirmation.',
+              style: context.text.bodySmall?.copyWith(color: context.muted),
+            ),
+            AppSpacing.vLg,
+            Text(
+              'Your order will be prepared with care and delivered to your door.',
+              style: context.text.bodySmall?.copyWith(color: context.muted),
+            ),
+            AppSpacing.vXl,
           ],
+        ),
+        Positioned(
+          left: 0,
+          right: 0,
+          bottom: 0,
+          child: SafeArea(
+            top: false,
+            minimum: const EdgeInsets.only(top: AppSpacing.sm),
+            child: Padding(
+              padding: AppSpacing.pagePadding,
+              child: AppButton(label: 'Place order', onPressed: onPlaceOrder),
+            ),
+          ),
+        ),
+      ],
+    );
+  }
+}
+
+class _OrderLineDto {
+  const _OrderLineDto({
+    required this.name,
+    required this.quantity,
+    required this.lineTotal,
+  });
+
+  final String name;
+  final int quantity;
+  final double lineTotal;
+}
+
+class _AddressCard extends StatelessWidget {
+  const _AddressCard({required this.label, required this.address});
+
+  final String label;
+  final String address;
+
+  @override
+  Widget build(BuildContext context) {
+    final TextTheme text = context.text;
+    return AppCard(
+      onTap: () {},
+      child: Row(
+        children: [
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  'Delivery address',
+                  style: text.labelMedium?.copyWith(
+                    color: context.textMuted,
+                  ),
+                ),
+                AppSpacing.vXs,
+                Text(label, style: text.titleSmall),
+                AppSpacing.vXs,
+                Text(
+                  address,
+                  style: text.bodyMedium?.copyWith(
+                    color: context.textMuted,
+                  ),
+                ),
+              ],
+            ),
+          ),
+          Icon(
+            Icons.chevron_right,
+            color: context.textTertiary,
+          ),
         ],
       ),
     );
   }
 }
 
-class _CheckoutBody extends StatelessWidget {
-  const _CheckoutBody({
-    required this.draft,
-    required this.paymentState,
-    required this.cardNumber,
-    required this.expiry,
-    required this.cvc,
-    required this.hasCardNumber,
-    required this.onFulfillmentChange,
-    required this.onAddAddress,
-    required this.onNotesChanged,
-    required this.onPayAndPlaceOrder,
-  });
+class _PaymentCard extends StatelessWidget {
+  const _PaymentCard({required this.last4});
 
-  final OrderDraft draft;
-  final ScreenState<PaymentVm> paymentState;
-  final TextEditingController cardNumber;
-  final TextEditingController expiry;
-  final TextEditingController cvc;
-  final bool hasCardNumber;
-  final ValueChanged<FulfillmentMode> onFulfillmentChange;
-  final VoidCallback onAddAddress;
-  final ValueChanged<String> onNotesChanged;
-  final Future<void> Function() onPayAndPlaceOrder;
+  final String last4;
 
   @override
   Widget build(BuildContext context) {
-    final bool canPlace =
-        draft.items.isNotEmpty &&
-        (draft.fulfillmentMode == FulfillmentMode.pickup ||
-            draft.address != null);
-    final bool isProcessing = paymentState is LoadingState<PaymentVm>;
-    final String? placeHint = canPlace
-        ? null
-        : 'Add a delivery address to place this order.';
-    return ListView(
-      padding: AppSpacing.pagePadding,
-      children: [
-        const AppSectionHeader(title: 'Fulfillment'),
-        AppSpacing.vSm,
-        Wrap(
-          spacing: AppSpacing.sm,
-          children: [
-            FilterChip(
-              label: const Text('Delivery'),
-              selected: draft.fulfillmentMode == FulfillmentMode.delivery,
-              onSelected: (_) => onFulfillmentChange(FulfillmentMode.delivery),
+    final TextTheme text = Theme.of(context).textTheme;
+    return AppCard(
+      onTap: () {},
+      child: Row(
+        children: [
+          Container(
+            width: 40,
+            height: 28,
+            decoration: BoxDecoration(
+              color: ColorTokens.surfaceVariant,
+              borderRadius: AppRadii.br12,
             ),
-            FilterChip(
-              label: const Text('Pickup'),
-              selected: draft.fulfillmentMode == FulfillmentMode.pickup,
-              onSelected: (_) => onFulfillmentChange(FulfillmentMode.pickup),
+          ),
+          AppSpacing.hMd,
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  'Payment method',
+                  style: text.labelMedium?.copyWith(
+                    color: context.textMuted,
+                  ),
+                ),
+                AppSpacing.vXs,
+                Text('•••• $last4', style: text.titleSmall),
+              ],
             ),
-          ],
-        ),
-        AppSpacing.vMd,
-        if (draft.fulfillmentMode == FulfillmentMode.pickup) ...[
+          ),
+          Icon(
+            Icons.chevron_right,
+            color: context.textTertiary,
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class _OrderSummaryCard extends StatelessWidget {
+  const _OrderSummaryCard({
+    required this.lines,
+    required this.subtotal,
+    required this.deliveryAndFees,
+    required this.tax,
+    required this.total,
+  });
+
+  final List<_OrderLineDto> lines;
+  final double subtotal;
+  final double deliveryAndFees;
+  final double tax;
+  final double total;
+
+  @override
+  Widget build(BuildContext context) {
+    final TextTheme text = context.text;
+    return AppCard(
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
           Text(
-            'Pickup can be faster right now.',
-            style: context.text.bodySmall?.copyWith(
-              color: context.colors.onSurface.withValues(alpha: 0.7),
-            ),
+            'Order summary',
+            style: text.titleSmall?.copyWith(fontWeight: FontWeight.w500),
           ),
-          AppSpacing.vMd,
-        ],
-        if (draft.fulfillmentMode == FulfillmentMode.delivery) ...[
-          Text(
-            'Delivery fits tonight.',
-            style: context.text.bodySmall?.copyWith(
-              color: context.colors.onSurface.withValues(alpha: 0.7),
-            ),
-          ),
-          AppSpacing.vMd,
-        ],
-        if (draft.fulfillmentMode == FulfillmentMode.delivery) ...[
-          _AddressSection(address: draft.address, onAddAddress: onAddAddress),
-          AppSpacing.vMd,
-        ],
-        const AppSectionHeader(title: 'Items'),
-        AppSpacing.vSm,
-        ...draft.items.map(
-          (item) => Padding(
-            padding: const EdgeInsets.only(bottom: AppSpacing.sm),
-            child: AppCard(
-              padding: AppSpacing.cardPadding,
-              child: _OrderItemRow(lineItem: item),
-            ),
-          ),
-        ),
-        AppSpacing.vMd,
-        const AppSectionHeader(title: 'Fees'),
-        AppSpacing.vSm,
-        _FeeRow(label: 'Subtotal', value: draft.fees.subtotal),
-        _FeeRow(label: 'Service fee', value: draft.fees.serviceFee),
-        if (draft.fulfillmentMode == FulfillmentMode.delivery)
-          _FeeRow(label: 'Delivery fee', value: draft.fees.deliveryFee),
-        _FeeRow(label: 'Tax', value: draft.fees.tax),
-        AppSpacing.vSm,
-        _FeeRow(label: 'Total', value: draft.fees.total, emphasize: true),
-        AppSpacing.vMd,
-        const AppSectionHeader(title: 'Notes'),
-        AppSpacing.vSm,
-        AppTextField(
-          hintText: 'Add a note (optional)',
-          onSubmitted: onNotesChanged,
-        ),
-        AppSpacing.vMd,
-        const AppSectionHeader(title: 'Payment'),
-        AppSpacing.vSm,
-        AppCard(
-          padding: AppSpacing.cardPadding,
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              AppTextField(
-                controller: cardNumber,
-                hintText: 'Card number',
-                enabled: !isProcessing,
-              ),
-              AppSpacing.vSm,
-              Row(
+          AppSpacing.vSm,
+          ...lines.map(
+            (line) => Padding(
+              padding: const EdgeInsets.only(bottom: AppSpacing.xs),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  Expanded(
-                    child: AppTextField(
-                      controller: expiry,
-                      hintText: 'MM/YY',
-                      enabled: !isProcessing,
+                  Text(
+                    '${line.name} × ${line.quantity}',
+                    style: text.bodyMedium?.copyWith(
+                      color: context.textMuted,
                     ),
                   ),
-                  AppSpacing.hSm,
-                  Expanded(
-                    child: AppTextField(
-                      controller: cvc,
-                      hintText: 'CVC',
-                      enabled: !isProcessing,
+                  Text(
+                    PriceRow.format(line.lineTotal),
+                    style: text.bodyMedium?.copyWith(
+                      color: context.textMuted,
                     ),
                   ),
                 ],
               ),
-            ],
-          ),
-        ),
-        AppSpacing.vSm,
-        if (paymentState case ErrorState<PaymentVm>(:final failure)) ...[
-          Text(
-            failure.message,
-            style: context.text.bodySmall?.copyWith(
-              color: context.colors.error,
             ),
           ),
           AppSpacing.vSm,
-        ],
-        if (isProcessing) ...[
-          Text(
-            'Processing payment...',
-            style: context.text.bodySmall?.copyWith(
-              color: context.colors.onSurface.withValues(alpha: 0.7),
-            ),
-          ),
+          const Divider(height: 1),
           AppSpacing.vSm,
-        ],
-        if (placeHint != null) ...[
-          Text(
-            placeHint,
-            style: context.text.bodySmall?.copyWith(
-              color: context.colors.onSurface.withValues(alpha: 0.7),
-            ),
-          ),
-          AppSpacing.vSm,
-        ],
-        if (!hasCardNumber) ...[
-          Text(
-            'Add a payment method to continue.',
-            style: context.text.bodySmall?.copyWith(
-              color: context.colors.onSurface.withValues(alpha: 0.7),
-            ),
-          ),
-          AppSpacing.vSm,
-        ],
-        Text(
-          "You'll see a confirmation next.",
-          style: context.text.bodySmall?.copyWith(
-            color: context.colors.onSurface.withValues(alpha: 0.7),
-          ),
-        ),
-        AppSpacing.vSm,
-        AppButton(
-          label: 'Pay and place order',
-          onPressed: canPlace && hasCardNumber && !isProcessing
-              ? onPayAndPlaceOrder
-              : null,
-        ),
-      ],
-    );
-  }
-}
-
-PaymentMethod? _buildPaymentMethod(String rawNumber) {
-  final String digits = rawNumber.replaceAll(RegExp(r'\D'), '');
-  if (digits.length < 4) return null;
-  return PaymentMethod(
-    brand: 'Card',
-    last4: digits.substring(digits.length - 4),
-  );
-}
-
-class _AddressSection extends StatelessWidget {
-  const _AddressSection({required this.address, required this.onAddAddress});
-
-  final Address? address;
-  final VoidCallback onAddAddress;
-
-  @override
-  Widget build(BuildContext context) {
-    if (address == null) {
-      return AppCard(
-        padding: AppSpacing.cardPadding,
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text('Delivery address', style: context.text.titleSmall),
-            AppSpacing.vXs,
-            Text(
-              'Add a delivery address to continue.',
-              style: context.text.bodySmall?.copyWith(
-                color: context.colors.onSurface.withValues(alpha: 0.7),
-              ),
-            ),
-            AppSpacing.vSm,
-            AppButton(
-              label: 'Add address',
-              onPressed: onAddAddress,
-              style: AppButtonStyle.secondary,
-            ),
-          ],
-        ),
-      );
-    }
-
-    final Address addressData = address!;
-    return AppCard(
-      padding: AppSpacing.cardPadding,
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Text('Delivery to', style: context.text.titleSmall),
+          PriceRow(label: 'Subtotal', value: subtotal),
+          PriceRow(label: 'Delivery & fees', value: deliveryAndFees),
+          PriceRow(label: 'Estimated taxes', value: tax),
           AppSpacing.vXs,
-          Text(
-            '${_label(addressData.label)} • ${addressData.line1}',
-            style: context.text.bodySmall,
-          ),
-          Text(
-            addressData.city,
-            style: context.text.bodySmall?.copyWith(
-              color: context.colors.onSurface.withValues(alpha: 0.7),
-            ),
-          ),
-          if ((addressData.notes ?? '').isNotEmpty) ...[
-            AppSpacing.vXs,
-            Text(
-              addressData.notes!,
-              style: context.text.bodySmall?.copyWith(
-                color: context.colors.onSurface.withValues(alpha: 0.7),
-              ),
-            ),
-          ],
-          AppSpacing.vSm,
-          AppButton(
-            label: 'Manage address',
-            onPressed: onAddAddress,
-            style: AppButtonStyle.secondary,
-          ),
+          PriceRow(label: 'Total', value: total, emphasize: true),
         ],
       ),
     );
-  }
-}
-
-class _OrderItemRow extends StatelessWidget {
-  const _OrderItemRow({required this.lineItem});
-
-  final CartLineItem lineItem;
-
-  @override
-  Widget build(BuildContext context) {
-    return Row(
-      children: [
-        Expanded(
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text(lineItem.item.name, style: context.text.titleMedium),
-              AppSpacing.vXs,
-              Text(
-                'Qty ${lineItem.quantity}',
-                style: context.text.bodySmall?.copyWith(
-                  color: context.colors.onSurface.withValues(alpha: 0.7),
-                ),
-              ),
-            ],
-          ),
-        ),
-        Text(
-          '\$${lineItem.total.toStringAsFixed(2)}',
-          style: context.text.titleSmall,
-        ),
-      ],
-    );
-  }
-}
-
-class _FeeRow extends StatelessWidget {
-  const _FeeRow({
-    required this.label,
-    required this.value,
-    this.emphasize = false,
-  });
-
-  final String label;
-  final double value;
-  final bool emphasize;
-
-  @override
-  Widget build(BuildContext context) {
-    final TextStyle? style = emphasize
-        ? context.text.titleSmall
-        : context.text.bodyMedium;
-    return Padding(
-      padding: const EdgeInsets.only(bottom: AppSpacing.xs),
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-        children: [
-          Text(label, style: style),
-          Text('\$${value.toStringAsFixed(2)}', style: style),
-        ],
-      ),
-    );
-  }
-}
-
-String _label(AddressLabel label) {
-  switch (label) {
-    case AddressLabel.home:
-      return 'Home';
-    case AddressLabel.work:
-      return 'Work';
   }
 }

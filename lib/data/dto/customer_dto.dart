@@ -14,6 +14,15 @@ class CustomerDto {
   final String primaryAddressId;
   final PreferenceDto preference;
 
+  static CustomerDto fromJson(Map<String, dynamic> json) => CustomerDto(
+        id: json['id'] as String,
+        name: json['name'] as String,
+        primaryAddressId: json['primaryAddressId'] as String? ?? '',
+        preference: json['preference'] != null
+            ? PreferenceDto.fromJson(json['preference'] as Map<String, dynamic>)
+            : const PreferenceDto(favoriteCuisines: [], dietaryTags: []),
+      );
+
   Customer toModel() => Customer(
     id: id,
     name: name,

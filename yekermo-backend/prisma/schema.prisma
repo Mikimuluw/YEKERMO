@@ -1,0 +1,245 @@
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+// Phase-2 enums
+enum PaymentMethod {
+  CARD
+  CASH
+}
+
+enum PaymentStatus {
+  UNPAID
+  REQUIRES_ACTION
+  PAID
+  FAILED
+  REFUNDED
+}
+
+enum PaymentProvider {
+  STRIPE
+}
+
+enum OrderStatus {
+  DRAFT
+  PENDING_PAYMENT
+  NEW
+  ACCEPTED
+  PREPARING
+  READY_FOR_PICKUP
+  OUT_FOR_DELIVERY
+  DELIVERED
+  CANCELLED
+  REJECTED
+}
+
+enum OrderEventType {
+  ORDER_CREATED
+  PAYMENT_CREATED
+  PAYMENT_SUCCEEDED
+  PAYMENT_FAILED
+  STATUS_CHANGED
+  CANCELLED_BY_CUSTOMER
+  CANCELLED_BY_RESTAURANT
+  REFUND_INITIATED
+  REFUND_COMPLETED
+  NOTE_ADDED
+}
+
+enum ActorType {
+  CUSTOMER
+  RESTAURANT
+  SYSTEM
+  DRIVER
+}
+
+enum NotificationJobStatus {
+  PENDING
+  SENT
+  FAILED
+}
+
+model User {
+  id        String   @id @default(cuid())
+  email     String   @unique
+  password  String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  customer  Customer?
+}
+
+model Customer {
+  id               String   @id @default(cuid())
+  userId           String   @unique
+  name             String
+  primaryAddressId String?
+  favoriteCuisines String[]
+  dietaryTags      String[]
+  createdAt        DateTime @default(now())
+  updatedAt        DateTime @updatedAt
+  user             User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  addresses        Address[]
+  orders           Order[]
+}
+
+model Address {
+  id           String   @id @default(cuid())
+  customerId   String
+  label        String
+  line1        String
+  city         String
+  neighborhood String?
+  notes        String?
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+  customer     Customer @relation(fields: [customerId], references: [id], onDelete: Cascade)
+  orders       Order[]
+  @@index([customerId])
+}
+
+model Restaurant {
+  id             String   @id @default(cuid())
+  name           String
+  address        String
+  tagline        String
+  prepTimeBand   String
+  serviceModes   String[]
+  tags           String[]
+  trustCopy      String
+  dishNames      String[]
+  hoursByWeekday Json
+  rating         Float?
+  maxMinutes     Int?
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+  categories     MenuCategory[]
+  items          MenuItem[]
+  orders         Order[]
+}
+
+model MenuCategory {
+  id           String   @id @default(cuid())
+  restaurantId String
+  title        String
+  sortOrder    Int      @default(0)
+  createdAt    DateTime @default(now())
+  restaurant   Restaurant @relation(fields: [restaurantId], references: [id], onDelete: Cascade)
+  items        MenuItem[]
+  @@index([restaurantId])
+}
+
+model MenuItem {
+  id           String   @id @default(cuid())
+  restaurantId String
+  categoryId   String
+  name         String
+  description  String
+  price        Float
+  tags         String[]
+  available    Boolean  @default(true)
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+  restaurant   Restaurant   @relation(fields: [restaurantId], references: [id], onDelete: Cascade)
+  category     MenuCategory @relation(fields: [categoryId], references: [id], onDelete: Cascade)
+  orderItems   OrderItem[]
+  @@index([restaurantId])
+  @@index([categoryId])
+}
+
+model Order {
+  id               String    @id @default(cuid())
+  customerId       String
+  restaurantId     String
+  status           String    // legacy + Phase-2: use OrderStatus values for new orders
+  fulfillmentMode String
+  paymentStatus    String    // legacy
+  paymentBrand     String?
+  paymentLast4     String?
+  total            Float
+  subtotal         Float
+  serviceFee       Float
+  deliveryFee      Float
+  tax              Float
+  addressId        String?
+  placedAt         DateTime  @default(now())
+  paidAt           DateTime?
+  scheduledTime    DateTime?
+  createdAt        DateTime  @default(now())
+  updatedAt        DateTime  @updatedAt
+  // Phase-2
+  paymentMethod    PaymentMethod?
+  paymentStatusV2  PaymentStatus?
+  paymentProvider  PaymentProvider?
+  paymentIntentId  String?
+  currency         String    @default("CAD")
+  amountSubtotal   Int?      // cents
+  amountTax        Int?
+  amountDeliveryFee Int?
+  amountTotal      Int?      // cents
+  customer         Customer  @relation(fields: [customerId], references: [id])
+  restaurant       Restaurant @relation(fields: [restaurantId], references: [id])
+  address          Address?  @relation(fields: [addressId], references: [id])
+  items            OrderItem[]
+  orderEvents      OrderEvent[]
+  paymentAttempts  PaymentAttempt[]
+  @@index([customerId])
+  @@index([restaurantId])
+  @@index([placedAt])
+}
+
+model OrderItem {
+  id         String   @id @default(cuid())
+  orderId    String
+  menuItemId String
+  quantity   Int
+  order      Order    @relation(fields: [orderId], references: [id], onDelete: Cascade)
+  menuItem   MenuItem @relation(fields: [menuItemId], references: [id])
+  @@index([orderId])
+}
+
+model PaymentAttempt {
+  id        String   @id @default(cuid())
+  orderId   String
+  provider  PaymentProvider
+  intentId  String
+  status    String
+  lastError String?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  order     Order     @relation(fields: [orderId], references: [id], onDelete: Cascade)
+  @@index([orderId])
+}
+
+model OrderEvent {
+  id        String        @id @default(cuid())
+  orderId   String
+  type      OrderEventType
+  fromStatus String?
+  toStatus  String?
+  actorType ActorType
+  actorId   String?
+  metadata  Json?
+  createdAt DateTime      @default(now())
+  order     Order         @relation(fields: [orderId], references: [id], onDelete: Cascade)
+  @@index([orderId])
+  @@index([createdAt])
+}
+
+model NotificationJob {
+  id           String                @id @default(cuid())
+  userId       String
+  type         String
+  payload      Json
+  status       NotificationJobStatus @default(PENDING)
+  attemptCount Int                   @default(0)
+  readAt       DateTime?
+  createdAt    DateTime              @default(now())
+  updatedAt    DateTime             @updatedAt
+  @@index([userId])
+  @@index([status])
+}

@@ -7,6 +7,8 @@ class _TimeRange {
   bool get spansMidnight => endMinutes < startMinutes;
 }
 
+/// Returns whether the restaurant is open at [now].
+/// [now] should be supplied by an injected clock (e.g. ref.read(clockProvider).now()).
 bool isOpenNow(Map<int, String> hoursByWeekday, DateTime now) {
   final int minutes = now.hour * 60 + now.minute;
   final int weekday = now.weekday;

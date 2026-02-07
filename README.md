@@ -9,6 +9,8 @@ This is a standalone project.
 
 A new Flutter project.
 
+**Backend (Phase 12.1):** Node/Express API lives in [`yekermo-backend/`](yekermo-backend/). For Railway, set the backend service **Root Directory** to `yekermo-backend`. See [.railway/README.md](.railway/README.md) and [yekermo-backend/README.md](yekermo-backend/README.md).
+
 ## Getting Started
 
 This project is a starting point for a Flutter application.

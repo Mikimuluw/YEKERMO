@@ -34,7 +34,7 @@ class HomeController extends Notifier<ScreenState<HomeFeed>> {
         if (updatedFeed.trustedRestaurants.isEmpty &&
             updatedFeed.allRestaurants.isEmpty &&
             updatedFeed.pastOrders.isEmpty) {
-          state = ScreenState.empty('Nothing to show yet.');
+          state = ScreenState.empty('No recommendations right now.');
         } else {
           state = ScreenState.success(updatedFeed);
         }

@@ -1,8 +1,10 @@
 import 'package:flutter_test/flutter_test.dart';
+import 'package:yekermo/core/time/clock.dart';
 import 'package:yekermo/data/repositories/dummy_orders_repository.dart';
 import 'package:yekermo/data/seed/yyc_restaurants.dart';
+import 'helpers/fixed_clock.dart';
 import 'package:yekermo/domain/cart.dart';
-import 'package:yekermo/domain/failure.dart';
+import 'package:yekermo/domain/order_failures.dart';
 import 'package:yekermo/domain/fees.dart';
 import 'package:yekermo/domain/models.dart';
 import 'package:yekermo/domain/order_draft.dart';
@@ -52,12 +54,12 @@ OrderDraft _draftFor(MenuItem item, FulfillmentMode mode) {
 }
 
 /// Monday noon local — inside 11:00–21:30 so hours check passes on CI.
-DateTime _openNow() => DateTime(2026, 2, 2, 12, 0);
+final Clock _openClock = FixedClock(DateTime(2026, 2, 2, 12, 0));
 
 void main() {
   test('pickup-only restaurants allow pickup but reject delivery', () async {
     final DummyOrdersRepository repo = DummyOrdersRepository(
-      now: _openNow,
+      clock: _openClock,
       restaurantLookup: (id) {
         if (id == 'rest-pickup') {
           return const YYCRestaurantSeed(
@@ -91,13 +93,19 @@ void main() {
         _draftFor(_item, FulfillmentMode.delivery),
         paymentMethod: const PaymentMethod(brand: 'Card', last4: '4242'),
       ),
-      throwsA(isA<Failure>()),
+      throwsA(
+      isA<PlaceOrderException>().having(
+        (e) => e.failure.code,
+        'code',
+        PlaceOrderFailureCode.serviceModeUnavailable,
+      ),
+    ),
     );
   });
 
   test('delivery-enabled restaurants allow delivery', () async {
     final DummyOrdersRepository repo = DummyOrdersRepository(
-      now: _openNow,
+      clock: _openClock,
       restaurantLookup: (id) {
         if (id == 'rest-delivery') {
           return const YYCRestaurantSeed(

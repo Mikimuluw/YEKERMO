@@ -5,6 +5,9 @@ import 'package:share_plus/share_plus.dart';
 import 'package:yekermo/app/referral_provider.dart';
 import 'package:yekermo/app/routes.dart';
 import 'package:yekermo/features/referral/referral_share.dart';
+import 'package:yekermo/shared/tokens/app_spacing.dart';
+import 'package:yekermo/ui/app_list_tile.dart';
+import 'package:yekermo/ui/app_scaffold.dart';
 
 class SettingsScreen extends ConsumerWidget {
   const SettingsScreen({super.key});
@@ -13,17 +16,19 @@ class SettingsScreen extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final referral = ref.watch(referralProvider);
     final code = referral.code;
-    return Scaffold(
-      appBar: AppBar(title: const Text('Settings')),
+    return AppScaffold(
+      title: 'Settings',
       body: ListView(
+        padding: AppSpacing.pagePadding,
         children: [
-          ListTile(
-            title: const Text('Preferences'),
+          AppListTile(
+            title: 'Preferences',
             trailing: const Icon(Icons.chevron_right),
             onTap: () => context.push(Routes.preferences),
           ),
-          ListTile(
-            title: const Text('Invite'),
+          AppListTile(
+            title: 'Invite',
+            subtitle: code.isEmpty ? 'Invite code is not available.' : null,
             trailing: const Icon(Icons.chevron_right),
             onTap: code.isEmpty
                 ? null

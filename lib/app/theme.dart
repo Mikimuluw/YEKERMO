@@ -1,22 +1,7 @@
 import 'package:flutter/material.dart';
-import 'package:yekermo/shared/tokens/app_radii.dart';
-import 'package:yekermo/shared/tokens/app_spacing.dart';
-
-class AppColors {
-  static const Color warmBrown = Color(0xFF4A2F1B);
-  static const Color warmBrownDark = Color(0xFF2E1C10);
-  static const Color creamCanvas = Color(0xFFF7F1E7);
-  static const Color creamSurface = Color(0xFFFFFBF4);
-  static const Color goldenAccent = Color(0xFFC8A66A);
-  static const Color charcoal = Color(0xFF2C2520);
-  static const Color muted = Color(0xFF7C6F63);
-  static const Color divider = Color(0xFFE6D8C8);
-
-  static const Color night = Color(0xFF15100C);
-  static const Color nightSurface = Color(0xFF20160F);
-  static const Color nightOnSurface = Color(0xFFF3E9DD);
-  static const Color nightMuted = Color(0xFFCABBAA);
-}
+import 'package:yekermo/theme/color_tokens.dart';
+import 'package:yekermo/theme/radii.dart';
+import 'package:yekermo/theme/spacing.dart';
 
 class AppTheme {
   static ThemeData get light => _buildLight();
@@ -25,34 +10,36 @@ class AppTheme {
   static ThemeData _buildLight() {
     const ColorScheme scheme = ColorScheme(
       brightness: Brightness.light,
-      primary: AppColors.warmBrown,
-      onPrimary: Colors.white,
-      secondary: AppColors.goldenAccent,
-      onSecondary: AppColors.charcoal,
-      error: Color(0xFFB3261E),
-      onError: Colors.white,
-      surface: AppColors.creamSurface,
-      onSurface: AppColors.charcoal,
-      primaryContainer: AppColors.warmBrownDark,
-      onPrimaryContainer: Colors.white,
-      secondaryContainer: AppColors.creamCanvas,
-      onSecondaryContainer: AppColors.charcoal,
-      surfaceContainerHighest: AppColors.creamCanvas,
-      outline: AppColors.divider,
+      primary: ColorTokens.primary,
+      onPrimary: ColorTokens.onPrimary,
+      secondary: ColorTokens.accent,
+      onSecondary: ColorTokens.onSurface,
+      error: ColorTokens.error,
+      onError: ColorTokens.onError,
+      surface: ColorTokens.surface,
+      onSurface: ColorTokens.onSurface,
+      primaryContainer: ColorTokens.primaryDark,
+      onPrimaryContainer: ColorTokens.onPrimary,
+      secondaryContainer: ColorTokens.surfaceVariant,
+      onSecondaryContainer: ColorTokens.onSurface,
+      surfaceContainerHighest: ColorTokens.surfaceVariant,
+      outline: ColorTokens.divider,
       shadow: Color(0x33000000),
-      inverseSurface: AppColors.charcoal,
-      onInverseSurface: AppColors.creamSurface,
-      inversePrimary: AppColors.goldenAccent,
-      surfaceTint: AppColors.warmBrown,
+      inverseSurface: ColorTokens.onSurface,
+      onInverseSurface: ColorTokens.surface,
+      inversePrimary: ColorTokens.accent,
+      surfaceTint: ColorTokens.primary,
     );
 
     return _baseTheme(scheme).copyWith(
-      scaffoldBackgroundColor: AppColors.creamCanvas,
+      scaffoldBackgroundColor: ColorTokens.background,
       appBarTheme: const AppBarTheme(
-        backgroundColor: AppColors.warmBrown,
-        foregroundColor: Colors.white,
+        backgroundColor: ColorTokens.primary,
+        foregroundColor: ColorTokens.onPrimary,
         elevation: 0,
+        scrolledUnderElevation: 0,
         centerTitle: false,
+        surfaceTintColor: Colors.transparent,
       ),
     );
   }
@@ -60,34 +47,36 @@ class AppTheme {
   static ThemeData _buildDark() {
     const ColorScheme scheme = ColorScheme(
       brightness: Brightness.dark,
-      primary: AppColors.goldenAccent,
-      onPrimary: AppColors.night,
-      secondary: AppColors.warmBrown,
-      onSecondary: Colors.white,
+      primary: ColorTokens.accent,
+      onPrimary: ColorTokens.nightBackground,
+      secondary: ColorTokens.primary,
+      onSecondary: ColorTokens.onPrimary,
       error: Color(0xFFF2B8B5),
-      onError: AppColors.night,
-      surface: AppColors.nightSurface,
-      onSurface: AppColors.nightOnSurface,
-      primaryContainer: AppColors.warmBrownDark,
-      onPrimaryContainer: AppColors.nightOnSurface,
-      secondaryContainer: AppColors.night,
-      onSecondaryContainer: AppColors.nightOnSurface,
-      surfaceContainerHighest: AppColors.night,
-      outline: AppColors.nightMuted,
+      onError: ColorTokens.nightBackground,
+      surface: ColorTokens.nightSurface,
+      onSurface: ColorTokens.nightOnSurface,
+      primaryContainer: ColorTokens.primaryDark,
+      onPrimaryContainer: ColorTokens.nightOnSurface,
+      secondaryContainer: ColorTokens.nightBackground,
+      onSecondaryContainer: ColorTokens.nightOnSurface,
+      surfaceContainerHighest: ColorTokens.nightBackground,
+      outline: ColorTokens.nightMuted,
       shadow: Color(0x66000000),
-      inverseSurface: AppColors.nightOnSurface,
-      onInverseSurface: AppColors.night,
-      inversePrimary: AppColors.goldenAccent,
-      surfaceTint: AppColors.goldenAccent,
+      inverseSurface: ColorTokens.nightOnSurface,
+      onInverseSurface: ColorTokens.nightBackground,
+      inversePrimary: ColorTokens.accent,
+      surfaceTint: ColorTokens.accent,
     );
 
     return _baseTheme(scheme).copyWith(
-      scaffoldBackgroundColor: AppColors.night,
+      scaffoldBackgroundColor: ColorTokens.nightBackground,
       appBarTheme: const AppBarTheme(
-        backgroundColor: AppColors.warmBrownDark,
-        foregroundColor: AppColors.nightOnSurface,
+        backgroundColor: ColorTokens.primaryDark,
+        foregroundColor: ColorTokens.nightOnSurface,
         elevation: 0,
+        scrolledUnderElevation: 0,
         centerTitle: false,
+        surfaceTintColor: Colors.transparent,
       ),
     );
   }
@@ -104,27 +93,31 @@ class AppTheme {
           color: scheme.onSurface,
           fontWeight: FontWeight.w600,
         ),
-        titleLarge: baseText.titleLarge?.copyWith(
+        headlineMedium: baseText.headlineMedium?.copyWith(
           color: scheme.onSurface,
           fontWeight: FontWeight.w600,
         ),
+        titleLarge: baseText.titleLarge?.copyWith(
+          color: scheme.onSurface,
+          fontWeight: FontWeight.w500,
+        ),
         titleMedium: baseText.titleMedium?.copyWith(
           color: scheme.onSurface,
-          fontWeight: FontWeight.w600,
+          fontWeight: FontWeight.w500,
         ),
         bodyLarge: baseText.bodyLarge?.copyWith(color: scheme.onSurface),
         bodyMedium: baseText.bodyMedium?.copyWith(color: scheme.onSurface),
         labelLarge: baseText.labelLarge?.copyWith(
           color: scheme.onSurface,
-          fontWeight: FontWeight.w600,
+          fontWeight: FontWeight.w400,
         ),
       ),
       dividerTheme: DividerThemeData(color: scheme.outline, thickness: 1),
       chipTheme: ChipThemeData(
         backgroundColor: scheme.surfaceContainerHighest,
-        selectedColor: scheme.primary.withValues(alpha: 0.12),
+        selectedColor: scheme.primary,
         labelStyle: TextStyle(color: scheme.onSurface),
-        secondaryLabelStyle: TextStyle(color: scheme.onSurface),
+        secondaryLabelStyle: TextStyle(color: scheme.onPrimary),
         shape: const StadiumBorder(),
         padding: const EdgeInsets.symmetric(
           horizontal: AppSpacing.xs,
@@ -133,15 +126,15 @@ class AppTheme {
       ),
       cardTheme: CardThemeData(
         color: scheme.surface,
-        surfaceTintColor: scheme.surfaceTint,
-        elevation: 0.4,
+        surfaceTintColor: Colors.transparent,
+        elevation: 0,
         margin: EdgeInsets.zero,
         shape: RoundedRectangleBorder(borderRadius: AppRadii.br16),
       ),
       bottomNavigationBarTheme: BottomNavigationBarThemeData(
         backgroundColor: scheme.surface,
         selectedItemColor: scheme.primary,
-        unselectedItemColor: scheme.onSurface.withValues(alpha: 0.6),
+        unselectedItemColor: scheme.onSurface.withValues(alpha: 0.5),
         showUnselectedLabels: true,
         type: BottomNavigationBarType.fixed,
       ),

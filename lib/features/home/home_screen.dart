@@ -5,15 +5,16 @@ import 'package:yekermo/app/di.dart';
 import 'package:yekermo/app/routes.dart';
 import 'package:yekermo/domain/home_feed.dart';
 import 'package:yekermo/domain/models.dart';
-import 'package:yekermo/shared/extensions/context_extensions.dart';
 import 'package:yekermo/shared/state/screen_state.dart';
-import 'package:yekermo/shared/tokens/app_spacing.dart';
-import 'package:yekermo/shared/widgets/app_button.dart';
-import 'package:yekermo/shared/widgets/app_card.dart';
-import 'package:yekermo/shared/widgets/app_chip.dart';
-import 'package:yekermo/shared/widgets/app_scaffold.dart';
-import 'package:yekermo/shared/widgets/app_section_header.dart';
 import 'package:yekermo/shared/widgets/async_state_view.dart';
+import 'package:yekermo/shared/widgets/app_loading.dart';
+import 'package:yekermo/theme/radii.dart';
+import 'package:yekermo/theme/spacing.dart';
+import 'package:yekermo/shared/extensions/context_extensions.dart';
+import 'package:yekermo/shared/widgets/app_error_view.dart';
+import 'package:yekermo/ui/app_card.dart';
+import 'package:yekermo/ui/app_scaffold.dart';
+import 'package:yekermo/ui/image_placeholder.dart';
 
 class HomeScreen extends ConsumerWidget {
   const HomeScreen({super.key});
@@ -21,142 +22,200 @@ class HomeScreen extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final ScreenState<HomeFeed> state = ref.watch(homeControllerProvider);
-    return AsyncStateView<HomeFeed>(
-      state: state,
-      loadingBuilder: (context) => const HomeScaffold(body: HomeSkeleton()),
-      errorBuilder: (context, message) =>
-          HomeScaffold(body: _HomeMessage(message: message)),
-      dataBuilder: (context, data) =>
-          HomeScaffold(body: HomeContent(feed: data)),
-    );
-  }
-}
-
-String _labelText(AddressLabel label) {
-  return label == AddressLabel.home ? 'Home' : 'Work';
-}
-
-class GreetingSection extends StatelessWidget {
-  const GreetingSection({
-    super.key,
-    required this.name,
-    required this.addressLabel,
-  });
-
-  final String name;
-  final String addressLabel;
-
-  @override
-  Widget build(BuildContext context) {
-    final TextTheme textTheme = context.text;
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Text('Good evening, $name', style: textTheme.headlineSmall),
-        AppSpacing.vSm,
-        AppChip(
-          label: 'Delivering to $addressLabel',
-          onPressed: () => context.push(Routes.addressManager),
-          icon: Icons.home_outlined,
-        ),
-      ],
-    );
-  }
-}
-
-class YourUsualSection extends StatelessWidget {
-  const YourUsualSection({
-    super.key,
-    required this.orders,
-    required this.restaurants,
-  });
-
-  final List<Order> orders;
-  final List<Restaurant> restaurants;
-
-  @override
-  Widget build(BuildContext context) {
-    final TextTheme textTheme = context.text;
-    final ColorScheme scheme = context.colors;
-
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        const AppSectionHeader(title: 'Your usual'),
-        AppSpacing.vSm,
-        if (orders.isEmpty)
-          Text(
-            'Save time next time — your usual shows up here.',
-            style: textTheme.bodyMedium?.copyWith(
-              color: scheme.onSurface.withValues(alpha: 0.7),
-            ),
-          )
-        else
-          ReorderCard(
-            order: orders.first,
-            restaurant: restaurants.firstWhere(
-              (item) => item.id == orders.first.restaurantId,
-              orElse: () => restaurants.first,
+    return AppScaffold(
+      title: 'Yekermo',
+      actions: [
+        Padding(
+          padding: const EdgeInsets.only(right: AppSpacing.sm),
+          child: Material(
+            color: Theme.of(context).colorScheme.onPrimary.withValues(alpha: 0.18),
+            borderRadius: AppRadii.br12,
+            child: IconButton(
+              onPressed: () {
+                ScaffoldMessenger.of(context).showSnackBar(
+                  const SnackBar(
+                    content: Text('Notifications coming soon'),
+                  ),
+                );
+              },
+              icon: const Icon(Icons.notifications_outlined),
+              tooltip: 'Notifications',
             ),
           ),
+        ),
+      ],
+      body: AsyncStateView<HomeFeed>(
+        state: state,
+        loadingBuilder: (_) => const AppLoading(),
+        emptyBuilder: (_) => _HomeEmpty(),
+        errorBuilder: (context, message) {
+          final isSignInPrompt = message.contains('Sign in');
+          return AppErrorView(
+            message: message,
+            onRetry: isSignInPrompt
+                ? () => context.push(Routes.signIn)
+                : () => ref.read(homeControllerProvider.notifier).load(),
+          );
+        },
+        dataBuilder: (context, feed) => _HomeContent(feed: feed),
+      ),
+    );
+  }
+}
+
+class _HomeEmpty extends StatelessWidget {
+  @override
+  Widget build(BuildContext context) {
+    return Center(
+      child: Padding(
+        padding: AppSpacing.pagePadding,
+        child: Text(
+          'No recommendations right now.',
+          style: context.text.bodyMedium?.copyWith(
+            color: context.textMuted,
+          ),
+          textAlign: TextAlign.center,
+        ),
+      ),
+    );
+  }
+}
+
+class _HomeContent extends StatelessWidget {
+  const _HomeContent({required this.feed});
+
+  final HomeFeed feed;
+
+  static String _addressLine(Address a) => '${a.line1}, ${a.city}';
+
+  @override
+  Widget build(BuildContext context) {
+    final TextTheme text = Theme.of(context).textTheme;
+    final String deliveryAddress = _addressLine(feed.primaryAddress);
+
+    return ListView(
+      padding: AppSpacing.pagePadding,
+      children: [
+        Text(
+          'Good evening',
+          style: text.bodyMedium?.copyWith(color: context.muted),
+        ),
+        AppSpacing.vXs,
+        Text('Yekermo', style: text.headlineMedium),
+        AppSpacing.vMd,
+        _DeliveryAddressCard(title: 'Delivering to', value: deliveryAddress),
+        AppSpacing.vSection,
+        Text('Your usual', style: text.titleMedium),
+        AppSpacing.vXs,
+        Text(
+          'Places you love',
+          style: text.bodySmall?.copyWith(color: context.muted),
+        ),
+        AppSpacing.vSectionTitle,
+        ...feed.trustedRestaurants.map(
+          (r) => Padding(
+            padding: const EdgeInsets.only(bottom: AppSpacing.sm),
+            child: _YourUsualCard(
+              restaurant: r,
+              onTap: () => context.push(Routes.restaurantDetailById(r.id)),
+            ),
+          ),
+        ),
+        AppSpacing.vSection,
+        Text('Nearby Ethiopian kitchens', style: text.titleMedium),
+        AppSpacing.vSectionTitle,
+        ...feed.allRestaurants.map(
+          (r) => Padding(
+            padding: const EdgeInsets.only(bottom: AppSpacing.md),
+            child: _NearbyRestaurantCard(
+              restaurant: r,
+              onTap: () => context.push(Routes.restaurantDetailById(r.id)),
+            ),
+          ),
+        ),
+        AppSpacing.vXl,
       ],
     );
   }
 }
 
-class ReorderCard extends ConsumerWidget {
-  const ReorderCard({super.key, required this.order, required this.restaurant});
+class _DeliveryAddressCard extends StatelessWidget {
+  const _DeliveryAddressCard({required this.title, required this.value});
 
-  final Order order;
-  final Restaurant restaurant;
+  final String title;
+  final String value;
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
-    final ColorScheme scheme = context.colors;
-
+  Widget build(BuildContext context) {
+    final TextTheme text = context.text;
     return AppCard(
-      onTap: () => context.push(Routes.orderDetails(order.id)),
-      padding: AppSpacing.cardPadding,
+      onTap: () {},
       child: Row(
         children: [
+          Icon(Icons.location_on_outlined, size: 22, color: context.muted),
+          AppSpacing.hSm,
           Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text(restaurant.name, style: context.text.titleMedium),
+                Text(title, style: text.labelMedium?.copyWith(color: context.muted)),
                 AppSpacing.vXs,
-                Text(
-                  restaurant.tagline,
-                  style: context.text.bodyMedium?.copyWith(
-                    color: scheme.onSurface.withValues(alpha: 0.7),
-                  ),
-                ),
-                AppSpacing.vSm,
-                Text(
-                  'Total • \$${order.total.toStringAsFixed(2)}',
-                  style: context.text.labelLarge,
-                ),
+                Text(value, style: text.titleSmall),
               ],
             ),
           ),
-          AppSpacing.hSm,
-          AppButton(
-            label: 'Reorder',
-            onPressed: () async {
-              final result = await ref
-                  .read(ordersControllerProvider.notifier)
-                  .reorder(order);
-              ref.read(cartControllerProvider.notifier).refresh();
-              if (result.hasItems && context.mounted) {
-                context.go(Routes.checkout);
-              }
-              if (!context.mounted) return;
-              if (result.hasMissing) {
-                ScaffoldMessenger.of(context).showSnackBar(
-                  const SnackBar(content: Text('Some items have changed.')),
-                );
-              }
-            },
+          Icon(Icons.keyboard_arrow_down, color: context.muted),
+        ],
+      ),
+    );
+  }
+}
+
+class _YourUsualCard extends StatelessWidget {
+  const _YourUsualCard({required this.restaurant, this.onTap});
+
+  final Restaurant restaurant;
+  final VoidCallback? onTap;
+
+  @override
+  Widget build(BuildContext context) {
+    final TextTheme text = Theme.of(context).textTheme;
+    final bool hasRating = restaurant.rating != null;
+    return AppCard(
+      onTap: onTap,
+      padding: AppSpacing.cardPadding,
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          const ImagePlaceholder(width: 80, height: 80),
+          AppSpacing.hMd,
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(restaurant.name, style: text.titleSmall),
+                AppSpacing.vXs,
+                Text(
+                  restaurant.tagline,
+                  style: text.bodySmall?.copyWith(color: context.muted),
+                ),
+                AppSpacing.vSm,
+                Row(
+                  children: [
+                    Icon(
+                      hasRating ? Icons.star_rounded : Icons.star_outline,
+                      size: 18,
+                      color: context.muted,
+                    ),
+                    AppSpacing.hXs,
+                    Text(
+                      hasRating ? restaurant.rating!.toString() : '—',
+                      style: text.bodySmall?.copyWith(color: context.muted),
+                    ),
+                  ],
+                ),
+              ],
+            ),
           ),
         ],
       ),
@@ -164,310 +223,64 @@ class ReorderCard extends ConsumerWidget {
   }
 }
 
-class IntentChipsSection extends StatelessWidget {
-  const IntentChipsSection({super.key});
-
-  static const List<IntentChip> intents = [
-    IntentChip(label: 'Quick & filling', intent: 'quick_filling'),
-    IntentChip(label: 'Family size', familySize: true),
-    IntentChip(label: 'Pickup friendly', pickupFriendly: true),
-    IntentChip(label: 'Fasting friendly', fastingFriendly: true),
-  ];
-
-  @override
-  Widget build(BuildContext context) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        const AppSectionHeader(title: 'Intent'),
-        AppSpacing.vSm,
-        Wrap(
-          spacing: AppSpacing.sm,
-          runSpacing: AppSpacing.sm,
-          children: intents
-              .map(
-                (intent) => AppChip(
-                  label: intent.label,
-                  onPressed: () => context.push(
-                    Routes.discoveryWithFilters(
-                      intent: intent.intent,
-                      pickupFriendly: intent.pickupFriendly,
-                      familySize: intent.familySize,
-                      fastingFriendly: intent.fastingFriendly,
-                    ),
-                  ),
-                ),
-              )
-              .toList(),
-        ),
-      ],
-    );
-  }
-}
-
-class IntentChip {
-  const IntentChip({
-    required this.label,
-    this.intent,
-    this.pickupFriendly,
-    this.familySize,
-    this.fastingFriendly,
-  });
-
-  final String label;
-  final String? intent;
-  final bool? pickupFriendly;
-  final bool? familySize;
-  final bool? fastingFriendly;
-}
-
-class RestaurantSection extends StatelessWidget {
-  const RestaurantSection({
-    super.key,
-    required this.title,
-    required this.restaurants,
-  });
-
-  final String title;
-  final List<Restaurant> restaurants;
-
-  @override
-  Widget build(BuildContext context) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        AppSectionHeader(title: title),
-        AppSpacing.vSm,
-        SizedBox(
-          height: 150,
-          child: ListView.separated(
-            scrollDirection: Axis.horizontal,
-            itemBuilder: (context, index) =>
-                RestaurantCard(restaurant: restaurants[index]),
-            separatorBuilder: (_, __) => AppSpacing.hSm,
-            itemCount: restaurants.length,
-          ),
-        ),
-      ],
-    );
-  }
-}
-
-class RestaurantCard extends StatelessWidget {
-  const RestaurantCard({super.key, required this.restaurant});
+class _NearbyRestaurantCard extends StatelessWidget {
+  const _NearbyRestaurantCard({required this.restaurant, this.onTap});
 
   final Restaurant restaurant;
+  final VoidCallback? onTap;
 
   @override
   Widget build(BuildContext context) {
-    final ColorScheme scheme = context.colors;
-    return SizedBox(
-      width: 220,
-      child: AppCard(
-        onTap: () => context.push(Routes.restaurantDetails(restaurant.id)),
-        padding: AppSpacing.cardPadding,
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text(
-              restaurant.name,
-              maxLines: 1,
-              overflow: TextOverflow.ellipsis,
-              style: context.text.titleMedium,
+    final TextTheme text = context.text;
+    final bool hasRating = restaurant.rating != null;
+    return AppCard(
+      onTap: onTap,
+      padding: EdgeInsets.zero,
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          ImagePlaceholder(
+            height: 140,
+            width: double.infinity,
+            borderRadius: const BorderRadius.vertical(
+              top: Radius.circular(AppRadii.r16),
             ),
-            AppSpacing.vXs,
-            Expanded(
-              child: Text(
-                restaurant.tagline,
-                maxLines: 2,
-                overflow: TextOverflow.ellipsis,
-                style: context.text.bodyMedium?.copyWith(
-                  color: scheme.onSurface.withValues(alpha: 0.65),
-                ),
-              ),
-            ),
-            AppSpacing.vSm,
-            Row(
+          ),
+          Padding(
+            padding: AppSpacing.cardPadding,
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
               children: [
+                Text(restaurant.name, style: text.titleSmall),
+                AppSpacing.vXs,
                 Text(
-                  restaurant.prepTimeBand.label,
-                  style: context.text.labelLarge?.copyWith(
-                    color: scheme.onSurface.withValues(alpha: 0.75),
-                  ),
+                  restaurant.tagline,
+                  style: text.bodySmall?.copyWith(color: context.muted),
                 ),
-                AppSpacing.hSm,
-                Expanded(
-                  child: Text(
-                    _serviceModesLabel(restaurant.serviceModes),
-                    maxLines: 1,
-                    overflow: TextOverflow.ellipsis,
-                    style: context.text.labelLarge?.copyWith(
-                      color: scheme.onSurface.withValues(alpha: 0.7),
+                AppSpacing.vSm,
+                Row(
+                  children: [
+                    Icon(
+                      hasRating ? Icons.star_rounded : Icons.star_outline,
+                      size: 18,
+                      color: context.muted,
                     ),
-                  ),
+                    AppSpacing.hXs,
+                    Text(
+                      hasRating ? restaurant.rating!.toString() : '—',
+                      style: text.bodySmall?.copyWith(color: context.muted),
+                    ),
+                    AppSpacing.hMd,
+                    Text(
+                      r'$$',
+                      style: text.bodySmall?.copyWith(color: context.muted),
+                    ),
+                  ],
                 ),
               ],
             ),
-            AppSpacing.vXs,
-            Text(
-              restaurant.trustCopy,
-              maxLines: 1,
-              overflow: TextOverflow.ellipsis,
-              style: context.text.bodySmall?.copyWith(
-                color: scheme.onSurface.withValues(alpha: 0.6),
-              ),
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-}
-
-String _serviceModesLabel(List<ServiceMode> modes) {
-  final bool pickup = modes.contains(ServiceMode.pickup);
-  final bool delivery = modes.contains(ServiceMode.delivery);
-  if (pickup && delivery) return 'Pickup • Delivery';
-  if (pickup) return 'Pickup';
-  if (delivery) return 'Delivery';
-  return 'Unavailable';
-}
-
-class HomeScaffold extends StatelessWidget {
-  const HomeScaffold({super.key, required this.body});
-
-  final Widget body;
-
-  @override
-  Widget build(BuildContext context) {
-    return AppScaffold(
-      title: 'Yekermo',
-      actions: [
-        IconButton(
-          onPressed: () => context.push(Routes.addressManager),
-          icon: const Icon(Icons.place_outlined),
-          tooltip: 'Address manager',
-        ),
-      ],
-      body: body,
-    );
-  }
-}
-
-class HomeContent extends StatelessWidget {
-  const HomeContent({super.key, required this.feed});
-
-  final HomeFeed feed;
-
-  @override
-  Widget build(BuildContext context) {
-    final ColorScheme scheme = context.colors;
-    return ListView(
-      padding: AppSpacing.pagePadding,
-      children: [
-        GreetingSection(
-          name: feed.customer.name,
-          addressLabel: _labelText(feed.primaryAddress.label),
-        ),
-        AppSpacing.vMd,
-        YourUsualSection(
-          orders: feed.pastOrders,
-          restaurants: [...feed.trustedRestaurants, ...feed.allRestaurants],
-        ),
-        AppSpacing.vMd,
-        const IntentChipsSection(),
-        AppSpacing.vLg,
-        RestaurantSection(
-          title: 'Trusted restaurants',
-          restaurants: feed.trustedRestaurants,
-        ),
-        AppSpacing.vLg,
-        RestaurantSection(
-          title: 'All restaurants',
-          restaurants: feed.allRestaurants,
-        ),
-        AppSpacing.vXl,
-        Text(
-          'Warm indoor picks, ready when you are.',
-          style: context.text.bodyMedium?.copyWith(
-            color: scheme.onSurface.withValues(alpha: 0.6),
           ),
-        ),
-      ],
-    );
-  }
-}
-
-class HomeSkeleton extends StatelessWidget {
-  const HomeSkeleton({super.key});
-
-  @override
-  Widget build(BuildContext context) {
-    final ColorScheme scheme = context.colors;
-    final Color fill = scheme.surfaceContainerHighest;
-
-    Widget block({double height = 16, double width = double.infinity}) {
-      return Container(
-        width: width,
-        height: height,
-        decoration: BoxDecoration(
-          color: fill,
-          borderRadius: BorderRadius.circular(12),
-        ),
-      );
-    }
-
-    return ListView(
-      padding: AppSpacing.pagePadding,
-      children: [
-        block(height: 28, width: 200),
-        AppSpacing.vSm,
-        block(height: 34, width: 170),
-        AppSpacing.vMd,
-        block(height: 140),
-        AppSpacing.vMd,
-        block(height: 22, width: 120),
-        AppSpacing.vSm,
-        Wrap(
-          spacing: AppSpacing.sm,
-          runSpacing: AppSpacing.sm,
-          children: List.generate(4, (index) => block(height: 36, width: 120)),
-        ),
-        AppSpacing.vLg,
-        block(height: 22, width: 180),
-        AppSpacing.vSm,
-        SizedBox(
-          height: 150,
-          child: ListView.separated(
-            scrollDirection: Axis.horizontal,
-            itemBuilder: (context, index) => block(height: 150, width: 220),
-            separatorBuilder: (_, __) => AppSpacing.hSm,
-            itemCount: 3,
-          ),
-        ),
-      ],
-    );
-  }
-}
-
-class _HomeMessage extends StatelessWidget {
-  const _HomeMessage({required this.message});
-
-  final String message;
-
-  @override
-  Widget build(BuildContext context) {
-    final ColorScheme scheme = context.colors;
-    return Center(
-      child: Padding(
-        padding: AppSpacing.pagePadding,
-        child: Text(
-          message,
-          style: context.text.bodyMedium?.copyWith(
-            color: scheme.onSurface.withValues(alpha: 0.7),
-          ),
-          textAlign: TextAlign.center,
-        ),
+        ],
       ),
     );
   }

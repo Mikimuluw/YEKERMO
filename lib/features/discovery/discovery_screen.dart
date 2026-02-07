@@ -1,18 +1,20 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+import 'package:yekermo/app/clock_provider.dart';
 import 'package:yekermo/app/routes.dart';
+import 'package:yekermo/core/time/restaurant_hours.dart';
 import 'package:yekermo/domain/discovery_filters.dart';
 import 'package:yekermo/domain/models.dart';
 import 'package:yekermo/features/discovery/discovery_controller.dart';
 import 'package:yekermo/shared/extensions/context_extensions.dart';
 import 'package:yekermo/shared/state/screen_state.dart';
 import 'package:yekermo/shared/tokens/app_spacing.dart';
-import 'package:yekermo/shared/widgets/app_card.dart';
 import 'package:yekermo/shared/widgets/app_chip.dart';
-import 'package:yekermo/shared/widgets/app_scaffold.dart';
-import 'package:yekermo/shared/widgets/app_section_header.dart';
 import 'package:yekermo/shared/widgets/async_state_view.dart';
+import 'package:yekermo/ui/app_card.dart';
+import 'package:yekermo/ui/app_scaffold.dart';
+import 'package:yekermo/ui/app_section_header.dart';
 
 class DiscoveryScreen extends ConsumerWidget {
   const DiscoveryScreen({
@@ -64,7 +66,6 @@ class _DiscoveryEmpty extends StatelessWidget {
       padding: AppSpacing.pagePadding,
       children: [
         const AppSectionHeader(title: 'Active filters'),
-        AppSpacing.vSm,
         Wrap(
           spacing: AppSpacing.sm,
           runSpacing: AppSpacing.sm,
@@ -72,9 +73,9 @@ class _DiscoveryEmpty extends StatelessWidget {
         ),
         AppSpacing.vLg,
         Text(
-          'Nothing fits that yet — try another filter.',
+          'Nothing fits that yet.',
           style: context.text.bodyMedium?.copyWith(
-            color: context.colors.onSurface.withValues(alpha: 0.7),
+            color: context.textMuted,
           ),
         ),
       ],
@@ -82,47 +83,47 @@ class _DiscoveryEmpty extends StatelessWidget {
   }
 }
 
-class _DiscoveryResults extends StatelessWidget {
+class _DiscoveryResults extends ConsumerWidget {
   const _DiscoveryResults({required this.vm});
 
   final DiscoveryVm vm;
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
+    final DateTime now = ref.watch(clockProvider).now();
     return ListView(
       padding: AppSpacing.pagePadding,
       children: [
         const AppSectionHeader(title: 'Active filters'),
-        AppSpacing.vSm,
         Wrap(
           spacing: AppSpacing.sm,
           runSpacing: AppSpacing.sm,
           children: _filterChips(vm.filters),
         ),
-        AppSpacing.vMd,
-        Text(
-          'Showing ${vm.restaurants.length} restaurants',
-          style: context.text.bodySmall?.copyWith(
-            color: context.colors.onSurface.withValues(alpha: 0.6),
-          ),
-        ),
-        AppSpacing.vLg,
+        AppSpacing.vSection,
         const AppSectionHeader(title: 'Restaurants'),
-        AppSpacing.vSm,
         ...vm.restaurants.map(
-          (restaurant) => Padding(
-            padding: const EdgeInsets.only(bottom: AppSpacing.sm),
-            child: AppCard(
-              padding: AppSpacing.cardPadding,
-              onTap: () => context.push(
-                Routes.restaurantDetailsWithIntent(
-                  restaurant.id,
-                  intent: _intentFromFilters(vm.filters),
+          (restaurant) {
+            final bool? isOpen = restaurant.hoursByWeekday != null
+                ? isOpenNow(restaurant.hoursByWeekday!, now)
+                : null;
+            return Padding(
+              padding: const EdgeInsets.only(bottom: AppSpacing.sm),
+              child: AppCard(
+                padding: AppSpacing.cardPadding,
+                onTap: () => context.push(
+                  Routes.restaurantDetailsWithIntent(
+                    restaurant.id,
+                    intent: _intentFromFilters(vm.filters),
+                  ),
+                ),
+                child: _DiscoveryCard(
+                  restaurant: restaurant,
+                  isOpenNow: isOpen,
                 ),
               ),
-              child: _DiscoveryCard(restaurant: restaurant),
-            ),
-          ),
+            );
+          },
         ),
       ],
     );
@@ -130,37 +131,38 @@ class _DiscoveryResults extends StatelessWidget {
 }
 
 class _DiscoveryCard extends StatelessWidget {
-  const _DiscoveryCard({required this.restaurant});
+  const _DiscoveryCard({
+    required this.restaurant,
+    this.isOpenNow,
+  });
 
   final Restaurant restaurant;
+  /// When non-null, shows "Open now" or "Closed". Null when hours unknown.
+  final bool? isOpenNow;
 
   @override
   Widget build(BuildContext context) {
-    final ColorScheme scheme = context.colors;
+    final String openClosed = isOpenNow == null
+        ? ''
+        : isOpenNow!
+            ? 'Open now'
+            : 'Closed';
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Text(restaurant.name, style: context.text.titleMedium),
         AppSpacing.vXs,
         Text(
-          restaurant.tagline,
-          style: context.text.bodyMedium?.copyWith(
-            color: scheme.onSurface.withValues(alpha: 0.65),
-          ),
-        ),
-        AppSpacing.vSm,
-        Text(
-          '${restaurant.prepTimeBand.label} • ${_serviceModesLabel(restaurant.serviceModes)}',
-          style: context.text.labelLarge?.copyWith(
-            color: scheme.onSurface.withValues(alpha: 0.75),
-          ),
+          [
+            if (openClosed.isNotEmpty) openClosed,
+            _serviceModesLabel(restaurant.serviceModes),
+          ].join(' • '),
+          style: context.text.labelMedium?.copyWith(color: context.muted),
         ),
         AppSpacing.vXs,
         Text(
           restaurant.trustCopy,
-          style: context.text.bodySmall?.copyWith(
-            color: scheme.onSurface.withValues(alpha: 0.6),
-          ),
+          style: context.text.bodySmall?.copyWith(color: context.muted),
         ),
       ],
     );

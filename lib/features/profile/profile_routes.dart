@@ -1,13 +1,13 @@
 import 'package:go_router/go_router.dart';
 import 'package:yekermo/app/routes.dart';
-import 'package:yekermo/features/profile/profile_screen.dart';
+import 'package:yekermo/features/account/account_screen.dart';
 
 /// FEATURE ROUTE OWNERSHIP
-/// This file is the single source of truth for profile routes.
-/// Screens must NOT define routes elsewhere.
+/// Shell tab "Account" shows [AccountScreen] at [Routes.account].
+/// Redirect /profile → /account in router for backwards compatibility.
 GoRoute profileRoute() {
   return GoRoute(
-    path: Routes.profile,
-    builder: (context, state) => const ProfileScreen(),
+    path: Routes.account,
+    builder: (context, state) => const AccountScreen(),
   );
 }

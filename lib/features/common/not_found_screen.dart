@@ -1,8 +1,11 @@
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
+import 'package:yekermo/app/routes.dart';
 import 'package:yekermo/observability/app_log.dart';
 import 'package:yekermo/shared/extensions/context_extensions.dart';
 import 'package:yekermo/shared/tokens/app_spacing.dart';
-import 'package:yekermo/shared/widgets/app_scaffold.dart';
+import 'package:yekermo/ui/app_button.dart';
+import 'package:yekermo/ui/app_scaffold.dart';
 
 class NotFoundScreen extends StatelessWidget {
   const NotFoundScreen({super.key, this.message});
@@ -12,7 +15,6 @@ class NotFoundScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final TextTheme textTheme = context.text;
-    final ColorScheme scheme = context.colors;
     AppLog.warn('Route not found: ${message ?? 'unknown'}');
 
     return AppScaffold(
@@ -20,12 +22,22 @@ class NotFoundScreen extends StatelessWidget {
       body: Center(
         child: Padding(
           padding: AppSpacing.pagePadding,
-          child: Text(
-            message ?? 'We could not find that page.',
-            style: textTheme.bodyMedium?.copyWith(
-              color: scheme.onSurface.withValues(alpha: 0.7),
-            ),
-            textAlign: TextAlign.center,
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Text(
+                message ?? 'We could not find that page.',
+                style: textTheme.bodyMedium?.copyWith(
+                  color: context.textMuted,
+                ),
+                textAlign: TextAlign.center,
+              ),
+              AppSpacing.vLg,
+              AppButton(
+                label: 'Back to Home',
+                onPressed: () => context.go(Routes.home),
+              ),
+            ],
           ),
         ),
       ),

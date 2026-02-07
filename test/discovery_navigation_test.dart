@@ -2,7 +2,9 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:yekermo/app/di.dart';
+import 'package:yekermo/app/providers.dart';
 import 'package:yekermo/app/router.dart';
+import 'helpers/fake_welcome_storage.dart';
 import 'package:yekermo/data/repositories/meals_repository.dart';
 import 'package:yekermo/data/result.dart';
 import 'package:yekermo/domain/discovery_filters.dart';
@@ -13,6 +15,7 @@ import 'package:yekermo/domain/user_preferences.dart';
 import 'package:yekermo/features/discovery/discovery_controller.dart';
 import 'package:yekermo/features/home/home_controller.dart';
 import 'package:yekermo/shared/state/screen_state.dart';
+import 'support/test_fixtures.dart';
 
 class _StaticHomeController extends HomeController {
   _StaticHomeController(this.feed);
@@ -49,6 +52,7 @@ class _DiscoveryMealsRepository implements MealsRepository {
         tags: [RestaurantTag.quickFilling],
         trustCopy: 'Popular with returning guests',
         dishNames: ['Misir Comfort Bowl'],
+        address: kTestRestaurantAddress,
       ),
     ]);
   }
@@ -83,6 +87,7 @@ void main() {
           tags: [RestaurantTag.quickFilling],
           trustCopy: 'Popular with returning guests',
           dishNames: ['Misir Comfort Bowl'],
+          address: kTestRestaurantAddress,
         ),
       ],
       allRestaurants: [],
@@ -91,6 +96,7 @@ void main() {
     await tester.pumpWidget(
       ProviderScope(
         overrides: [
+          welcomeStorageProvider.overrideWithValue(FakeWelcomeStorage()),
           mealsRepositoryProvider.overrideWithValue(
             _DiscoveryMealsRepository(),
           ),
