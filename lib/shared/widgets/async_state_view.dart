@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:yekermo/shared/extensions/context_extensions.dart';
 import 'package:yekermo/shared/state/screen_state.dart';
 import 'package:yekermo/shared/tokens/app_spacing.dart';
 import 'package:yekermo/shared/widgets/app_error_view.dart';
@@ -28,7 +29,8 @@ class AsyncStateView<T> extends StatelessWidget {
       case LoadingState<T>():
         return loadingBuilder?.call(context) ?? const AppLoading();
       case StaleLoadingState<T>():
-        return loadingBuilder?.call(context) ?? const _StaleLoadingView();
+        // Never show ambiguous spinner; always calm copy only.
+        return const _StaleLoadingView();
       case EmptyState<T>(:final message):
         return emptyBuilder?.call(context) ??
             _DefaultEmptyView(message: message);
@@ -46,9 +48,8 @@ class _StaleLoadingView extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final ColorScheme scheme = Theme.of(context).colorScheme;
     final TextStyle? bodySmall = Theme.of(context).textTheme.bodySmall;
-    final Color subdued = scheme.onSurface.withValues(alpha: 0.7);
+    final Color subdued = context.textMuted;
     return Center(
       child: Padding(
         padding: AppSpacing.pagePadding,
@@ -80,12 +81,15 @@ class _DefaultEmptyView extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final ColorScheme scheme = Theme.of(context).colorScheme;
     return Center(
-      child: Text(
-        message ?? 'Nothing here yet.',
-        style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-          color: scheme.onSurface.withValues(alpha: 0.7),
+      child: Padding(
+        padding: AppSpacing.pagePadding,
+        child: Text(
+          message ?? 'Nothing here yet.',
+          style: context.text.bodyMedium?.copyWith(
+            color: context.textMuted,
+          ),
+          textAlign: TextAlign.center,
         ),
       ),
     );

@@ -31,7 +31,7 @@ class AppShell extends ConsumerWidget {
           ),
           const BottomNavigationBarItem(
             icon: Icon(Icons.search_outlined),
-            label: 'Search',
+            label: 'Browse',
           ),
           BottomNavigationBarItem(
             icon: _CartBadge(count: cartCount),
@@ -42,12 +42,8 @@ class AppShell extends ConsumerWidget {
             label: 'Orders',
           ),
           const BottomNavigationBarItem(
-            icon: Icon(Icons.favorite_border),
-            label: 'Favorites',
-          ),
-          const BottomNavigationBarItem(
             icon: Icon(Icons.person_outline),
-            label: 'Profile',
+            label: 'Account',
           ),
         ],
       ),

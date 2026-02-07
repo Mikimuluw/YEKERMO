@@ -3,20 +3,25 @@ class Routes {
   static const String discovery = '/discover';
   static const String search = '/search';
   static const String orders = '/orders';
-  @Deprecated('Favorites tab removed Phase 11.1')
-  static const String favorites = '/favorites';
+
+  /// Account (shell tab). Prefer [account]; [profile] redirects here for backwards compatibility.
+  static const String account = '/account';
+
+  @Deprecated('Use Routes.account. Redirects to /account.')
   static const String profile = '/profile';
+
   static const String settings = '/settings';
   static const String preferences = '/settings/preferences';
 
   static const String restaurant = '/restaurant/:id';
   static const String restaurantSegment = 'restaurant/:id';
+  static const String restaurantDetail = '/restaurant-detail/:id';
+  static const String restaurantDetailSegment = 'restaurant-detail/:id';
   static const String discoverySegment = 'discover';
   @Deprecated('Meal route removed Phase 11.1')
   static const String meal = '/meal/:id';
   static const String cart = '/cart';
   static const String checkout = '/checkout';
-  @Deprecated('Order tracking route removed Phase 11.1')
   static const String orderTracking = '/order-tracking/:id';
   static const String orderDetailsPath = '/orders/:id';
   static const String orderDetailsSegment = ':id';
@@ -27,9 +32,12 @@ class Routes {
   static const String orderReceiptPath = '/orders/receipt/:id';
   static const String orderReceiptSegment = 'receipt/:id';
   static const String addressManager = '/address-manager';
+  static const String welcome = '/welcome';
+  static const String signIn = '/sign-in';
   static const String notFound = '/not-found';
 
   static String restaurantDetails(String id) => '/restaurant/$id';
+  static String restaurantDetailById(String id) => '/restaurant-detail/$id';
   static String restaurantDetailsWithIntent(String id, {String? intent}) {
     final Map<String, String> params = {};
     if (intent != null && intent.isNotEmpty) params['intent'] = intent;
@@ -42,7 +50,6 @@ class Routes {
 
   @Deprecated('Meal route removed Phase 11.1')
   static String mealDetails(String id) => '/meal/$id';
-  @Deprecated('Order tracking route removed Phase 11.1')
   static String orderTrackingDetails(String id) => '/order-tracking/$id';
   static String orderDetails(String id) => '/orders/$id';
   static String orderConfirmation(String id) => '/orders/confirmation/$id';

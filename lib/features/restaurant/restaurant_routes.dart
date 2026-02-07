@@ -2,6 +2,8 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:yekermo/app/routes.dart';
 import 'package:yekermo/features/restaurant/restaurant_controller.dart';
+import 'package:yekermo/features/restaurant/restaurant_detail_controller.dart';
+import 'package:yekermo/features/restaurant/restaurant_detail_screen.dart';
 import 'package:yekermo/features/restaurant/restaurant_screen.dart';
 
 /// FEATURE ROUTE OWNERSHIP
@@ -20,6 +22,23 @@ GoRoute restaurantRoute() {
           ),
         ],
         child: RestaurantScreen(restaurantId: restaurantId, intent: intent),
+      );
+    },
+  );
+}
+
+GoRoute restaurantDetailRoute() {
+  return GoRoute(
+    path: Routes.restaurantDetailSegment,
+    builder: (context, state) {
+      final String id = state.pathParameters['id'] ?? '';
+      return ProviderScope(
+        overrides: [
+          restaurantDetailQueryProvider.overrideWithValue(
+            RestaurantDetailQuery(restaurantId: id),
+          ),
+        ],
+        child: const RestaurantDetailScreen(),
       );
     },
   );

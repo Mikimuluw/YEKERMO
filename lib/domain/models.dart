@@ -22,7 +22,15 @@ enum ServiceMode { delivery, pickup }
 
 enum FulfillmentMode { delivery, pickup }
 
-enum OrderStatus { received, preparing, ready, completed }
+enum OrderStatus {
+  received,
+  preparing,
+  ready,
+  completed,
+  cancelled,
+  failed,
+  refunded,
+}
 
 enum PaymentStatus { unpaid, paid }
 
@@ -37,6 +45,54 @@ extension OrderStatusLabel on OrderStatus {
         return 'Ready';
       case OrderStatus.completed:
         return 'Completed';
+      case OrderStatus.cancelled:
+        return 'Cancelled';
+      case OrderStatus.failed:
+        return 'Failed';
+      case OrderStatus.refunded:
+        return 'Refunded';
+    }
+  }
+
+  /// In-progress: received, preparing, ready. Shown in Active tab.
+  bool get isInProgress =>
+      this == OrderStatus.received ||
+      this == OrderStatus.preparing ||
+      this == OrderStatus.ready;
+
+  /// Terminal: completed, cancelled, failed, refunded. Shown in Past tab; no polling.
+  bool get isTerminal =>
+      this == OrderStatus.completed ||
+      this == OrderStatus.cancelled ||
+      this == OrderStatus.failed ||
+      this == OrderStatus.refunded;
+
+  /// Display label for UI. For [OrderStatus.ready], varies by fulfillment:
+  /// delivery → "On the way", pickup → "Ready". Other statuses use [label].
+  String displayLabel(FulfillmentMode? fulfillmentMode) {
+    if (this == OrderStatus.ready && fulfillmentMode != null) {
+      return fulfillmentMode == FulfillmentMode.delivery
+          ? 'On the way'
+          : 'Ready';
+    }
+    return label;
+  }
+
+  /// Receipt screen header title. Trust-first wording.
+  String get receiptHeaderTitle {
+    switch (this) {
+      case OrderStatus.completed:
+        return 'Order delivered';
+      case OrderStatus.cancelled:
+        return 'Order cancelled';
+      case OrderStatus.failed:
+        return 'Order not completed';
+      case OrderStatus.refunded:
+        return 'Order refunded';
+      case OrderStatus.received:
+      case OrderStatus.preparing:
+      case OrderStatus.ready:
+        return 'Order details';
     }
   }
 }
@@ -95,6 +151,9 @@ class Restaurant {
     required this.tags,
     required this.trustCopy,
     required this.dishNames,
+    this.hoursByWeekday,
+    this.rating,
+    this.maxMinutes,
   });
 
   final String id;
@@ -106,6 +165,15 @@ class Restaurant {
   final List<RestaurantTag> tags;
   final String trustCopy;
   final List<String> dishNames;
+
+  /// 1 = Monday … 7 = Sunday; value e.g. "11:00-21:30". Used for open/closed and availability copy.
+  final Map<int, String>? hoursByWeekday;
+
+  /// Optional for search/browse (e.g. "Top rated" filter).
+  final double? rating;
+
+  /// Optional for search/browse (e.g. "Under 30 min" filter).
+  final int? maxMinutes;
 }
 
 class MenuCategory {

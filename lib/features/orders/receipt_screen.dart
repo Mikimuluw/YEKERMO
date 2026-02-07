@@ -1,118 +1,239 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:share_plus/share_plus.dart';
-import 'package:yekermo/app/providers.dart';
-import 'package:yekermo/domain/fees.dart';
 import 'package:yekermo/domain/models.dart';
 import 'package:yekermo/features/orders/order_detail_controller.dart';
-import 'package:yekermo/observability/analytics.dart';
 import 'package:yekermo/shared/extensions/context_extensions.dart';
 import 'package:yekermo/shared/state/screen_state.dart';
 import 'package:yekermo/shared/tokens/app_spacing.dart';
-import 'package:yekermo/shared/widgets/app_button.dart';
-import 'package:yekermo/shared/widgets/app_card.dart';
-import 'package:yekermo/shared/widgets/app_scaffold.dart';
-import 'package:yekermo/shared/widgets/app_section_header.dart';
-import 'package:yekermo/shared/widgets/async_state_view.dart';
+import 'package:yekermo/shared/widgets/app_loading.dart';
+import 'package:yekermo/ui/app_button.dart';
+import 'package:yekermo/ui/app_card.dart';
+import 'package:yekermo/ui/link_button.dart';
+import 'package:yekermo/ui/screen_with_back.dart';
 
-class ReceiptScreen extends ConsumerStatefulWidget {
+/// Receipt screen. Loads order by id from route (orderDetailsQueryProvider override).
+class ReceiptScreen extends ConsumerWidget {
   const ReceiptScreen({super.key});
 
   @override
-  ConsumerState<ReceiptScreen> createState() => _ReceiptScreenState();
-}
-
-class _ReceiptScreenState extends ConsumerState<ReceiptScreen> {
-  bool _tracked = false;
-
-  @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
     final ScreenState<OrderDetailVm> state = ref.watch(
       orderDetailControllerProvider,
     );
-    if (!_tracked && state is SuccessState<OrderDetailVm>) {
-      ref
-          .read(analyticsProvider)
-          .track(
-            AnalyticsEvents.receiptViewed,
-            properties: {'orderId': state.data.order.id},
-          );
-      _tracked = true;
-    }
-    final String title = state is SuccessState<OrderDetailVm>
-        ? 'Receipt - Order #${state.data.order.id}'
-        : 'Receipt';
-    return AppScaffold(
-      title: title,
-      body: AsyncStateView<OrderDetailVm>(
-        state: state,
-        emptyBuilder: (context) => const _ReceiptEmptyState(),
-        dataBuilder: (context, data) => _ReceiptBody(viewModel: data),
+    return ScreenWithBack(
+      title: 'Receipt',
+      children: [
+        switch (state) {
+          InitialState<OrderDetailVm>() => const AppLoading(),
+          LoadingState<OrderDetailVm>() => const AppLoading(),
+          StaleLoadingState<OrderDetailVm>() => const AppLoading(),
+          EmptyState<OrderDetailVm>() => _ReceiptEmpty(),
+          ErrorState<OrderDetailVm>(:final failure) => _ReceiptError(
+            message: failure.message,
+          ),
+          SuccessState<OrderDetailVm>(:final data) => _ReceiptContent(vm: data),
+        },
+      ],
+    );
+  }
+}
+
+class _ReceiptEmpty extends StatelessWidget {
+  @override
+  Widget build(BuildContext context) {
+    return Center(
+      child: Padding(
+        padding: AppSpacing.pagePadding,
+        child: Text(
+          'Order details will appear here.',
+          style: context.text.bodyMedium?.copyWith(
+            color: context.textMuted,
+          ),
+          textAlign: TextAlign.center,
+        ),
       ),
     );
   }
 }
 
-class _ReceiptEmptyState extends StatelessWidget {
-  const _ReceiptEmptyState();
+class _ReceiptError extends StatelessWidget {
+  const _ReceiptError({required this.message});
+
+  final String message;
+
+  @override
+  Widget build(BuildContext context) {
+    return Center(
+      child: Padding(
+        padding: AppSpacing.pagePadding,
+        child: Text(
+          message,
+          style: context.text.bodyMedium?.copyWith(
+            color: context.textMuted,
+          ),
+          textAlign: TextAlign.center,
+        ),
+      ),
+    );
+  }
+}
+
+class _ReceiptContent extends StatelessWidget {
+  const _ReceiptContent({required this.vm});
+
+  final OrderDetailVm vm;
+
+  static String _formatDate(DateTime? d) {
+    if (d == null) return '—';
+    final h = d.hour == 0 ? 12 : (d.hour > 12 ? d.hour - 12 : d.hour);
+    final am = d.hour < 12;
+    return '${d.month}/${d.day}/${d.year}, $h:${d.minute.toString().padLeft(2, '0')} ${am ? 'AM' : 'PM'}';
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final Order order = vm.order;
+    final String orderNumber = order.id;
+    final String date = _formatDate(order.placedAt ?? order.paidAt);
+    final String restaurant = vm.restaurant?.name ?? 'Restaurant';
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        _ReceiptStatusHeader(order: order),
+        AppSpacing.vMd,
+        _DetailsCard(
+          orderNumber: orderNumber,
+          date: date,
+          restaurant: restaurant,
+        ),
+        AppSpacing.vMd,
+        _ItemsCard(lines: vm.lines),
+        AppSpacing.vLg,
+        AppButton(label: 'Order again', onPressed: () {}),
+        AppSpacing.vSm,
+        LinkButton(label: 'Get help', onPressed: () {}),
+        AppSpacing.vXl,
+      ],
+    );
+  }
+}
+
+class _ReceiptStatusHeader extends StatelessWidget {
+  const _ReceiptStatusHeader({required this.order});
+
+  final Order order;
+
+  @override
+  Widget build(BuildContext context) {
+    final String title = order.status.receiptHeaderTitle;
+    final String subtitle = order.status.isTerminal
+        ? 'Thank you for your order'
+        : order.status.displayLabel(order.fulfillmentMode);
+    return Center(
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Icon(
+            Icons.check_circle_outline,
+            size: 64,
+            color: context.colors.primary,
+          ),
+          AppSpacing.vSm,
+          Text(title, style: context.text.titleLarge),
+          AppSpacing.vXs,
+          Text(
+            subtitle,
+            style: context.text.bodyMedium?.copyWith(color: context.muted),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class _DetailsCard extends StatelessWidget {
+  const _DetailsCard({
+    required this.orderNumber,
+    required this.date,
+    required this.restaurant,
+  });
+
+  final String orderNumber;
+  final String date;
+  final String restaurant;
+
+  @override
+  Widget build(BuildContext context) {
+    return AppCard(
+      child: Column(
+        children: [
+          _DetailRow(label: 'Order number', value: orderNumber),
+          _DetailRow(label: 'Date', value: date),
+          _DetailRow(label: 'Restaurant', value: restaurant, isLast: true),
+        ],
+      ),
+    );
+  }
+}
+
+class _DetailRow extends StatelessWidget {
+  const _DetailRow({
+    required this.label,
+    required this.value,
+    this.isLast = false,
+  });
+
+  final String label;
+  final String value;
+  final bool isLast;
 
   @override
   Widget build(BuildContext context) {
     return Padding(
-      padding: AppSpacing.pagePadding,
-      child: Text(
-        'Receipt details will appear here.',
-        style: context.text.bodyMedium?.copyWith(
-          color: context.colors.onSurface.withValues(alpha: 0.7),
-        ),
+      padding: EdgeInsets.only(bottom: isLast ? 0 : AppSpacing.xs),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(
+            label,
+            style: context.text.bodyMedium?.copyWith(
+              color: context.textMuted,
+            ),
+          ),
+          Text(value, style: context.text.bodyMedium, textAlign: TextAlign.end),
+        ],
       ),
     );
   }
 }
 
-class _ReceiptBody extends StatelessWidget {
-  const _ReceiptBody({required this.viewModel});
+class _ItemsCard extends StatelessWidget {
+  const _ItemsCard({required this.lines});
 
-  final OrderDetailVm viewModel;
+  final List<OrderLineView> lines;
 
   @override
   Widget build(BuildContext context) {
-    final Order order = viewModel.order;
-    final Restaurant? restaurant = viewModel.restaurant;
-    final FeeBreakdown? fees = order.feeBreakdown;
-    final bool hasMissingPrices = viewModel.lines.any(
-      (line) => line.price <= 0,
-    );
-    return ListView(
-      padding: AppSpacing.pagePadding,
-      children: [
-        Text(restaurant?.name ?? 'Restaurant', style: context.text.titleLarge),
-        AppSpacing.vXs,
-        Text(
-          restaurant?.address ?? 'Address on file',
-          style: context.text.bodySmall?.copyWith(
-            color: context.colors.onSurface.withValues(alpha: 0.7),
-          ),
-        ),
-        AppSpacing.vSm,
-        AppCard(
-          padding: AppSpacing.cardPadding,
-          child: Text('Order #${order.id}', style: context.text.titleSmall),
-        ),
-        AppSpacing.vMd,
-        const AppSectionHeader(title: 'Items'),
-        AppSpacing.vSm,
-        ...viewModel.lines.map(
-          (line) => Padding(
-            padding: const EdgeInsets.only(bottom: AppSpacing.sm),
-            child: AppCard(
-              padding: AppSpacing.cardPadding,
+    return AppCard(
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text('Items', style: context.text.titleSmall),
+          AppSpacing.vSm,
+          ...lines.asMap().entries.map((e) {
+            final line = e.value;
+            final isLast = e.key == lines.length - 1;
+            return Padding(
+              padding: EdgeInsets.only(bottom: isLast ? 0 : AppSpacing.sm),
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Expanded(
                     child: Text(
-                      '${line.itemName} x${line.quantity}',
+                      '${line.itemName} × ${line.quantity}',
                       style: context.text.bodyMedium,
                     ),
                   ),
@@ -122,104 +243,8 @@ class _ReceiptBody extends StatelessWidget {
                   ),
                 ],
               ),
-            ),
-          ),
-        ),
-        if (hasMissingPrices) ...[
-          AppSpacing.vXs,
-          Text(
-            'Some item prices may be unavailable.',
-            style: context.text.bodySmall?.copyWith(
-              color: context.colors.onSurface.withValues(alpha: 0.7),
-            ),
-          ),
-        ],
-        AppSpacing.vMd,
-        const AppSectionHeader(title: 'Fees'),
-        AppSpacing.vSm,
-        if (fees != null) ...[
-          _ReceiptRow(label: 'Subtotal', value: fees.subtotal),
-          _ReceiptRow(label: 'Service fee', value: fees.serviceFee),
-          _ReceiptRow(label: 'Delivery fee', value: fees.deliveryFee),
-          _ReceiptRow(label: 'Tax', value: fees.tax),
-          AppSpacing.vSm,
-          _ReceiptRow(label: 'Total paid', value: fees.total, emphasize: true),
-        ] else
-          Text(
-            'Fee details are not available yet.',
-            style: context.text.bodySmall?.copyWith(
-              color: context.colors.onSurface.withValues(alpha: 0.7),
-            ),
-          ),
-        AppSpacing.vSm,
-        if (order.paymentMethod != null)
-          Text(
-            order.paymentMethod!.label,
-            style: context.text.bodySmall?.copyWith(
-              color: context.colors.onSurface.withValues(alpha: 0.7),
-            ),
-          ),
-        AppSpacing.vLg,
-        AppButton(
-          label: 'Share',
-          style: AppButtonStyle.secondary,
-          onPressed: () => _shareReceipt(order, restaurant, fees),
-        ),
-        AppSpacing.vSm,
-        AppButton(
-          label: 'Download PDF',
-          style: AppButtonStyle.secondary,
-          onPressed: () => _stubDownload(context),
-        ),
-      ],
-    );
-  }
-
-  void _shareReceipt(Order order, Restaurant? restaurant, FeeBreakdown? fees) {
-    final String total = fees == null
-        ? '\$${order.total.toStringAsFixed(2)}'
-        : '\$${fees.total.toStringAsFixed(2)}';
-    final String message = [
-      'Receipt for ${restaurant?.name ?? 'your order'}',
-      'Order #${order.id}',
-      'Total paid: $total',
-    ].join('\n');
-    Share.share(message);
-  }
-
-  void _stubDownload(BuildContext context) {
-    // TODO(phase8): replace stub with PDF generation and download.
-    ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(content: Text('PDF download is coming soon.')),
-    );
-  }
-}
-
-class _ReceiptRow extends StatelessWidget {
-  const _ReceiptRow({
-    required this.label,
-    required this.value,
-    this.emphasize = false,
-  });
-
-  final String label;
-  final double value;
-  final bool emphasize;
-
-  @override
-  Widget build(BuildContext context) {
-    final TextStyle? style = emphasize
-        ? context.text.titleSmall
-        : context.text.bodySmall?.copyWith(
-            color: context.colors.onSurface.withValues(alpha: 0.7),
-          );
-    return Padding(
-      padding: const EdgeInsets.only(bottom: AppSpacing.xs),
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-        children: [
-          Text(label, style: style),
-          Text('\$${value.toStringAsFixed(2)}', style: style),
+            );
+          }),
         ],
       ),
     );

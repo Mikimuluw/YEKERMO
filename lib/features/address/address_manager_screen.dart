@@ -5,10 +5,10 @@ import 'package:yekermo/domain/models.dart';
 import 'package:yekermo/shared/extensions/context_extensions.dart';
 import 'package:yekermo/shared/state/screen_state.dart';
 import 'package:yekermo/shared/tokens/app_spacing.dart';
-import 'package:yekermo/shared/widgets/app_button.dart';
-import 'package:yekermo/shared/widgets/app_scaffold.dart';
 import 'package:yekermo/shared/widgets/app_text_field.dart';
 import 'package:yekermo/shared/widgets/async_state_view.dart';
+import 'package:yekermo/ui/app_button.dart';
+import 'package:yekermo/ui/app_scaffold.dart';
 
 class AddressManagerScreen extends ConsumerStatefulWidget {
   const AddressManagerScreen({super.key});
@@ -34,7 +34,7 @@ class _AddressManagerScreenState extends ConsumerState<AddressManagerScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final ScreenState<Address?> state = ref.watch(addressControllerProvider);
+    final ScreenState<Address?> state = ref.watch(addressScreenStateProvider);
     return AppScaffold(
       title: 'Address',
       body: AsyncStateView<Address?>(

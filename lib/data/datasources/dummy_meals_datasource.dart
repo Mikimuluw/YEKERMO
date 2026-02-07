@@ -7,6 +7,17 @@ import 'package:yekermo/data/dto/preference_dto.dart';
 import 'package:yekermo/data/dto/restaurant_dto.dart';
 import 'package:yekermo/domain/models.dart';
 
+/// Stub hours for discovery open/closed when no seed hours (e.g. rest-1..rest-5).
+const Map<int, String> _stubHours = {
+  1: '11:00-21:00',
+  2: '11:00-21:00',
+  3: '11:00-21:00',
+  4: '11:00-21:00',
+  5: '11:00-21:00',
+  6: '11:00-21:00',
+  7: '11:00-21:00',
+};
+
 class DummyMealsDataSource {
   const DummyMealsDataSource();
 
@@ -51,6 +62,7 @@ class DummyMealsDataSource {
         tags: [RestaurantTag.quickFilling, RestaurantTag.pickupFriendly],
         trustCopy: 'Popular with returning guests',
         dishNames: ['Misir Comfort Bowl', 'Alicha Bowl'],
+        hoursByWeekday: _stubHours,
       ),
       RestaurantDto(
         id: 'rest-2',
@@ -62,6 +74,7 @@ class DummyMealsDataSource {
         tags: [RestaurantTag.familySize],
         trustCopy: 'Family-size favorites',
         dishNames: ['Family Feast Platter', 'Doro Wat'],
+        hoursByWeekday: _stubHours,
       ),
     ];
 
@@ -76,6 +89,7 @@ class DummyMealsDataSource {
         tags: [RestaurantTag.quickFilling, RestaurantTag.familySize],
         trustCopy: 'Warm and filling picks',
         dishNames: ['Injera Combo', 'Lentil Stew'],
+        hoursByWeekday: _stubHours,
       ),
       RestaurantDto(
         id: 'rest-4',
@@ -87,6 +101,7 @@ class DummyMealsDataSource {
         tags: [RestaurantTag.familySize, RestaurantTag.pickupFriendly],
         trustCopy: 'Pickup stays fast here',
         dishNames: ['Family Kitfo Tray', 'Veggie Platter'],
+        hoursByWeekday: _stubHours,
       ),
       RestaurantDto(
         id: 'rest-5',
@@ -98,6 +113,7 @@ class DummyMealsDataSource {
         tags: [RestaurantTag.fastingFriendly],
         trustCopy: 'Fasting-friendly comfort',
         dishNames: ['Shiro Bowl', 'Gomen'],
+        hoursByWeekday: _stubHours,
       ),
     ];
 

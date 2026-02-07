@@ -21,4 +21,10 @@ class AnalyticsEvents {
   static const String supportCategorySelected = 'support_category_selected';
   static const String receiptViewed = 'receipt_viewed';
   static const String paymentRetryTriggered = 'payment_retry_triggered';
+
+  static const String orderTrackingViewed = 'order_tracking_viewed';
+  static const String orderTrackingRefreshed = 'order_tracking_refreshed';
+  static const String orderTrackingGetHelpTapped = 'order_tracking_get_help_tapped';
+  static const String orderTrackingViewReceiptTapped =
+      'order_tracking_view_receipt_tapped';
 }

@@ -4,10 +4,12 @@ import 'package:yekermo/app/providers.dart';
 import 'package:yekermo/domain/support.dart';
 import 'package:yekermo/observability/analytics.dart';
 import 'package:yekermo/shared/tokens/app_spacing.dart';
-import 'package:yekermo/shared/widgets/app_button.dart';
-import 'package:yekermo/shared/widgets/app_card.dart';
-import 'package:yekermo/shared/widgets/app_scaffold.dart';
-import 'package:yekermo/shared/widgets/app_section_header.dart';
+import 'package:yekermo/shared/extensions/context_extensions.dart';
+import 'package:yekermo/shared/widgets/app_text_field.dart';
+import 'package:yekermo/ui/app_button.dart';
+import 'package:yekermo/ui/app_card.dart';
+import 'package:yekermo/ui/app_scaffold.dart';
+import 'package:yekermo/ui/app_section_header.dart';
 
 class SupportRequestScreen extends ConsumerStatefulWidget {
   const SupportRequestScreen({super.key, required this.orderId});
@@ -55,13 +57,20 @@ class _SupportRequestScreenState extends ConsumerState<SupportRequestScreen> {
           AppSpacing.vMd,
           const AppSectionHeader(title: 'Details (optional)'),
           AppSpacing.vSm,
-          TextField(
+          AppTextField(
             controller: _messageController,
+            hintText: 'Share anything we should know.',
             maxLines: 4,
-            decoration: const InputDecoration(
-              hintText: 'Share anything we should know.',
-            ),
           ),
+          if (_selectedCategory == null) ...[
+            AppSpacing.vSm,
+            Text(
+              'Select a category to continue.',
+              style: context.text.bodySmall?.copyWith(
+                color: context.textMuted,
+              ),
+            ),
+          ],
           AppSpacing.vLg,
           AppButton(
             label: 'Submit',
@@ -101,10 +110,7 @@ class _SupportRequestScreenState extends ConsumerState<SupportRequestScreen> {
     await showDialog<void>(
       context: context,
       builder: (context) => AlertDialog(
-        title: const Text("We'll look into this."),
-        content: const Text(
-          "You won't be charged while we review.\n\nThanks for letting us know.",
-        ),
+        content: const Text('Request received.'),
         actions: [
           TextButton(
             onPressed: () => Navigator.of(context).pop(),

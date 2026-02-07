@@ -19,7 +19,7 @@ class AppErrorView extends StatelessWidget {
             Text(
               message,
               style: context.text.bodyMedium?.copyWith(
-                color: context.colors.onSurface.withValues(alpha: 0.7),
+                color: context.textMuted,
               ),
               textAlign: TextAlign.center,
             ),

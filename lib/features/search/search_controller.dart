@@ -1,73 +1,73 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:yekermo/app/providers.dart';
 import 'package:yekermo/data/result.dart';
-import 'package:yekermo/domain/discovery_filters.dart';
 import 'package:yekermo/domain/models.dart';
 import 'package:yekermo/shared/state/screen_state.dart';
+
+/// Form state for search bar and chips so the UI can show them during loading.
+/// Default filter is Ethiopian so the default state shows curated Ethiopian kitchens.
+class SearchForm {
+  const SearchForm({this.query = '', this.filterIndex = 1});
+  final String query;
+  final int filterIndex;
+}
+
+class SearchFormNotifier extends Notifier<SearchForm> {
+  @override
+  SearchForm build() => const SearchForm();
+
+  void setQuery(String query) {
+    state = SearchForm(query: query.trim(), filterIndex: state.filterIndex);
+  }
+
+  void setFilterIndex(int index) {
+    state = SearchForm(query: state.query, filterIndex: index);
+  }
+}
+
+final searchFormProvider = NotifierProvider<SearchFormNotifier, SearchForm>(
+  SearchFormNotifier.new,
+);
 
 class SearchController extends Notifier<ScreenState<SearchVm>> {
   @override
   ScreenState<SearchVm> build() {
-    return ScreenState.empty('Start typing to search.');
+    return ScreenState.initial();
   }
 
-  Future<void> search(String query) async {
-    final DiscoveryFilters filters = _currentFilters();
-    await _searchWithFilters(query, filters);
+  void setQuery(String query) {
+    final form = ref.read(searchFormProvider);
+    ref.read(searchFormProvider.notifier).setQuery(query);
+    _search(query.trim(), form.filterIndex);
   }
 
-  void togglePickup() => _toggle(
-    (filters) => DiscoveryFilters(
-      intent: filters.intent,
-      pickupFriendly: !filters.pickupFriendly,
-      familySize: filters.familySize,
-      fastingFriendly: filters.fastingFriendly,
-    ),
-  );
-
-  void toggleFamily() => _toggle(
-    (filters) => DiscoveryFilters(
-      intent: filters.intent,
-      pickupFriendly: filters.pickupFriendly,
-      familySize: !filters.familySize,
-      fastingFriendly: filters.fastingFriendly,
-    ),
-  );
-
-  void toggleFasting() => _toggle(
-    (filters) => DiscoveryFilters(
-      intent: filters.intent,
-      pickupFriendly: filters.pickupFriendly,
-      familySize: filters.familySize,
-      fastingFriendly: !filters.fastingFriendly,
-    ),
-  );
-
-  void _toggle(DiscoveryFilters Function(DiscoveryFilters current) update) {
-    final DiscoveryFilters next = update(_currentFilters());
-    final String query = _currentQuery();
-    if (query.isEmpty) {
-      state = ScreenState.empty('Start typing to search.');
-      return;
-    }
-    _searchWithFilters(query, next);
+  void setFilterIndex(int index) {
+    final form = ref.read(searchFormProvider);
+    ref.read(searchFormProvider.notifier).setFilterIndex(index);
+    _search(form.query, index);
   }
 
-  Future<void> _searchWithFilters(
-    String query,
-    DiscoveryFilters filters,
-  ) async {
+  Future<void> _search(String query, int filterIndex) async {
     state = ScreenState.loading();
     final Result<List<Restaurant>> result = await ref
         .read(searchRepositoryProvider)
-        .search(query: query, filters: filters);
+        .search(query: query.isEmpty ? null : query, filters: null);
     switch (result) {
       case Success<List<Restaurant>>(:final data):
-        if (data.isEmpty) {
-          state = ScreenState.empty('No matches yet. Try a shorter search.');
+        final filtered = _applyChipFilter(data, filterIndex);
+        if (filtered.isEmpty) {
+          state = query.isEmpty
+              ? ScreenState.success(
+                  SearchVm(
+                    query: query,
+                    filterIndex: filterIndex,
+                    results: [],
+                  ),
+                )
+              : ScreenState.empty('No matches.');
         } else {
           state = ScreenState.success(
-            SearchVm(query: query, filters: filters, results: data),
+            SearchVm(query: query, filterIndex: filterIndex, results: filtered),
           );
         }
       case FailureResult<List<Restaurant>>(:final failure):
@@ -75,29 +75,34 @@ class SearchController extends Notifier<ScreenState<SearchVm>> {
     }
   }
 
-  DiscoveryFilters _currentFilters() {
-    return switch (state) {
-      SuccessState<SearchVm>(:final data) => data.filters,
-      _ => const DiscoveryFilters(),
-    };
-  }
-
-  String _currentQuery() {
-    return switch (state) {
-      SuccessState<SearchVm>(:final data) => data.query,
-      _ => '',
-    };
+  List<Restaurant> _applyChipFilter(List<Restaurant> list, int filterIndex) {
+    switch (filterIndex) {
+      case 1: // Ethiopian
+        return list
+            .where(
+              (r) =>
+                  r.tagline.toLowerCase().contains('ethiopian') ||
+                  r.name.toLowerCase().contains('ethiopian'),
+            )
+            .toList();
+      case 2: // Under 30 min
+        return list.where((r) => (r.maxMinutes ?? 999) <= 30).toList();
+      case 3: // Top rated
+        return list.where((r) => (r.rating ?? 0) >= 4.8).toList();
+      default: // 0 = All
+        return list;
+    }
   }
 }
 
 class SearchVm {
   const SearchVm({
     required this.query,
-    required this.filters,
+    required this.filterIndex,
     required this.results,
   });
 
   final String query;
-  final DiscoveryFilters filters;
+  final int filterIndex;
   final List<Restaurant> results;
 }

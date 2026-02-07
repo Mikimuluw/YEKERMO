@@ -5,15 +5,15 @@ class DummyAddressRepository implements AddressRepository {
   Address? _default;
 
   @override
-  Address? getDefault() => _default;
+  Future<Address?> getDefault() async => _default;
 
   @override
-  void save(Address address) {
+  Future<void> save(Address address) async {
     _default = address;
   }
 
   @override
-  void setDefault(Address address) {
+  Future<void> setDefault(Address address) async {
     _default = address;
   }
 }

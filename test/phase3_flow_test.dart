@@ -2,8 +2,10 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:yekermo/app/di.dart';
+import 'package:yekermo/app/providers.dart';
 import 'package:yekermo/app/router.dart';
 import 'package:yekermo/app/routes.dart';
+import 'helpers/fake_welcome_storage.dart';
 import 'package:yekermo/data/repositories/cart_repository.dart';
 import 'package:yekermo/data/repositories/dummy_cart_repository.dart';
 import 'package:yekermo/data/repositories/meals_repository.dart';
@@ -167,6 +169,7 @@ void main() {
     await tester.pumpWidget(
       ProviderScope(
         overrides: [
+          welcomeStorageProvider.overrideWithValue(FakeWelcomeStorage()),
           mealsRepositoryProvider.overrideWithValue(_FastMealsRepository()),
           restaurantRepositoryProvider.overrideWithValue(
             _FastRestaurantRepository(),

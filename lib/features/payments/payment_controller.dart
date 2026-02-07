@@ -1,6 +1,7 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:yekermo/app/providers.dart';
 import 'package:yekermo/data/payments/payment_intent.dart';
+import 'package:yekermo/observability/app_log.dart';
 import 'package:yekermo/data/payments/payment_result.dart';
 import 'package:yekermo/domain/failure.dart';
 import 'package:yekermo/domain/payment_method.dart';
@@ -34,11 +35,10 @@ class PaymentController extends Notifier<ScreenState<PaymentVm>> {
     if (result.isSuccess) {
       state = ScreenState.success(PaymentVm(method: method));
     } else {
-      state = ScreenState.error(
-        Failure(
-          result.message ?? "Payment didn't go through. Nothing was charged.",
-        ),
-      );
+      final String message =
+          result.message ?? "Payment didn't go through. Nothing was charged.";
+      AppLog.error('Payment failed: $message');
+      state = ScreenState.error(Failure(message));
     }
     return result;
   }

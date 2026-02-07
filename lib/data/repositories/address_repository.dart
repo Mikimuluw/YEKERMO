@@ -1,7 +1,7 @@
 import 'package:yekermo/domain/models.dart';
 
 abstract class AddressRepository {
-  Address? getDefault();
-  void setDefault(Address address);
-  void save(Address address);
+  Future<Address?> getDefault();
+  Future<void> save(Address address);
+  Future<void> setDefault(Address address);
 }

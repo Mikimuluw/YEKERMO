@@ -1,6 +1,9 @@
 import 'package:flutter/material.dart';
-import 'package:yekermo/shared/tokens/app_spacing.dart';
+import 'package:yekermo/theme/spacing.dart';
 
+/// Primary or secondary CTA. Full-width by default; uses theme and [AppSpacing.tapTarget].
+///
+/// No hardcoded colors or text styles. [label] and optional [icon] are content.
 enum AppButtonStyle { primary, secondary }
 
 class AppButton extends StatelessWidget {
@@ -19,34 +22,47 @@ class AppButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final bool enabled = onPressed != null;
     final ButtonStyle buttonStyle = ButtonStyle(
-      minimumSize: WidgetStateProperty.all(const Size(0, AppSpacing.tapTarget)),
+      minimumSize: WidgetStateProperty.all(
+        const Size(double.infinity, AppSpacing.tapTarget),
+      ),
+      elevation: WidgetStateProperty.all(enabled ? null : 0),
+      shadowColor: WidgetStateProperty.all(enabled ? null : Colors.transparent),
     );
 
     final Widget child = icon == null
         ? Text(label)
         : Row(
             mainAxisAlignment: MainAxisAlignment.center,
+            mainAxisSize: MainAxisSize.min,
             children: [
-              Icon(icon, size: 18),
+              Icon(icon, size: 20),
               const SizedBox(width: AppSpacing.xs),
               Text(label),
             ],
           );
 
+    Widget button;
     switch (style) {
       case AppButtonStyle.primary:
-        return FilledButton(
+        button = FilledButton(
           onPressed: onPressed,
           style: buttonStyle,
           child: child,
         );
+        break;
       case AppButtonStyle.secondary:
-        return OutlinedButton(
+        button = OutlinedButton(
           onPressed: onPressed,
           style: buttonStyle,
           child: child,
         );
+        break;
     }
+    if (!enabled) {
+      button = Opacity(opacity: 0.5, child: button);
+    }
+    return button;
   }
 }

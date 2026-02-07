@@ -1,6 +1,7 @@
 import 'package:flutter/foundation.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:yekermo/app/di.dart';
+import 'package:yekermo/observability/app_log.dart';
 import 'package:yekermo/domain/cart.dart';
 import 'package:yekermo/domain/failure.dart';
 import 'package:yekermo/domain/order_failures.dart';
@@ -11,10 +12,6 @@ import 'package:yekermo/domain/payment_method.dart';
 import 'package:yekermo/shared/state/screen_state.dart';
 
 class CheckoutController extends Notifier<ScreenState<OrderDraft>> {
-  static const double _serviceFee = 2.25;
-  static const double _deliveryFee = 3.75;
-  static const double _taxRate = 0.05;
-
   FulfillmentMode _mode = FulfillmentMode.delivery;
   String? _notes;
   final Set<String> _processedPayments = {};
@@ -22,7 +19,7 @@ class CheckoutController extends Notifier<ScreenState<OrderDraft>> {
   @override
   ScreenState<OrderDraft> build() {
     ref.watch(cartControllerProvider);
-    ref.watch(addressControllerProvider);
+    ref.watch(addressScreenStateProvider);
     return _buildState();
   }
 
@@ -57,10 +54,11 @@ class CheckoutController extends Notifier<ScreenState<OrderDraft>> {
       ref.invalidate(homeControllerProvider);
       ref.invalidate(ordersControllerProvider);
       return order;
-    } catch (error) {
+    } catch (error, stackTrace) {
       final Failure failure = error is PlaceOrderException
           ? _failureForPlaceOrderCode(error.failure.code)
           : const Failure('Unable to place order right now.');
+      AppLog.error('Place order failed: ${failure.message}', error, stackTrace);
       state = ScreenState.error(failure);
       return null;
     }
@@ -70,18 +68,18 @@ class CheckoutController extends Notifier<ScreenState<OrderDraft>> {
     final List<CartLineItem> items = ref
         .read(cartRepositoryProvider)
         .getItems();
-    final Address? address = ref.read(addressRepositoryProvider).getDefault();
+    final ScreenState<Address?> addressState = ref.read(addressScreenStateProvider);
+    final Address? address = addressState is SuccessState<Address?> ? addressState.data : null;
     final double subtotal = items.fold(0, (sum, item) => sum + item.total);
+    final FeeBreakdown baseFees = FeeBreakdown.fromSubtotal(subtotal);
     final double deliveryFee = _mode == FulfillmentMode.delivery
-        ? _deliveryFee
+        ? baseFees.deliveryFee
         : 0;
-    final double tax = subtotal * _taxRate;
-
     final FeeBreakdown fees = FeeBreakdown(
       subtotal: subtotal,
-      serviceFee: _serviceFee,
+      serviceFee: baseFees.serviceFee,
       deliveryFee: deliveryFee,
-      tax: tax,
+      tax: baseFees.tax,
     );
 
     final OrderDraft draft = OrderDraft(

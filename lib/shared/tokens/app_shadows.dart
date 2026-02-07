@@ -1,11 +1,11 @@
 import 'package:flutter/material.dart';
+import 'package:yekermo/theme/color_tokens.dart';
 
+/// Shadow tokens. Prefer [ColorTokens.cardShadow] / [ColorTokens.cardShadowElevated].
+/// These aliases exist for backward compatibility.
 class AppShadows {
-  static const List<BoxShadow> s1 = [
-    BoxShadow(color: Color(0x14000000), blurRadius: 8, offset: Offset(0, 2)),
-  ];
+  AppShadows._();
 
-  static const List<BoxShadow> s2 = [
-    BoxShadow(color: Color(0x1F000000), blurRadius: 16, offset: Offset(0, 6)),
-  ];
+  static const List<BoxShadow> s1 = ColorTokens.cardShadow;
+  static const List<BoxShadow> s2 = ColorTokens.cardShadowElevated;
 }

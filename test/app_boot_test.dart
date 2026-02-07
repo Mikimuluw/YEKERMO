@@ -2,7 +2,9 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:yekermo/app/di.dart';
+import 'package:yekermo/app/providers.dart';
 import 'package:yekermo/app/router.dart';
+import 'helpers/fake_welcome_storage.dart';
 import 'package:yekermo/data/repositories/meals_repository.dart';
 import 'package:yekermo/data/result.dart';
 import 'package:yekermo/domain/discovery_filters.dart';
@@ -82,6 +84,7 @@ void main() {
     await tester.pumpWidget(
       ProviderScope(
         overrides: [
+          welcomeStorageProvider.overrideWithValue(FakeWelcomeStorage()),
           mealsRepositoryProvider.overrideWithValue(
             const _FastMealsRepository(),
           ),
@@ -118,6 +121,6 @@ void main() {
 
     expect(find.byType(BottomNavigationBar), findsOneWidget);
     expect(find.text('Home'), findsOneWidget);
-    expect(find.text('Search'), findsOneWidget);
+    expect(find.text('Browse'), findsOneWidget);
   });
 }
